@@ -12,9 +12,11 @@ def encrypt_word(word, shift):
     starting_index_positions = []
     list_to_encode = [char for char in word]
     
+    
     for i in range(len(word)):
         starting_index_positions.append(alphabet.index(list_to_encode[i]))
     shifted_index_positions = [num+shift for num in starting_index_positions]
+    
     for i in range(len(list_to_encode)):
         if shift + alphabet.index(list_to_encode[i]) >25:
             encoded_message.append(alphabet[shifted_index_positions[i]-26])
@@ -35,7 +37,41 @@ def make_encrypted_sentence(string_to_encode, shift_to_right):
     return encrypted_sentence
 
 
-# print(make_encrypted_sentence('meet at the bridge', 7)) -> tlla ha aol iypknl
+print(make_encrypted_sentence('meet me at the lake', 20))
+
+
+def decrypt_word(word, key):
+    '''
+    Takes in an encrypted word and a key as parameters and decrypts a caesar cipher for one word
+    '''
+    alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+               'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+    encrypted_indexes = []
+    unencrypted_indexes = []
+    
+    for i in range(len(word)):
+        encrypted_indexes.append(alphabet.index(word[i]))
+        unencrypted_indexes.append(alphabet[encrypted_indexes[i]-key])
+            
+    return  ''.join(unencrypted_indexes)
+    
+def decrypt_sentence(sentence, key):
+    '''
+    Takes in an encyrpted sentence and a key and decrypts the sentence with the key
+    '''
+    decrypted_list = []
+    split_string = sentence.split(' ')
+    for word in split_string:
+        decrypted_list.append(decrypt_word(word,key))
+         
+    return ' '.join(decrypted_list)
+ 
+print(decrypt_sentence('gyyn gy un nby fuey',20))
+ 
+    
+# print(decrypt_word('bnffua',1))
+    
+     
 
     
 
