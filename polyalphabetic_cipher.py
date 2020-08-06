@@ -82,7 +82,6 @@ def poly_alphabetic_encrypt_word(message, keyword):
                 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
     keyword_shifts = [alphabet.index(char)+1 for char in keyword]
     string_to_list_before_encryption = [char for char in message if char != ' ']
-    list_of_spaces = [space for space in message if space == ' ']
     spaces_indexes = []
     final_encryption = []
     
@@ -109,5 +108,40 @@ def poly_alphabetic_encrypt_word(message, keyword):
     
 
 
-print(poly_alphabetic_encrypt_word('meet', 'turtle'))
+print(poly_alphabetic_encrypt_word('meet me at the store', 'turtle'))
 
+
+def decrypt_aphabetic(message, keyword):
+    '''
+    takes in an encrypted message from the polyalphabetic function and uses a the keyword to decrypt the function
+    '''
+    alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+                'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+    keyword_shifts = [alphabet.index(char)+1 for char in keyword]
+    string_to_list_before_decryption = [char for char in message if char != ' ']
+    
+    spaces_indexes = []
+    final_decryption = []
+    
+    #gets the indexes of all the spaces
+    for i in range(len(message)):
+        if message[i] == ' ':
+            spaces_indexes.append(i)
+            
+    while len(keyword_shifts) < len(message):
+        keyword_shifts.extend(keyword_shifts)
+            
+    for i in range(len(string_to_list_before_decryption)):
+        #calls the caesar cipher decrypt function 
+        final_decryption.append(decrypt_word(
+            string_to_list_before_decryption[i], keyword_shifts[i]))
+    
+    # inserts the shifts back into the message at the appropriate index
+    for i in range(len(spaces_indexes)):
+        final_decryption.insert(spaces_indexes[i], ' ')
+    
+    decrypted_sentence = ('').join(final_decryption)
+    return decrypted_sentence
+
+
+print(decrypt_aphabetic('gzwn yj uo lbq xnjjy', 'turtle'))
