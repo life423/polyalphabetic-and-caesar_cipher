@@ -73,7 +73,7 @@ def decrypt_sentence(sentence, key):
 
 
 
-def poly_alphabetic_encrypt_word(message, keyword):
+def poly_alphabetic_encrypt_message(message, keyword):
     '''
     Takes in a message and a code word and performs a polyalphabetic cipher on the message
     '''
@@ -108,7 +108,7 @@ def poly_alphabetic_encrypt_word(message, keyword):
     
 
 
-print(poly_alphabetic_encrypt_word('meet me at the store', 'turtle'))
+# print(poly_alphabetic_encrypt_message('meet me at the store', 'turtle'))
 
 
 def decrypt_aphabetic(message, keyword):
@@ -144,4 +144,4 @@ def decrypt_aphabetic(message, keyword):
     return decrypted_sentence
 
 
-print(decrypt_aphabetic('gzwn yj uo lbq xnjjy', 'turtle'))
+# print(decrypt_aphabetic('gzwn yj uo lbq xnjjy', 'turtle'))

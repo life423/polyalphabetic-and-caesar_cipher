@@ -37,7 +37,7 @@ def make_encrypted_sentence(string_to_encode, shift_to_right):
     return encrypted_sentence
 
 
-print(make_encrypted_sentence('lets go fuck outside', 9 ))
+# print(make_encrypted_sentence('lets go fuck outside', 9 ))
 
 
 def decrypt_word(word, key):
@@ -66,7 +66,7 @@ def decrypt_sentence(sentence, key):
          
     return ' '.join(decrypted_list)
  
-print(decrypt_sentence('uncb px odlt xdcbrmn ',9))
+# print(decrypt_sentence('uncb px odlt xdcbrmn ',9))
  
     
 # print(decrypt_word('bnffua',1))
