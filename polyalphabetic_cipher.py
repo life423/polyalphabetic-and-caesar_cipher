@@ -71,77 +71,50 @@ def decrypt_sentence(sentence, key):
 
 # print(decrypt_sentence('uncb px odlt xdcbrmn ', 9))
 
-
-
+# Polyalphabetic Cipher
 def poly_alphabetic_encrypt_message(message, keyword):
     '''
-    Takes in a message and a code word and performs a polyalphabetic cipher on the message
+    This function takes a message and a keyword as inputs, 
+    and returns the message encrypted using a Polyalphabetic cipher. 
+    The function handles upper case letters and special characters.
     '''
+    alphabet = 'abcdefghijklmnopqrstuvwxyz'
+    keyword = (keyword * (len(message) // len(keyword) + 1)).lower()
 
-    alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
-                'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-    keyword_shifts = [alphabet.index(char)+1 for char in keyword]
-    string_to_list_before_encryption = [char for char in message if char != ' ']
-    spaces_indexes = []
-    final_encryption = []
-    
-    #gets the indexes of all the spaces 
-    for i in range(len(message)):
-        if message[i] == ' ':
-            spaces_indexes.append(i)
-    
-    # makes sure the list of shifts is long enough for the message
-    while len(keyword_shifts) < len(message):
-        keyword_shifts.extend(keyword_shifts)
-    
-    for i in range(len(string_to_list_before_encryption)):
-        #calls the caesar cipher function 
-        final_encryption.append(encrypt_word(string_to_list_before_encryption[i], keyword_shifts[i]))
+    encrypted_message = ''.join([chr((ord(m) - 65 + alphabet.index(k)) % 26 + 65) if m.isupper() else 
+                                 chr((ord(m) - 97 + alphabet.index(k)) % 26 + 97) if m.islower() else m 
+                                 for m, k in zip(message, keyword)])
 
-    # inserts the shifts back into the message at the appropriate index
-    for i in range(len(spaces_indexes)):
-        final_encryption.insert(spaces_indexes[i], ' ')
-
-    encrypted_sentence = ('').join(final_encryption)
-    return encrypted_sentence
+    return encrypted_message
 
     
 
 
-# print(poly_alphabetic_encrypt_message('meet me at the store', 'turtle'))
-
+# print(poly_alphabetic_encrypt_message('Meet me at the store.', 'turtle'))
 
 def decrypt_aphabetic(message, keyword):
     '''
-    takes in an encrypted message from the polyalphabetic function and uses a the keyword to decrypt the function
+    This function takes an encrypted message and a keyword as inputs, 
+    and returns the decrypted message using a Polyalphabetic cipher. 
+    The function handles upper case letters, lower case letters, and special characters.
     '''
-    alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
-                'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-    keyword_shifts = [alphabet.index(char)+1 for char in keyword]
-    string_to_list_before_decryption = [char for char in message if char != ' ']
-    
-    spaces_indexes = []
-    final_decryption = []
-    
-    #gets the indexes of all the spaces
-    for i in range(len(message)):
-        if message[i] == ' ':
-            spaces_indexes.append(i)
-            
-    while len(keyword_shifts) < len(message):
-        keyword_shifts.extend(keyword_shifts)
-            
-    for i in range(len(string_to_list_before_decryption)):
-        #calls the caesar cipher decrypt function 
-        final_decryption.append(decrypt_word(
-            string_to_list_before_decryption[i], keyword_shifts[i]))
-    
-    # inserts the shifts back into the message at the appropriate index
-    for i in range(len(spaces_indexes)):
-        final_decryption.insert(spaces_indexes[i], ' ')
-    
-    decrypted_sentence = ('').join(final_decryption)
-    return decrypted_sentence
+    alphabet = 'abcdefghijklmnopqrstuvwxyz'
+    keyword = (keyword * (len(message) // len(keyword) + 1)).lower()
+    decrypted_message = []
+
+    for m, k in zip(message, keyword):
+        if m.isalpha():
+            shift = alphabet.index(k)
+            if m.isupper():
+                decrypted_message.append(chr((ord(m) - 65 - shift) % 26 + 65))
+            else:
+                decrypted_message.append(chr((ord(m) - 97 - shift) % 26 + 97))
+        else:
+            decrypted_message.append(m)
+            keyword = keyword[1:]  # shift the keyword for non-alphabet characters
+
+    return ''.join(decrypted_message)
 
 
-# print(decrypt_aphabetic('gzwn yj uo lbq xnjjy', 'turtle'))
+
+print(decrypt_aphabetic('fyvm qx rm xay lesky', 'turtle'))
