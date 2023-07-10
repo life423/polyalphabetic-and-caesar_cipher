@@ -1,5 +1,4 @@
 #Caeser Cipher
-
 def encrypt_word(word, shift):
     ''' 
     Takes two parameters, first is the word to be encrypted and the second is 
@@ -66,13 +65,6 @@ def decrypt_sentence(sentence, key):
          
     return ' '.join(decrypted_list)
  
-# print(decrypt_sentence('uncb px odlt xdcbrmn ',9))
- 
-    
-# print(decrypt_word('bnffua',1))
-
-#test for github
-    
      
 
     
