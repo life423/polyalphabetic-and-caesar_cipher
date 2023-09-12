@@ -54,6 +54,7 @@ process_button = tk.Button(root, text="Process Text", command=process_text)
 process_button.pack(pady=10)
 
 
+# Button functions
 def select_input_file():
     filename = tk.filedialog.askopenfilename()
     input_entry.delete(0, tk.END)
@@ -65,12 +66,7 @@ def select_output_file():
     output_entry.insert(0, filename)
 
 
-input_file_button = tk.Button(root, text="Select input file...", command=select_input_file)
-input_file_button.pack()
-output_file_button = tk.Button(root, text="Select output file...", command=select_output_file)
-output_file_button.pack()
-process_button = tk.Button(root, text="Process Text", command=process_text)
-process_button.pack(pady=10)
+
 
 def process_text():
     result_text.delete('1.0', tk.END)
@@ -87,7 +83,11 @@ def process_text():
         return
 
     if cipher_type == 'c':
-        shift = int(keyword_shift)
+        try:
+            shift = int(keyword_shift)
+        except ValueError:
+            print("Invalid shift value. Value should be an integer.")
+            return
         # Check whether to perform encryption or decryption
         if action == 'e':
             if os.path.isfile(input_data):
@@ -115,8 +115,6 @@ def process_text():
 
     result_text.insert(tk.END, output)
 
-# Button to start processing
-process_button = tk.Button(root, text="Process Text", command=process_text)
-process_button.pack(pady=10)
+
 
 root.mainloop()
