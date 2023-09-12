@@ -86,7 +86,7 @@ def process_text():
         try:
             shift = int(keyword_shift)
         except ValueError:
-            print("Invalid shift value. Value should be an integer.")
+            result_text.insert(tk.END, "Invalid shift value. Value should be an integer.")
             return
         # Check whether to perform encryption or decryption
         if action == 'e':
@@ -114,6 +114,8 @@ def process_text():
                 output = poly_alphabetic_cipher(input_data, keyword, False)
 
     result_text.insert(tk.END, output)
+    input_entry.delete(0, tk.END)
+    output_entry.delete(0, tk.END)
 
 
 
