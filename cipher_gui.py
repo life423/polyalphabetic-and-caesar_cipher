@@ -45,14 +45,6 @@ result_label.pack()
 result_text = tk.Text(root)
 result_text.pack()
 
-# Buttons
-input_file_button = tk.Button(root, text="Select input file...", command=select_input_file)
-input_file_button.pack()
-output_file_button = tk.Button(root, text="Select output file...", command=select_output_file)
-output_file_button.pack()
-process_button = tk.Button(root, text="Process Text", command=process_text)
-process_button.pack(pady=10)
-
 
 # Button functions
 def select_input_file():
@@ -60,13 +52,11 @@ def select_input_file():
     input_entry.delete(0, tk.END)
     input_entry.insert(0, filename)
 
+# Define select_output_file
 def select_output_file():
     filename = tk.filedialog.asksaveasfilename()
     output_entry.delete(0, tk.END)
     output_entry.insert(0, filename)
-
-
-
 
 def process_text():
     result_text.delete('1.0', tk.END)
@@ -117,6 +107,12 @@ def process_text():
     input_entry.delete(0, tk.END)
     output_entry.delete(0, tk.END)
 
-
+#  Create buttons after defining the functions
+input_file_button = tk.Button(root, text="Select input file...", command=select_input_file)
+input_file_button.pack()
+output_file_button = tk.Button(root, text="Select output file...", command=select_output_file)
+output_file_button.pack()
+process_button = tk.Button(root, text="Process Text", command=process_text)
+process_button.pack(pady=10)
 
 root.mainloop()
