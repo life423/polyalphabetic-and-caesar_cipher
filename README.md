@@ -22,6 +22,3 @@ This project danced to the rhythm of iterative development. Review, improve, rep
 
 From a seed of an idea to a fully grown toolbox, the growth has been phenomenal. Along the way, there's been a deep dive into JavaScript and cryptography, and a whole lot of problem-solving. This toolbox? It's a testament to the journey and the skills acquired along the way.
 
----
-
-
