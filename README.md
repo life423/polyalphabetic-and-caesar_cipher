@@ -27,3 +27,45 @@ From a seed of an idea to a fully grown toolbox, the growth has been dramatic. T
 If you're impressed with the toolbox and think we could create something incredible together, feel free to drop me a line. The journey continues, and I'm always eager to work on interesting projects with great people. The toolbox awaits! Geronimo!
 
 That's all for now. Keep exploring!
+
+# 💻 Running the Program
+
+## Prerequisites
+- Python 3 (latest version recommended)
+
+## Instructions
+
+### Running from the source code
+1. Clone or download this GitHub repository to your local system.
+2. Open the terminal or command line interface.
+3. Navigate to the directory of the downloaded repository.
+4. If you wish to run the source code directly, you can execute the python script by running the following command:
+    ```bash
+    python3 cipher_tool.py
+    ```
+    or
+    ```bash
+    python3 cipher_gui.py
+    ```
+    Remember to replace "cipher_tool.py" or "cipher_gui.py" with the script you want to run.
+
+### Running the Executable
+For convenience, we have also provided pre-compiled executable versions for Windows and MacOS. These can be run without needing a Python environment on your system.
+1. Go to the Releases page of the toolbox repository.
+2. Download the appropriate `.exe` (for Windows) or `.app` (for MacOS) file.
+3. You do not need to install anything. Simply double click the downloaded file to run the toolbox.
+
+### Building the Executable Yourself
+If you have Python and PyInstaller set up, you can build an executable version of the toolbox yourself:
+1. Install PyInstaller: `pip install pyinstaller`.
+2. From the root project directory, run the following commands to create a standalone executable:
+
+    For the command line tool:
+    ```bash
+    pyinstaller --onefile cipher_tool.py
+    ```
+    For the GUI:
+    ```bash
+    pyinstaller --noconsole --onefile cipher_gui.py
+    ```
+    The executable (`.exe` or `.app`) will be created in the `dist` subdirectory.
