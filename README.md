@@ -1,71 +1,62 @@
-# 🚀 Polyalphabetic and Caesar Cipher Toolbox
+# Cipher Tool Project
 
-Hey there! 👋 Welcome to a little corner of the internet where cryptography meets Python in a dance of letters and numbers.
+A Python application for encrypting and decrypting text using Caesar and Polyalphabetic (Vigenère) ciphers. This project provides both a GUI interface and a command-line interface.
 
-## 🧠 The Journey
+## Project Structure
 
-This project has been a wild ride. From humble beginnings with a basic understanding of Python and cryptography, it evolved to comprehensively cover Polyalphabetic and Caesar Ciphers. It's been a journey of discovery, learning, and lots of coffee. Recently, the challenge has been creating a Graphical User Interface (GUI) with Python's Tkinter libraries.
+The project has been refactored to follow a modular architecture with clear separation of concerns:
 
-## 📚 The Learning Curve
+- **cipher_core.py**: Core cipher algorithms without any I/O or business logic
+- **file_service.py**: Handles all file operations
+- **cipher_service.py**: Service layer coordinating cipher operations and file handling
+- **cipher_gui.py**: User interface that delegates all processing to the service layer
+- **cipher_tool.py**: Backward compatibility wrapper for existing scripts
 
-Learning has felt like climbing a mountain with a laptop and a dream. It started with understanding the basics of Polyalphabetic and Caesar Ciphers, then implementing these ciphers in Python! The most recent twist in this journey has been integrating a GUI, making the toolbox even more versatile and user-friendly.
+## Key Improvements
 
-## 🛠️ Building the Toolbox
+### 1. Separation of Concerns
+- **Business Logic vs. UI**: Clear separation between encryption logic and GUI code
+- **Single Responsibility Principle**: Each module has a clear, focused purpose
+- **Core Algorithms**: Core cipher implementations are now isolated and reusable
 
-Building this toolbox was akin to assembling a puzzle, one piece at a time. It began with creating the basic functions for the ciphers, making the code as readable as a children's book, and then developing the ability to encrypt .txt files - all in Python! Now, the process includes adding a GUI with Tkinter to make the cipher toolbox accessible to all.
+### 2. Better Code Organization
+- **Layered Architecture**: 
+  - Core functionality (cipher algorithms)
+  - Services (file operations and coordination)
+  - Presentation (GUI)
+- **Simplified Dependencies**: Each layer only depends on layers below it
 
-## 🔄 The Iterative Dance
+### 3. Enhanced Usability
+- Added option to control file deletion after processing
+- Improved error handling and user feedback
+- More intuitive variable naming throughout the codebase
 
-This project danced to the rhythm of iterative development. Review, improve, repeat. Version control has been the dance partner, gracefully tracking the evolution of the code over time.
+### 4. Improved Documentation
+- Comprehensive docstrings explaining module and function purposes
+- Clear parameter and return value documentation
+- Comments for complex operations and algorithms
 
-## 🌱 The Evolution
+## How to Use
 
-From a seed of an idea to a fully grown toolbox, the growth has been dramatic. There's been a deep dive into Python, cryptography, and heaps of problem-solving. The continuous enhancements to this toolbox are a testament to the journey taken and the skills acquired along the way. This toolbox isn't just about cryptography or programming. It's about a sustained effort to learn, grow, and improve.
+### GUI Interface
 
-## 👥 Get In Touch
+Run the GUI application with:
+```
+python cipher_gui.py
+```
 
-If you're impressed with the toolbox and think we could create something incredible together, feel free to drop me a line. The journey continues, and I'm always eager to work on interesting projects with great people. The toolbox awaits! Geronimo!
+### Command Line Interface
 
-That's all for now. Keep exploring!
+Run the command-line interface with:
+```
+python cipher_service.py
+```
 
-# 💻 Running the Program
+## Additional Notes
 
-## Prerequisites
-- Python 3 (latest version recommended)
-
-## Instructions
-
-### Running from the source code
-1. Clone or download this GitHub repository to your local system.
-2. Open the terminal or command line interface.
-3. Navigate to the directory of the downloaded repository.
-4. If you wish to run the source code directly, you can execute the python script by running the following command:
-    ```bash
-    python3 cipher_tool.py
-    ```
-    or
-    ```bash
-    python3 cipher_gui.py
-    ```
-    Remember to replace "cipher_tool.py" or "cipher_gui.py" with the script you want to run.
-
-### Running the Executable
-For convenience, we have also provided pre-compiled executable versions for Windows and MacOS. These can be run without needing a Python environment on your system.
-1. Go to the Releases page of the toolbox repository.
-2. Download the appropriate `.exe` (for Windows) or `.app` (for MacOS) file.
-3. You do not need to install anything. Simply double click the downloaded file to run the toolbox.
-
-### Building the Executable Yourself
-If you have Python and PyInstaller set up, you can build an executable version of the toolbox yourself:
-1. Install PyInstaller: `pip install pyinstaller`.
-2. From the root project directory, run the following commands to create a standalone executable:
-
-    For the command line tool:
-    ```bash
-    pyinstaller --onefile cipher_tool.py
-    ```
-    For the GUI:
-    ```bash
-    pyinstaller --noconsole --onefile cipher_gui.py
-    ```
-    The executable (`.exe` or `.app`) will be created in the `dist` subdirectory.
+This project demonstrates clean code principles including:
+- Separation of concerns
+- Single responsibility principle
+- Don't Repeat Yourself (DRY)
+- Clear and descriptive naming conventions
+- Comprehensive documentation
