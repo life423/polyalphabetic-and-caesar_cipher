@@ -7,6 +7,7 @@ the core cipher algorithms and file handling services.
 
 from cipher_core import CaesarCipher, PolyalphabeticCipher
 from file_service import FileService
+from cipher_ai import CipherAnalyzer
 
 
 class CipherService:
@@ -106,6 +107,30 @@ class CipherService:
             list: Names of files that were deleted
         """
         return self.file_service.clean_txt_files(directory)
+    
+    def analyze_caesar_encryption(self, ciphertext):
+        """
+        Analyze Caesar-encrypted text to guess the shift key.
+        
+        Args:
+            ciphertext (str): The encrypted text to analyze
+            
+        Returns:
+            list: List of potential shift values with confidence scores
+        """
+        return CipherAnalyzer.analyze_caesar(ciphertext)
+    
+    def analyze_polyalphabetic_encryption(self, ciphertext):
+        """
+        Analyze Polyalphabetic-encrypted text to guess possible keywords.
+        
+        Args:
+            ciphertext (str): The encrypted text to analyze
+            
+        Returns:
+            list: List of potential keywords with confidence scores
+        """
+        return CipherAnalyzer.analyze_polyalphabetic(ciphertext)
 
 
 # For backward compatibility with scripts that might directly import CipherService

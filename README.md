@@ -30,6 +30,21 @@ The project has been refactored to follow a modular architecture with clear sepa
 - Added option to control file deletion after processing
 - Improved error handling and user feedback
 - More intuitive variable naming throughout the codebase
+- AI-driven analysis to guess encryption keys and suggest plaintext
+
+### 4. AI-Powered Analysis
+- **Caesar Cipher Analysis**: Automatically determines the most likely shift key using:
+  - Letter frequency analysis
+  - English language pattern detection
+  - Common word identification
+- **Polyalphabetic Cipher Analysis**: Guesses possible keywords by:
+  - Key length estimation using index of coincidence
+  - Column-wise frequency analysis
+  - Plaintext validation through language patterns
+- **User-Friendly Interface**:
+  - Displays top key suggestions with confidence scores
+  - Shows sample decryptions for each suggestion
+  - One-click application of suggested keys
 
 ### 4. Improved Documentation
 - Comprehensive docstrings explaining module and function purposes
