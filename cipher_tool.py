@@ -32,7 +32,7 @@ def poly_alphabetic_cipher(message, keyword, encrypt=True):
                 result_message.append(chr((ord(m) - 97 + shift) % 26 + 97))
         else:
             result_message.append(m)
-            keyword = keyword[1:]  # shift the keyword for non-alphabet characters
+            # Non-alphabetic characters should not consume a keyword character
 
     return ''.join(result_message)
 
