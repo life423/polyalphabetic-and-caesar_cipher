@@ -20,10 +20,10 @@ setup(
     python_requires=">=3.7",
     entry_points={
         "console_scripts": [
-            "cipher_tool=cipher_tool:main",
+            "cipher_tool=src.ui.cli:main",
         ],
         "gui_scripts": [
-            "cipher_gui=cipher_gui:main",
+            "cipher_gui=src.ui.gui:main",
         ],
     },
 )

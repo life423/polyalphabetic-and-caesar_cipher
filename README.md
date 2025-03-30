@@ -55,10 +55,10 @@ Simply extract the ZIP file and run either:
 The easiest way to run the application is using the unified launcher:
 
 #### Windows
-Simply double-click the `run_cipher_app.bat` file or run:
+Simply double-click the `scripts/run_cipher_app.bat` file or run:
 
 ```bash
-python run_cipher_app.py
+python scripts/run_cipher_app.py
 ```
 
 This will open a menu where you can choose between:
@@ -73,13 +73,13 @@ If you prefer the traditional command line approach:
 
 ```bash
 # Encrypt a message using Caesar cipher
-python cipher_tool.py -c caesar -e -s 3 -t "Hello, World!"
+python src/ui/cli.py -c caesar -e -s 3 -t "Hello, World!"
 
 # Decrypt a message using Polyalphabetic cipher
-python cipher_tool.py -c poly -d -k "KEY" -t "Rijvs, Uyvjn!"
+python src/ui/cli.py -c poly -d -k "KEY" -t "Rijvs, Uyvjn!"
 
 # Analyze encrypted text to guess the key
-python cipher_tool.py -c caesar -a -t "Khoor, Zruog!"
+python src/ui/cli.py -c caesar -a -t "Khoor, Zruog!"
 ```
 
 ### Direct GUI Launch
@@ -87,20 +87,37 @@ python cipher_tool.py -c caesar -a -t "Khoor, Zruog!"
 You can also launch the GUI directly:
 
 ```bash
-python cipher_gui.py
+python src/ui/gui.py
 ```
 
 ## Developer Guide
 
 ### Project Structure
 
-- `cipher_core.py`: Core implementations of cipher algorithms
-- `cipher_service.py`: Service layer that coordinates operations
-- `cipher_ai.py`: AI-driven analysis tools
-- `file_service.py`: File handling utilities
-- `cipher_tool.py`: Command-line interface
-- `cipher_gui.py`: Graphical user interface
-- `tests/`: Test suite
+The project has been reorganized into a more modular structure:
+
+```
+polyalphabetic-and-caesar_cipher/
+├── scripts/                 # Scripts for running and building
+│   ├── build_exe.py         # Build script for creating executables
+│   ├── run_cipher_app.py    # Main launcher script
+│   └── run_cipher_app.bat   # Windows batch launcher
+├── src/                     # Source code
+│   ├── ai/                  # AI and analysis modules
+│   │   └── analyzer.py      # AI-driven text analysis
+│   ├── core/                # Core cipher implementations
+│   │   ├── base.py          # Base classes for ciphers
+│   │   └── ciphers.py       # Cipher algorithm implementations
+│   ├── services/            # Service layer
+│   │   ├── cipher_service.py # Coordinates cipher operations
+│   │   └── file_service.py   # File handling utilities
+│   └── ui/                  # User interfaces
+│       ├── cli.py           # Command-line interface
+│       └── gui.py           # Graphical user interface
+├── tests/                   # Test suite
+├── requirements.txt         # Dependencies
+└── setup.py                 # Installation script
+```
 
 ### Running Tests
 
@@ -111,14 +128,10 @@ pytest tests/
 ### Building the Executable
 
 ```bash
-pyinstaller --onefile --windowed --name cipher_tool cipher_tool.py
+python scripts/build_exe.py
 ```
 
-Or use the provided spec file:
-
-```bash
-pyinstaller cipher_tool.spec
-```
+This will create a standalone executable in the `dist/` directory.
 
 ### CI/CD Pipeline
 
@@ -145,7 +158,7 @@ The workflow configuration is defined in `.github/workflows/python-app.yml`.
 A substitution cipher where each letter is shifted by a fixed number of positions.
 
 ```python
-from cipher_core import CaesarCipher
+from src.core.ciphers import CaesarCipher
 
 # Encrypt
 encrypted = CaesarCipher.transform("Hello", 3, encrypt=True)  # "Khoor"
@@ -159,7 +172,7 @@ decrypted = CaesarCipher.transform("Khoor", 3, encrypt=False)  # "Hello"
 Uses a keyword to determine the shift for each letter in the plaintext.
 
 ```python
-from cipher_core import PolyalphabeticCipher
+from src.core.ciphers import PolyalphabeticCipher
 
 # Encrypt
 encrypted = PolyalphabeticCipher.transform("Hello", "KEY", encrypt=True)
@@ -173,7 +186,7 @@ decrypted = PolyalphabeticCipher.transform(encrypted, "KEY", encrypt=False)
 Replaces each letter with another letter from a shuffled alphabet.
 
 ```python
-from cipher_core import SubstitutionCipher
+from src.core.ciphers import SubstitutionCipher
 
 # Generate a random key
 key = SubstitutionCipher.generate_key()
@@ -190,7 +203,7 @@ decrypted = SubstitutionCipher.transform(encrypted, key, encrypt=False)
 Rearranges the letters of the plaintext according to a key.
 
 ```python
-from cipher_core import TranspositionCipher
+from src.core.ciphers import TranspositionCipher
 
 # Encrypt using a string key
 encrypted = TranspositionCipher.transform("Hello World", "KEY", encrypt=True)
@@ -204,7 +217,7 @@ decrypted = TranspositionCipher.transform(encrypted, "KEY", encrypt=False)
 Writes the plaintext in a zigzag pattern across multiple rows and reads off by row.
 
 ```python
-from cipher_core import RailFenceCipher
+from src.core.ciphers import RailFenceCipher
 
 # Encrypt with 3 rails
 encrypted = RailFenceCipher.transform("Hello World", 3, encrypt=True)
@@ -218,7 +231,7 @@ decrypted = RailFenceCipher.transform(encrypted, 3, encrypt=False)
 Uses a mathematical function to encrypt/decrypt text.
 
 ```python
-from cipher_core import AffineCipher
+from src.core.ciphers import AffineCipher
 
 # Encrypt using key pair (a, b)
 encrypted = AffineCipher.transform("Hello", (5, 8), encrypt=True)
@@ -232,7 +245,7 @@ decrypted = AffineCipher.transform(encrypted, (5, 8), encrypt=False)
 The AI analyzer can be used to detect encryption methods and guess keys:
 
 ```python
-from cipher_ai import CipherAnalyzer
+from src.ai.analyzer import CipherAnalyzer
 
 # Analyze Caesar-encrypted text
 results = CipherAnalyzer.analyze_caesar(encrypted_text)

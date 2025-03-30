@@ -6,19 +6,14 @@ and the AI-driven analysis capabilities.
 """
 
 import unittest
-import sys
-import os
 import random
 import string
 
-# Add parent directory to path so we can import the modules
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from cipher_core import (
+from src.core.ciphers import (
     CaesarCipher, PolyalphabeticCipher, SubstitutionCipher,
     TranspositionCipher, RailFenceCipher, AffineCipher
 )
-from cipher_ai import CipherAnalyzer
+from src.ai.analyzer import CipherAnalyzer
 
 
 class TestCaesarCipher(unittest.TestCase):
