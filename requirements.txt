@@ -1,9 +1,9 @@
-pytest==7.3.1
-flake8==6.0.0
-pyinstaller==5.9.0
+pytest==8.3.5  # Updated for Python 3.13 compatibility
+flake8==7.2.0  # Updated for Python 3.13 compatibility
+pyinstaller==6.12.0  # Updated from 5.9.0 which is not available
 pyyaml==6.0.1  # For parsing YAML files in tests
 # GUI dependencies
-tkinter  # Usually included in standard Python installation
+# Note: tkinter is required but it's part of the Python standard library, not a pip installable package
 # If using PyQt or other GUI framework, uncomment the appropriate line
 # PyQt5==5.15.9
 # wxPython==4.2.0
