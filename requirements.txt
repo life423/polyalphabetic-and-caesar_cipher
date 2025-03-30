@@ -1,0 +1,9 @@
+pytest==7.3.1
+flake8==6.0.0
+pyinstaller==5.9.0
+pyyaml==6.0.1  # For parsing YAML files in tests
+# GUI dependencies
+tkinter  # Usually included in standard Python installation
+# If using PyQt or other GUI framework, uncomment the appropriate line
+# PyQt5==5.15.9
+# wxPython==4.2.0

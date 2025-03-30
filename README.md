@@ -1,71 +1,254 @@
-# 🚀 Polyalphabetic and Caesar Cipher Toolbox
+# Cipher Tools
 
-Hey there! 👋 Welcome to a little corner of the internet where cryptography meets Python in a dance of letters and numbers.
+A comprehensive toolkit for encryption and decryption using multiple cipher algorithms with AI-driven analysis capabilities.
 
-## 🧠 The Journey
+## Features
 
-This project has been a wild ride. From humble beginnings with a basic understanding of Python and cryptography, it evolved to comprehensively cover Polyalphabetic and Caesar Ciphers. It's been a journey of discovery, learning, and lots of coffee. Recently, the challenge has been creating a Graphical User Interface (GUI) with Python's Tkinter libraries.
+- Multiple cipher implementations:
+  - Caesar Cipher
+  - Polyalphabetic (Vigenère) Cipher
+  - Substitution Cipher
+  - Transposition Cipher
+  - Rail Fence Cipher
+  - Affine Cipher
 
-## 📚 The Learning Curve
+- AI-driven analysis tools:
+  - Encryption key detection
+  - Automated cryptanalysis for Caesar and Polyalphabetic ciphers
+  - Letter frequency analysis
+  - N-gram scoring
+  - Known-plaintext analysis
 
-Learning has felt like climbing a mountain with a laptop and a dream. It started with understanding the basics of Polyalphabetic and Caesar Ciphers, then implementing these ciphers in Python! The most recent twist in this journey has been integrating a GUI, making the toolbox even more versatile and user-friendly.
+- User interfaces:
+  - Command-line interface
+  - Graphical user interface
+  - File-based operations
 
-## 🛠️ Building the Toolbox
+## Installation
 
-Building this toolbox was akin to assembling a puzzle, one piece at a time. It began with creating the basic functions for the ciphers, making the code as readable as a children's book, and then developing the ability to encrypt .txt files - all in Python! Now, the process includes adding a GUI with Tkinter to make the cipher toolbox accessible to all.
+### From Source
 
-## 🔄 The Iterative Dance
+```bash
+git clone https://github.com/yourusername/polyalphabetic-and-caesar_cipher.git
+cd polyalphabetic-and-caesar_cipher
+pip install -r requirements.txt
+python setup.py install
+```
 
-This project danced to the rhythm of iterative development. Review, improve, repeat. Version control has been the dance partner, gracefully tracking the evolution of the code over time.
+### Using the Executables
 
-## 🌱 The Evolution
+Download the latest release package (`cipher_tools_windows.zip`) from the [Releases](https://github.com/yourusername/polyalphabetic-and-caesar_cipher/releases) page. The package includes:
 
-From a seed of an idea to a fully grown toolbox, the growth has been dramatic. There's been a deep dive into Python, cryptography, and heaps of problem-solving. The continuous enhancements to this toolbox are a testament to the journey taken and the skills acquired along the way. This toolbox isn't just about cryptography or programming. It's about a sustained effort to learn, grow, and improve.
+- `cipher_tool.exe` - Command-line interface
+- `cipher_gui.exe` - Graphical user interface
+- `run_cipher_app.bat` - Unified launcher script
 
-## 👥 Get In Touch
+Simply extract the ZIP file and run either:
+- `run_cipher_app.bat` for the unified launcher
+- `cipher_gui.exe` to directly launch the GUI
+- `cipher_tool.exe` for command-line usage
 
-If you're impressed with the toolbox and think we could create something incredible together, feel free to drop me a line. The journey continues, and I'm always eager to work on interesting projects with great people. The toolbox awaits! Geronimo!
+## Usage
 
-That's all for now. Keep exploring!
+### Using the New Unified Launcher (Recommended)
 
-# 💻 Running the Program
+The easiest way to run the application is using the unified launcher:
 
-## Prerequisites
-- Python 3 (latest version recommended)
+#### Windows
+Simply double-click the `run_cipher_app.bat` file or run:
 
-## Instructions
+```bash
+python run_cipher_app.py
+```
 
-### Running from the source code
-1. Clone or download this GitHub repository to your local system.
-2. Open the terminal or command line interface.
-3. Navigate to the directory of the downloaded repository.
-4. If you wish to run the source code directly, you can execute the python script by running the following command:
-    ```bash
-    python3 cipher_tool.py
-    ```
-    or
-    ```bash
-    python3 cipher_gui.py
-    ```
-    Remember to replace "cipher_tool.py" or "cipher_gui.py" with the script you want to run.
+This will open a menu where you can choose between:
+- Graphical User Interface
+- Interactive Command Line Interface
+- Advanced CLI (with arguments)
+- Build Standalone Executable
 
-### Running the Executable
-For convenience, we have also provided pre-compiled executable versions for Windows and MacOS. These can be run without needing a Python environment on your system.
-1. Go to the Releases page of the toolbox repository.
-2. Download the appropriate `.exe` (for Windows) or `.app` (for MacOS) file.
-3. You do not need to install anything. Simply double click the downloaded file to run the toolbox.
+### Traditional Command Line Interface
 
-### Building the Executable Yourself
-If you have Python and PyInstaller set up, you can build an executable version of the toolbox yourself:
-1. Install PyInstaller: `pip install pyinstaller`.
-2. From the root project directory, run the following commands to create a standalone executable:
+If you prefer the traditional command line approach:
 
-    For the command line tool:
-    ```bash
-    pyinstaller --onefile cipher_tool.py
-    ```
-    For the GUI:
-    ```bash
-    pyinstaller --noconsole --onefile cipher_gui.py
-    ```
-    The executable (`.exe` or `.app`) will be created in the `dist` subdirectory.
+```bash
+# Encrypt a message using Caesar cipher
+python cipher_tool.py -c caesar -e -s 3 -t "Hello, World!"
+
+# Decrypt a message using Polyalphabetic cipher
+python cipher_tool.py -c poly -d -k "KEY" -t "Rijvs, Uyvjn!"
+
+# Analyze encrypted text to guess the key
+python cipher_tool.py -c caesar -a -t "Khoor, Zruog!"
+```
+
+### Direct GUI Launch
+
+You can also launch the GUI directly:
+
+```bash
+python cipher_gui.py
+```
+
+## Developer Guide
+
+### Project Structure
+
+- `cipher_core.py`: Core implementations of cipher algorithms
+- `cipher_service.py`: Service layer that coordinates operations
+- `cipher_ai.py`: AI-driven analysis tools
+- `file_service.py`: File handling utilities
+- `cipher_tool.py`: Command-line interface
+- `cipher_gui.py`: Graphical user interface
+- `tests/`: Test suite
+
+### Running Tests
+
+```bash
+pytest tests/
+```
+
+### Building the Executable
+
+```bash
+pyinstaller --onefile --windowed --name cipher_tool cipher_tool.py
+```
+
+Or use the provided spec file:
+
+```bash
+pyinstaller cipher_tool.spec
+```
+
+### CI/CD Pipeline
+
+This project uses GitHub Actions for continuous integration and delivery:
+
+1. On every push or pull request to main/master branch:
+   - Run linting checks with flake8
+   - Execute test suite with pytest
+   - Validate the codebase quality
+
+2. On push to main/master branch:
+   - Automatically builds both CLI and GUI executables
+   - Packages executables and launcher into a zip file
+   - Creates a new GitHub release with the version from setup.py
+   - Uploads the package as a release asset
+   - Makes the release available for download
+
+The workflow configuration is defined in `.github/workflows/python-app.yml`.
+
+## Cipher Implementations
+
+### Caesar Cipher
+
+A substitution cipher where each letter is shifted by a fixed number of positions.
+
+```python
+from cipher_core import CaesarCipher
+
+# Encrypt
+encrypted = CaesarCipher.transform("Hello", 3, encrypt=True)  # "Khoor"
+
+# Decrypt
+decrypted = CaesarCipher.transform("Khoor", 3, encrypt=False)  # "Hello"
+```
+
+### Polyalphabetic Cipher
+
+Uses a keyword to determine the shift for each letter in the plaintext.
+
+```python
+from cipher_core import PolyalphabeticCipher
+
+# Encrypt
+encrypted = PolyalphabeticCipher.transform("Hello", "KEY", encrypt=True)
+
+# Decrypt
+decrypted = PolyalphabeticCipher.transform(encrypted, "KEY", encrypt=False)
+```
+
+### Substitution Cipher
+
+Replaces each letter with another letter from a shuffled alphabet.
+
+```python
+from cipher_core import SubstitutionCipher
+
+# Generate a random key
+key = SubstitutionCipher.generate_key()
+
+# Encrypt
+encrypted = SubstitutionCipher.transform("Hello", key, encrypt=True)
+
+# Decrypt
+decrypted = SubstitutionCipher.transform(encrypted, key, encrypt=False)
+```
+
+### Transposition Cipher
+
+Rearranges the letters of the plaintext according to a key.
+
+```python
+from cipher_core import TranspositionCipher
+
+# Encrypt using a string key
+encrypted = TranspositionCipher.transform("Hello World", "KEY", encrypt=True)
+
+# Decrypt
+decrypted = TranspositionCipher.transform(encrypted, "KEY", encrypt=False)
+```
+
+### Rail Fence Cipher
+
+Writes the plaintext in a zigzag pattern across multiple rows and reads off by row.
+
+```python
+from cipher_core import RailFenceCipher
+
+# Encrypt with 3 rails
+encrypted = RailFenceCipher.transform("Hello World", 3, encrypt=True)
+
+# Decrypt
+decrypted = RailFenceCipher.transform(encrypted, 3, encrypt=False)
+```
+
+### Affine Cipher
+
+Uses a mathematical function to encrypt/decrypt text.
+
+```python
+from cipher_core import AffineCipher
+
+# Encrypt using key pair (a, b)
+encrypted = AffineCipher.transform("Hello", (5, 8), encrypt=True)
+
+# Decrypt
+decrypted = AffineCipher.transform(encrypted, (5, 8), encrypt=False)
+```
+
+## AI Analysis
+
+The AI analyzer can be used to detect encryption methods and guess keys:
+
+```python
+from cipher_ai import CipherAnalyzer
+
+# Analyze Caesar-encrypted text
+results = CipherAnalyzer.analyze_caesar(encrypted_text)
+for r in results:
+    print(f"Shift: {r['shift']}, Confidence: {r['confidence']}%, Sample: {r['sample']}")
+
+# Analyze Polyalphabetic-encrypted text
+results = CipherAnalyzer.analyze_polyalphabetic(encrypted_text)
+for r in results:
+    print(f"Keyword: {r['keyword']}, Confidence: {r['confidence']}%, Sample: {r['sample']}")
+```
+
+## License
+
+MIT License
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
