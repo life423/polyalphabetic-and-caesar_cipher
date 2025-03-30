@@ -1,77 +1,254 @@
-# Cipher Tool Project
+# Cipher Tools
 
-A Python application for encrypting and decrypting text using Caesar and Polyalphabetic (Vigenère) ciphers. This project provides both a GUI interface and a command-line interface.
+A comprehensive toolkit for encryption and decryption using multiple cipher algorithms with AI-driven analysis capabilities.
 
-## Project Structure
+## Features
 
-The project has been refactored to follow a modular architecture with clear separation of concerns:
+- Multiple cipher implementations:
+  - Caesar Cipher
+  - Polyalphabetic (Vigenère) Cipher
+  - Substitution Cipher
+  - Transposition Cipher
+  - Rail Fence Cipher
+  - Affine Cipher
 
-- **cipher_core.py**: Core cipher algorithms without any I/O or business logic
-- **file_service.py**: Handles all file operations
-- **cipher_service.py**: Service layer coordinating cipher operations and file handling
-- **cipher_gui.py**: User interface that delegates all processing to the service layer
-- **cipher_tool.py**: Backward compatibility wrapper for existing scripts
-
-## Key Improvements
-
-### 1. Separation of Concerns
-- **Business Logic vs. UI**: Clear separation between encryption logic and GUI code
-- **Single Responsibility Principle**: Each module has a clear, focused purpose
-- **Core Algorithms**: Core cipher implementations are now isolated and reusable
-
-### 2. Better Code Organization
-- **Layered Architecture**: 
-  - Core functionality (cipher algorithms)
-  - Services (file operations and coordination)
-  - Presentation (GUI)
-- **Simplified Dependencies**: Each layer only depends on layers below it
-
-### 3. Enhanced Usability
-- Added option to control file deletion after processing
-- Improved error handling and user feedback
-- More intuitive variable naming throughout the codebase
-- AI-driven analysis to guess encryption keys and suggest plaintext
-
-### 4. AI-Powered Analysis
-- **Caesar Cipher Analysis**: Automatically determines the most likely shift key using:
+- AI-driven analysis tools:
+  - Encryption key detection
+  - Automated cryptanalysis for Caesar and Polyalphabetic ciphers
   - Letter frequency analysis
-  - English language pattern detection
-  - Common word identification
-- **Polyalphabetic Cipher Analysis**: Guesses possible keywords by:
-  - Key length estimation using index of coincidence
-  - Column-wise frequency analysis
-  - Plaintext validation through language patterns
-- **User-Friendly Interface**:
-  - Displays top key suggestions with confidence scores
-  - Shows sample decryptions for each suggestion
-  - One-click application of suggested keys
+  - N-gram scoring
+  - Known-plaintext analysis
 
-### 4. Improved Documentation
-- Comprehensive docstrings explaining module and function purposes
-- Clear parameter and return value documentation
-- Comments for complex operations and algorithms
+- User interfaces:
+  - Command-line interface
+  - Graphical user interface
+  - File-based operations
 
-## How to Use
+## Installation
 
-### GUI Interface
+### From Source
 
-Run the GUI application with:
+```bash
+git clone https://github.com/yourusername/polyalphabetic-and-caesar_cipher.git
+cd polyalphabetic-and-caesar_cipher
+pip install -r requirements.txt
+python setup.py install
 ```
+
+### Using the Executables
+
+Download the latest release package (`cipher_tools_windows.zip`) from the [Releases](https://github.com/yourusername/polyalphabetic-and-caesar_cipher/releases) page. The package includes:
+
+- `cipher_tool.exe` - Command-line interface
+- `cipher_gui.exe` - Graphical user interface
+- `run_cipher_app.bat` - Unified launcher script
+
+Simply extract the ZIP file and run either:
+- `run_cipher_app.bat` for the unified launcher
+- `cipher_gui.exe` to directly launch the GUI
+- `cipher_tool.exe` for command-line usage
+
+## Usage
+
+### Using the New Unified Launcher (Recommended)
+
+The easiest way to run the application is using the unified launcher:
+
+#### Windows
+Simply double-click the `run_cipher_app.bat` file or run:
+
+```bash
+python run_cipher_app.py
+```
+
+This will open a menu where you can choose between:
+- Graphical User Interface
+- Interactive Command Line Interface
+- Advanced CLI (with arguments)
+- Build Standalone Executable
+
+### Traditional Command Line Interface
+
+If you prefer the traditional command line approach:
+
+```bash
+# Encrypt a message using Caesar cipher
+python cipher_tool.py -c caesar -e -s 3 -t "Hello, World!"
+
+# Decrypt a message using Polyalphabetic cipher
+python cipher_tool.py -c poly -d -k "KEY" -t "Rijvs, Uyvjn!"
+
+# Analyze encrypted text to guess the key
+python cipher_tool.py -c caesar -a -t "Khoor, Zruog!"
+```
+
+### Direct GUI Launch
+
+You can also launch the GUI directly:
+
+```bash
 python cipher_gui.py
 ```
 
-### Command Line Interface
+## Developer Guide
 
-Run the command-line interface with:
+### Project Structure
+
+- `cipher_core.py`: Core implementations of cipher algorithms
+- `cipher_service.py`: Service layer that coordinates operations
+- `cipher_ai.py`: AI-driven analysis tools
+- `file_service.py`: File handling utilities
+- `cipher_tool.py`: Command-line interface
+- `cipher_gui.py`: Graphical user interface
+- `tests/`: Test suite
+
+### Running Tests
+
+```bash
+pytest tests/
 ```
-python cipher_service.py
+
+### Building the Executable
+
+```bash
+pyinstaller --onefile --windowed --name cipher_tool cipher_tool.py
 ```
 
-## Additional Notes
+Or use the provided spec file:
 
-This project demonstrates clean code principles including:
-- Separation of concerns
-- Single responsibility principle
-- Don't Repeat Yourself (DRY)
-- Clear and descriptive naming conventions
-- Comprehensive documentation
+```bash
+pyinstaller cipher_tool.spec
+```
+
+### CI/CD Pipeline
+
+This project uses GitHub Actions for continuous integration and delivery:
+
+1. On every push or pull request to main/master branch:
+   - Run linting checks with flake8
+   - Execute test suite with pytest
+   - Validate the codebase quality
+
+2. On push to main/master branch:
+   - Automatically builds both CLI and GUI executables
+   - Packages executables and launcher into a zip file
+   - Creates a new GitHub release with the version from setup.py
+   - Uploads the package as a release asset
+   - Makes the release available for download
+
+The workflow configuration is defined in `.github/workflows/python-app.yml`.
+
+## Cipher Implementations
+
+### Caesar Cipher
+
+A substitution cipher where each letter is shifted by a fixed number of positions.
+
+```python
+from cipher_core import CaesarCipher
+
+# Encrypt
+encrypted = CaesarCipher.transform("Hello", 3, encrypt=True)  # "Khoor"
+
+# Decrypt
+decrypted = CaesarCipher.transform("Khoor", 3, encrypt=False)  # "Hello"
+```
+
+### Polyalphabetic Cipher
+
+Uses a keyword to determine the shift for each letter in the plaintext.
+
+```python
+from cipher_core import PolyalphabeticCipher
+
+# Encrypt
+encrypted = PolyalphabeticCipher.transform("Hello", "KEY", encrypt=True)
+
+# Decrypt
+decrypted = PolyalphabeticCipher.transform(encrypted, "KEY", encrypt=False)
+```
+
+### Substitution Cipher
+
+Replaces each letter with another letter from a shuffled alphabet.
+
+```python
+from cipher_core import SubstitutionCipher
+
+# Generate a random key
+key = SubstitutionCipher.generate_key()
+
+# Encrypt
+encrypted = SubstitutionCipher.transform("Hello", key, encrypt=True)
+
+# Decrypt
+decrypted = SubstitutionCipher.transform(encrypted, key, encrypt=False)
+```
+
+### Transposition Cipher
+
+Rearranges the letters of the plaintext according to a key.
+
+```python
+from cipher_core import TranspositionCipher
+
+# Encrypt using a string key
+encrypted = TranspositionCipher.transform("Hello World", "KEY", encrypt=True)
+
+# Decrypt
+decrypted = TranspositionCipher.transform(encrypted, "KEY", encrypt=False)
+```
+
+### Rail Fence Cipher
+
+Writes the plaintext in a zigzag pattern across multiple rows and reads off by row.
+
+```python
+from cipher_core import RailFenceCipher
+
+# Encrypt with 3 rails
+encrypted = RailFenceCipher.transform("Hello World", 3, encrypt=True)
+
+# Decrypt
+decrypted = RailFenceCipher.transform(encrypted, 3, encrypt=False)
+```
+
+### Affine Cipher
+
+Uses a mathematical function to encrypt/decrypt text.
+
+```python
+from cipher_core import AffineCipher
+
+# Encrypt using key pair (a, b)
+encrypted = AffineCipher.transform("Hello", (5, 8), encrypt=True)
+
+# Decrypt
+decrypted = AffineCipher.transform(encrypted, (5, 8), encrypt=False)
+```
+
+## AI Analysis
+
+The AI analyzer can be used to detect encryption methods and guess keys:
+
+```python
+from cipher_ai import CipherAnalyzer
+
+# Analyze Caesar-encrypted text
+results = CipherAnalyzer.analyze_caesar(encrypted_text)
+for r in results:
+    print(f"Shift: {r['shift']}, Confidence: {r['confidence']}%, Sample: {r['sample']}")
+
+# Analyze Polyalphabetic-encrypted text
+results = CipherAnalyzer.analyze_polyalphabetic(encrypted_text)
+for r in results:
+    print(f"Keyword: {r['keyword']}, Confidence: {r['confidence']}%, Sample: {r['sample']}")
+```
+
+## License
+
+MIT License
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.

@@ -8,6 +8,7 @@ sample text and then using the analyzer to attempt to recover the key.
 from cipher_core import CaesarCipher, PolyalphabeticCipher
 from cipher_ai import CipherAnalyzer
 
+
 def test_caesar_analyzer():
     """Test the Caesar cipher analyzer with known plaintext."""
     print("\n=== Testing Caesar Cipher Analysis ===")
@@ -33,16 +34,26 @@ def test_caesar_analyzer():
     # Display results
     print("\nTop 5 predictions:")
     for i, result in enumerate(results):
-        print(f"{i+1}. Shift = {result['shift']} (Confidence: {result['confidence']}%)")
+        print(
+            f"{i+1}. Shift = {result['shift']} "
+            f"(Confidence: {result['confidence']}%)"
+        )
         print(f"   Sample: {result['sample'][:50]}...\n")
     
     # Check if our analysis found the correct shift
     shifts = [r['shift'] for r in results]
     if actual_shift in shifts:
         position = shifts.index(actual_shift) + 1
-        print(f"SUCCESS! Correct shift ({actual_shift}) found at position {position}")
+        print(
+            f"SUCCESS! Correct shift ({actual_shift}) found at position "
+            f"{position}"
+        )
     else:
-        print(f"Analysis did not find the correct shift ({actual_shift}) in top 5 results.")
+        print(
+            f"Analysis did not find the correct shift ({actual_shift}) "
+            f"in top 5 results."
+        )
+
 
 def test_polyalphabetic_analyzer():
     """Test the Polyalphabetic cipher analyzer with known plaintext."""
@@ -60,7 +71,9 @@ def test_polyalphabetic_analyzer():
     actual_keyword = "liberty"
     print(f"Original keyword: '{actual_keyword}'")
     
-    ciphertext = PolyalphabeticCipher.transform(plaintext, actual_keyword, encrypt=True)
+    ciphertext = PolyalphabeticCipher.transform(
+        plaintext, actual_keyword, encrypt=True
+    )
     print(f"\nEncrypted text:\n{ciphertext[:100]}...\n")
     
     # Analyze the ciphertext
@@ -70,21 +83,34 @@ def test_polyalphabetic_analyzer():
     # Display results
     print("\nTop predictions:")
     for i, result in enumerate(results):
-        print(f"{i+1}. Keyword = '{result['keyword']}' (Confidence: {result['confidence']}%)")
+        print(
+            f"{i+1}. Keyword = '{result['keyword']}' "
+            f"(Confidence: {result['confidence']}%)"
+        )
         print(f"   Sample: {result['sample'][:50]}...\n")
     
     # Check if our analysis found the correct keyword or a functionally equivalent one
     found = False
     for i, result in enumerate(results):
         # Check if decryption with this keyword produces readable text
-        decrypted = PolyalphabeticCipher.transform(ciphertext, result['keyword'], encrypt=False)
-        if actual_keyword == result['keyword'] or plaintext[:20].lower() in decrypted[:30].lower():
+        decrypted = PolyalphabeticCipher.transform(
+            ciphertext, result['keyword'], encrypt=False
+        )
+        if (actual_keyword == result['keyword'] or 
+                plaintext[:20].lower() in decrypted[:30].lower()):
             found = True
-            print(f"SUCCESS! Working keyword found at position {i+1}: '{result['keyword']}'")
+            print(
+                f"SUCCESS! Working keyword found at position {i+1}: "
+                f"'{result['keyword']}'"
+            )
             break
     
     if not found:
-        print(f"Analysis did not find the correct keyword or equivalent in top results.")
+        print(
+            "Analysis did not find the correct keyword or equivalent "
+            "in top results."
+        )
+
 
 if __name__ == "__main__":
     print("Testing the AI-driven cipher analysis functionality")

@@ -1,8 +1,8 @@
 """
 File Service Module - Handles file operations for the cipher application.
 
-This module encapsulates all file I/O operations needed by the cipher application,
-providing a clean separation between file handling and cipher operations.
+This module encapsulates all file I/O operations needed by the cipher
+application, providing a clean separation between file handling and cipher ops.
 """
 
 import os
@@ -19,13 +19,14 @@ class FileService:
         Args:
             input_path (str): Path to the input file
             output_path (str): Path to the output file
-            transform_function (callable): Function to apply to each line of the file
+            transform_function (callable): Function to apply to each line
             
         Returns:
             str: A message indicating success or the error encountered
         """
         try:
-            with open(input_path, 'r') as input_file, open(output_path, 'w') as output_file:
+            with open(input_path, 'r') as input_file, \
+                 open(output_path, 'w') as output_file:
                 for line in input_file:
                     output_file.write(transform_function(line))
             
