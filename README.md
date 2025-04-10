@@ -1,267 +1,231 @@
-# Cipher Tools
+# CipherCraft: Advanced Cryptography Toolkit
 
-A comprehensive toolkit for encryption and decryption using multiple cipher algorithms with AI-driven analysis capabilities.
+[![Build Status](https://github.com/yourusername/ciphercraft/workflows/Python%20Application/badge.svg)](https://github.com/yourusername/ciphercraft/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
-## Features
+## 🔐 Overview
 
-- Multiple cipher implementations:
-  - Caesar Cipher
-  - Polyalphabetic (Vigenère) Cipher
-  - Substitution Cipher
-  - Transposition Cipher
-  - Rail Fence Cipher
-  - Affine Cipher
+CipherCraft is a comprehensive cryptography toolkit that demonstrates advanced cipher implementation and cryptanalysis techniques. This project combines classical cryptographic algorithms with modern software engineering practices and AI-driven analysis capabilities.
 
-- AI-driven analysis tools:
-  - Encryption key detection
-  - Automated cryptanalysis for Caesar and Polyalphabetic ciphers
-  - Letter frequency analysis
-  - N-gram scoring
-  - Known-plaintext analysis
+![CipherCraft GUI](https://via.placeholder.com/800x450?text=CipherCraft+GUI+Screenshot)
 
-- User interfaces:
-  - Command-line interface
-  - Graphical user interface
-  - File-based operations
+## ✨ Key Features
 
-## Installation
+### Multiple Cipher Implementations
+
+- **Caesar Cipher**: Shift-based substitution with customizable offset
+- **Polyalphabetic (Vigenère) Cipher**: Keyword-based shifting for enhanced security
+- **Substitution Cipher**: Full alphabet substitution with random key generation
+- **Transposition Cipher**: Column-based scrambling using keyword or numeric ordering
+- **Rail Fence Cipher**: Zigzag pattern encryption with variable rail count
+- **Affine Cipher**: Mathematical transformation using modular arithmetic
+
+### AI-Driven Cryptanalysis
+
+- **Automated Key Detection**: Statistical analysis to determine encryption methods
+- **Frequency Analysis**: Letter distribution examination against language patterns
+- **N-gram Scoring**: Analysis of character sequences for linguistic fingerprints
+- **Known-Plaintext Analysis**: Decipher keys when portions of plaintext are known
+- **Confidence Scoring**: Probabilistic ranking of decryption attempts
+
+### Multiple User Interfaces
+
+- **Graphical User Interface (GUI)**: Intuitive Tkinter-based application with:
+  - Real-time analysis visualization
+  - Cipher selection and configuration
+  - File input/output capabilities
+  - Key generation tools
+  - Automated cryptanalysis results
+
+- **Command Line Interface (CLI)**: Feature-rich terminal interface supporting:
+  - Batch processing operations
+  - Pipeline integration
+  - Scriptable encryption/decryption
+  - Direct text or file input/output
+
+### Advanced Software Architecture
+
+- **Clean Architecture**: Separation of concerns with core, service, and UI layers
+- **Factory Method Pattern**: For cipher algorithm instantiation
+- **Strategy Pattern**: Dynamic cipher algorithm selection
+- **Facade Pattern**: Simplified service layer interface
+- **Command Pattern**: For operation execution
+
+## 🔧 Installation
 
 ### From Source
 
 ```bash
-git clone https://github.com/yourusername/polyalphabetic-and-caesar_cipher.git
-cd polyalphabetic-and-caesar_cipher
+# Clone the repository
+git clone https://github.com/yourusername/ciphercraft.git
+cd ciphercraft
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Install the package
 python setup.py install
 ```
 
-### Using the Executables
+### Using Prebuilt Executables
 
-Download the latest release package (`cipher_tools_windows.zip`) from the [Releases](https://github.com/yourusername/polyalphabetic-and-caesar_cipher/releases) page. The package includes:
+Download the latest release package from the [Releases](https://github.com/yourusername/ciphercraft/releases) page:
 
-- `cipher_tool.exe` - Command-line interface
-- `cipher_gui.exe` - Graphical user interface
-- `run_cipher_app.bat` - Unified launcher script
+- `cipher_tool.exe` - Unified application executable (includes both CLI and GUI)
 
-Simply extract the ZIP file and run either:
-- `run_cipher_app.bat` for the unified launcher
-- `cipher_gui.exe` to directly launch the GUI
-- `cipher_tool.exe` for command-line usage
+## 📚 Usage Examples
 
-## Usage
-
-### Using the New Unified Launcher (Recommended)
-
-The easiest way to run the application is using the unified launcher:
-
-#### Windows
-Simply double-click the `scripts/run_cipher_app.bat` file or run:
+### Starting the Application (Recommended)
 
 ```bash
-python scripts/run_cipher_app.py
+# The simple way to start CipherCraft
+python run.py  # Launches GUI by default
+
+# With arguments to use CLI mode
+python run.py --help
 ```
 
-This will open a menu where you can choose between:
-- Graphical User Interface
-- Interactive Command Line Interface
-- Advanced CLI (with arguments)
-- Build Standalone Executable
-
-### Traditional Command Line Interface
-
-If you prefer the traditional command line approach:
+### Command Line Interface
 
 ```bash
 # Encrypt a message using Caesar cipher
-python src/ui/cli.py -c caesar -e -s 3 -t "Hello, World!"
+python -m src.ui.cli -c caesar -e -s 3 -t "Hello, World!"
 
 # Decrypt a message using Polyalphabetic cipher
-python src/ui/cli.py -c poly -d -k "KEY" -t "Rijvs, Uyvjn!"
+python -m src.ui.cli -c poly -d -k "KEYWORD" -t "Fcvpu, Uyvnd!"
 
 # Analyze encrypted text to guess the key
-python src/ui/cli.py -c caesar -a -t "Khoor, Zruog!"
+python -m src.ui.cli -c caesar -a -t "Khoor, Zruog!"
 ```
 
-### Direct GUI Launch
+### Python API
 
-You can also launch the GUI directly:
+```python
+from src.services.cipher_service import CipherService
 
-```bash
-python src/ui/gui.py
+# Initialize the service
+cipher_service = CipherService()
+
+# Caesar cipher
+encrypted = cipher_service.encrypt_caesar("Hello, World!", 3)
+decrypted = cipher_service.decrypt_caesar(encrypted, 3)
+
+# Polyalphabetic cipher
+encrypted = cipher_service.encrypt_polyalphabetic("Hello, World!", "KEY")
+decrypted = cipher_service.decrypt_polyalphabetic(encrypted, "KEY")
+
+# AI analysis
+results = cipher_service.analyze_caesar_encryption("Khoor, Zruog!")
+for result in results:
+    print(f"Shift: {result['shift']}, Confidence: {result['confidence']}%")
 ```
 
-## Developer Guide
+## 🏛️ Architecture
 
-### Project Structure
-
-The project has been reorganized into a more modular structure:
+CipherCraft follows a modular, layered architecture that separates concerns and provides clear boundaries between components:
 
 ```
-polyalphabetic-and-caesar_cipher/
-├── scripts/                 # Scripts for running and building
-│   ├── build_exe.py         # Build script for creating executables
-│   ├── run_cipher_app.py    # Main launcher script
-│   └── run_cipher_app.bat   # Windows batch launcher
-├── src/                     # Source code
-│   ├── ai/                  # AI and analysis modules
-│   │   └── analyzer.py      # AI-driven text analysis
-│   ├── core/                # Core cipher implementations
-│   │   ├── base.py          # Base classes for ciphers
-│   │   └── ciphers.py       # Cipher algorithm implementations
-│   ├── services/            # Service layer
-│   │   ├── cipher_service.py # Coordinates cipher operations
+ciphercraft/
+├── src/
+│   ├── core/         # Core cipher implementations
+│   │   ├── base.py   # Abstract base classes
+│   │   └── ciphers.py # Cipher algorithm implementations
+│   ├── services/     # Business logic and coordination
+│   │   ├── cipher_service.py # Service façade for operations
 │   │   └── file_service.py   # File handling utilities
-│   └── ui/                  # User interfaces
-│       ├── cli.py           # Command-line interface
-│       └── gui.py           # Graphical user interface
-├── tests/                   # Test suite
-├── requirements.txt         # Dependencies
-└── setup.py                 # Installation script
+│   ├── ai/           # AI and analysis capabilities  
+│   │   └── analyzer.py # Statistical analysis tools
+│   └── ui/           # User interfaces
+│       ├── cli.py    # Command-line interface
+│       └── gui.py    # Graphical user interface
+├── scripts/          # Utility scripts
+├── tests/            # Comprehensive test suite
+└── docs/             # Documentation
 ```
 
-### Running Tests
+### Design Patterns
 
-```bash
-pytest tests/
-```
+- **Service Layer Pattern**: Isolates business logic from UI and core implementations
+- **Repository Pattern**: For file handling abstraction
+- **Strategy Pattern**: For interchangeable cipher algorithms
+- **Factory Method**: For cipher instantiation
+- **Command Pattern**: For encapsulating operations
 
-### Building the Executable
+## 🧪 Testing and Quality Assurance
 
-```bash
-python scripts/build_exe.py
-```
+CipherCraft includes a comprehensive test suite using pytest, with:
 
-This will create a standalone executable in the `dist/` directory.
+- Unit tests for all cipher implementations
+- Integration tests for service layer
+- End-to-end tests for file operations
+- Property-based testing for cryptographic properties
 
-### CI/CD Pipeline
+The CI/CD pipeline (GitHub Actions) ensures code quality by:
+- Running automated tests on each push
+- Enforcing code style with flake8
+- Building executables for release
+- Generating documentation
 
-This project uses GitHub Actions for continuous integration and delivery:
-
-1. On every push or pull request to main/master branch:
-   - Run linting checks with flake8
-   - Execute test suite with pytest
-   - Validate the codebase quality
-
-2. On push to main/master branch:
-   - Automatically builds both CLI and GUI executables
-   - Packages executables and launcher into a zip file
-   - Creates a new GitHub release with the version from setup.py
-   - Uploads the package as a release asset
-   - Makes the release available for download
-
-The workflow configuration is defined in `.github/workflows/python-app.yml`.
-
-## Cipher Implementations
+## 🔍 Implementation Details
 
 ### Caesar Cipher
 
-A substitution cipher where each letter is shifted by a fixed number of positions.
-
 ```python
-from src.core.ciphers import CaesarCipher
-
-# Encrypt
+# Encryption
 encrypted = CaesarCipher.transform("Hello", 3, encrypt=True)  # "Khoor"
 
-# Decrypt
+# Decryption
 decrypted = CaesarCipher.transform("Khoor", 3, encrypt=False)  # "Hello"
 ```
 
-### Polyalphabetic Cipher
+The Caesar cipher implementation handles proper wrapping of the alphabet and preserves case and non-alphabetic characters.
 
-Uses a keyword to determine the shift for each letter in the plaintext.
-
-```python
-from src.core.ciphers import PolyalphabeticCipher
-
-# Encrypt
-encrypted = PolyalphabeticCipher.transform("Hello", "KEY", encrypt=True)
-
-# Decrypt
-decrypted = PolyalphabeticCipher.transform(encrypted, "KEY", encrypt=False)
-```
-
-### Substitution Cipher
-
-Replaces each letter with another letter from a shuffled alphabet.
+### AI Analysis Example
 
 ```python
-from src.core.ciphers import SubstitutionCipher
-
-# Generate a random key
-key = SubstitutionCipher.generate_key()
-
-# Encrypt
-encrypted = SubstitutionCipher.transform("Hello", key, encrypt=True)
-
-# Decrypt
-decrypted = SubstitutionCipher.transform(encrypted, key, encrypt=False)
-```
-
-### Transposition Cipher
-
-Rearranges the letters of the plaintext according to a key.
-
-```python
-from src.core.ciphers import TranspositionCipher
-
-# Encrypt using a string key
-encrypted = TranspositionCipher.transform("Hello World", "KEY", encrypt=True)
-
-# Decrypt
-decrypted = TranspositionCipher.transform(encrypted, "KEY", encrypt=False)
-```
-
-### Rail Fence Cipher
-
-Writes the plaintext in a zigzag pattern across multiple rows and reads off by row.
-
-```python
-from src.core.ciphers import RailFenceCipher
-
-# Encrypt with 3 rails
-encrypted = RailFenceCipher.transform("Hello World", 3, encrypt=True)
-
-# Decrypt
-decrypted = RailFenceCipher.transform(encrypted, 3, encrypt=False)
-```
-
-### Affine Cipher
-
-Uses a mathematical function to encrypt/decrypt text.
-
-```python
-from src.core.ciphers import AffineCipher
-
-# Encrypt using key pair (a, b)
-encrypted = AffineCipher.transform("Hello", (5, 8), encrypt=True)
-
-# Decrypt
-decrypted = AffineCipher.transform(encrypted, (5, 8), encrypt=False)
-```
-
-## AI Analysis
-
-The AI analyzer can be used to detect encryption methods and guess keys:
-
-```python
-from src.ai.analyzer import CipherAnalyzer
-
-# Analyze Caesar-encrypted text
+# The analyzer uses sophisticated frequency analysis and language patterns
 results = CipherAnalyzer.analyze_caesar(encrypted_text)
-for r in results:
-    print(f"Shift: {r['shift']}, Confidence: {r['confidence']}%, Sample: {r['sample']}")
 
-# Analyze Polyalphabetic-encrypted text
-results = CipherAnalyzer.analyze_polyalphabetic(encrypted_text)
+# Results include confidence scores and sample decryptions
 for r in results:
-    print(f"Keyword: {r['keyword']}, Confidence: {r['confidence']}%, Sample: {r['sample']}")
+    print(f"Shift: {r['shift']}, Confidence: {r['confidence']}%")
+    print(f"Sample: {r['sample']}")
 ```
 
-## License
+The AI analyzer uses:
+- Letter frequency distribution compared to expected language patterns
+- Chi-squared statistical analysis for goodness of fit
+- N-gram analysis for language detection
+- Word pattern matching against common word dictionaries
 
-MIT License
+## 🌟 Applications and Use Cases
 
-## Contributing
+- **Educational Tool**: Learning cryptography principles and implementation
+- **Security Training**: Demonstrating strengths and weaknesses of classical ciphers
+- **CTF Competitions**: Cryptography challenge development and solving
+- **Message Security**: Basic encryption for non-critical communication
+- **Data Obfuscation**: Simple protection of configuration data
+
+## 🛡️ Security Considerations
+
+While CipherCraft implements classical ciphers with high-quality code, it's important to note:
+
+- Classical ciphers are not suitable for modern security requirements
+- These implementations are primarily for educational and demonstration purposes
+- For production security needs, use established cryptographic libraries like:
+  - OpenSSL
+  - libsodium
+  - Python's cryptography package
+
+## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+*CipherCraft: Blend of classical cryptography with modern software engineering*
