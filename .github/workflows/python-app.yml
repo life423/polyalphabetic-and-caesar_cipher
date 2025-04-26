@@ -55,22 +55,22 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -e .
         shell: bash
     
       - name: Build command-line executable
         run: |
-          pyinstaller --onefile --name cipher_tool cipher_tool.py
+          pyinstaller --onefile --name cipher_tool run.py
         shell: bash
       
       - name: Build GUI executable
         run: |
-          pyinstaller --onefile --windowed --name cipher_gui cipher_gui.py
+          pyinstaller --onefile --windowed --name cipher_gui gui.py
         shell: bash
     
       - name: Create batch launcher
         run: |
-          copy run_cipher_app.bat dist\run_cipher_app.bat
+          copy scripts\run_cipher_app.bat dist\run_cipher_app.bat
         shell: cmd
     
       - name: Package executables
@@ -83,7 +83,7 @@ jobs:
       - name: Get version
         id: get_version
         run: |
-          VERSION=$(python -c "import re; print(re.search(r'(?<=version=\")(.+?)(?=\")', open('setup.py').read()).group(1))")
+          VERSION=$(python -c "import re; print(re.search(r'version=\"([0-9.]+)\"', open('setup.py').read()).group(1))")
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
         shell: bash
     
