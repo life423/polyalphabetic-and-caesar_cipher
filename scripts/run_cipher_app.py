@@ -6,11 +6,12 @@ This script provides an easy way to run the Cipher Tools application,
 offering quick access to both the GUI and command-line interfaces.
 """
 
-import os
-import sys
-import subprocess
-import platform
 import importlib
+import os
+import platform
+import subprocess
+import sys
+
 import pkg_resources
 
 
@@ -94,8 +95,9 @@ def launch_gui():
     try:
         # Direct import and use of tkinter to avoid potential import issues
         import tkinter as tk
+
         from src.ui.gui import CipherGUI, main
-        
+
         # Try running the GUI's main function
         main()
     except Exception as e:
