@@ -8,7 +8,7 @@ a user-friendly interface while keeping all business logic separate.
 
 import os
 import tkinter as tk
-from tkinter import filedialog, ttk, scrolledtext
+from tkinter import filedialog, ttk, scrolledtext, font, messagebox
 from src.services.cipher_service import CipherService
 
 
@@ -20,6 +20,29 @@ class CipherGUI:
     all cipher operations to the CipherService.
     """
 
+    # Modern color palette
+    COLORS = {
+        'primary': '#2D3E50',      # Dark blue-gray
+        'secondary': '#1ABC9C',    # Teal
+        'accent': '#3498DB',       # Blue
+        'danger': '#E74C3C',       # Red
+        'warning': '#F39C12',      # Orange
+        'success': '#2ECC71',      # Green
+        'light': '#ECF0F1',        # Light gray
+        'dark': '#2C3E50',         # Dark blue-gray
+        'text': '#34495E',         # Dark gray-blue
+        'bg': '#F5F7FA'            # Light background
+    }
+
+    # Spacing scale (in pixels)
+    SPACING = {
+        'xs': 2,
+        'sm': 5,
+        'md': 10,
+        'lg': 20,
+        'xl': 30
+    }
+
     def __init__(self, root):
         """
         Initialize the GUI components.
@@ -28,33 +51,173 @@ class CipherGUI:
             root: The Tkinter root window
         """
         self.root = root
-        self.root.title("Cipher Tool")
+        self.root.title("CipherCraft")
+        self.root.configure(bg=self.COLORS['bg'])
+        
+        # Set minimum window size
+        self.root.minsize(800, 700)
         
         # Initialize the service layer
         self.cipher_service = CipherService()
         
+        # Setup custom fonts
+        self._setup_fonts()
+        
+        # Create custom styles for ttk widgets
+        self._create_styles()
+        
         # Create and configure the UI components
         self._create_widgets()
         self._layout_widgets()
+    
+    def _setup_fonts(self):
+        """Setup custom fonts for the application."""
+        # Store fonts as instance variables for later use
+        self.font_heading = font.Font(
+            family='Arial', size=18, weight='bold')
+        self.font_subheading = font.Font(
+            family='Arial', size=12, weight='bold')
+        self.font_body = font.Font(
+            family='Arial', size=10)
+        self.font_small = font.Font(
+            family='Arial', size=9)
+        self.font_button = font.Font(
+            family='Arial', size=10, weight='bold')
+        self.font_code = font.Font(
+            family='Courier New', size=10)
+    
+    def _create_styles(self):
+        """Create custom ttk styles for widgets."""
+        style = ttk.Style()
+        
+        # Configure the overall theme
+        style.theme_use('clam')  # Use a modern-looking base theme
+        
+        # Configure TLabel
+        style.configure(
+            'TLabel',
+            background=self.COLORS['bg'],
+            foreground=self.COLORS['text'],
+            font=self.font_body
+        )
+        
+        # Configure TFrame
+        style.configure(
+            'TFrame',
+            background=self.COLORS['bg']
+        )
+        
+        # Configure TLabelframe
+        style.configure(
+            'TLabelframe',
+            background=self.COLORS['bg'],
+            foreground=self.COLORS['primary'],
+            font=self.font_subheading
+        )
+        style.configure(
+            'TLabelframe.Label',
+            background=self.COLORS['bg'],
+            foreground=self.COLORS['primary'],
+            font=self.font_subheading
+        )
+        
+        # Configure TButton
+        style.configure(
+            'TButton',
+            background=self.COLORS['primary'],
+            foreground=self.COLORS['light'],
+            font=self.font_button,
+            padding=(self.SPACING['md'], self.SPACING['sm'])
+        )
+        
+        # Special button styles
+        style.configure(
+            'Primary.TButton',
+            background=self.COLORS['primary'],
+            foreground='white',
+            font=self.font_button
+        )
+        
+        style.configure(
+            'Success.TButton',
+            background=self.COLORS['success'],
+            foreground='white',
+            font=self.font_button
+        )
+        
+        style.configure(
+            'Accent.TButton',
+            background=self.COLORS['accent'],
+            foreground='white',
+            font=self.font_button
+        )
+        
+        style.configure(
+            'Warning.TButton',
+            background=self.COLORS['warning'],
+            foreground='white',
+            font=self.font_button
+        )
+        
+        # Configure TRadiobutton
+        style.configure(
+            'TRadiobutton',
+            background=self.COLORS['bg'],
+            foreground=self.COLORS['text'],
+            font=self.font_body
+        )
+        
+        # Configure TCheckbutton
+        style.configure(
+            'TCheckbutton',
+            background=self.COLORS['bg'],
+            foreground=self.COLORS['text'],
+            font=self.font_body
+        )
+        
+        # Configure TEntry
+        style.configure(
+            'TEntry',
+            fieldbackground='white',
+            foreground=self.COLORS['text'],
+            font=self.font_body,
+            padding=self.SPACING['sm']
+        )
     
     def _create_widgets(self):
         """Create all the widgets for the application."""
         # Title
         self.title_label = tk.Label(
             self.root,
-            text="Comprehensive Cipher Tool",
-            font=('Helvetica', 16, 'bold')
+            text="CipherCraft",
+            font=self.font_heading,
+            bg=self.COLORS['bg'],
+            fg=self.COLORS['primary']
+        )
+        
+        self.subtitle_label = tk.Label(
+            self.root,
+            text="Advanced Encryption/Decryption Tool",
+            font=self.font_subheading,
+            bg=self.COLORS['bg'],
+            fg=self.COLORS['secondary']
         )
 
         # ===== Settings Frame =====
-        self.settings_frame = ttk.LabelFrame(self.root, text="Cipher Settings")
+        self.settings_frame = ttk.LabelFrame(
+            self.root,
+            text="Cipher Settings",
+            padding=self.SPACING['md']
+        )
 
         # Cipher selection
         self.cipher_var = tk.StringVar(value="c")  # Default to Caesar
         cipher_selection = ttk.Frame(self.settings_frame)
         ttk.Label(
-            cipher_selection, text="Cipher type:"
-        ).pack(side="left", padx=(0, 10))
+            cipher_selection,
+            text="Cipher Type:",
+            font=self.font_subheading
+        ).pack(side="left", padx=(0, self.SPACING['md']))
         
         cipher_types_frame = ttk.Frame(cipher_selection)
         # Row 1 of cipher types
@@ -64,21 +227,27 @@ class CipherGUI:
             variable=self.cipher_var,
             value="c",
             command=self._update_key_section
-        ).grid(row=0, column=0, sticky="w", padx=(0, 10))
+        ).grid(
+            row=0, column=0, sticky="w", 
+            padx=(0, self.SPACING['md']), pady=self.SPACING['sm']
+        )
         ttk.Radiobutton(
             cipher_types_frame,
             text="Polyalphabetic",
             variable=self.cipher_var,
             value="p",
             command=self._update_key_section
-        ).grid(row=0, column=1, sticky="w", padx=(0, 10))
+        ).grid(
+            row=0, column=1, sticky="w",
+            padx=(0, self.SPACING['md']), pady=self.SPACING['sm']
+        )
         ttk.Radiobutton(
             cipher_types_frame,
             text="Substitution",
             variable=self.cipher_var,
             value="s",
             command=self._update_key_section
-        ).grid(row=0, column=2, sticky="w")
+        ).grid(row=0, column=2, sticky="w", pady=self.SPACING['sm'])
         
         # Row 2 of cipher types
         ttk.Radiobutton(
@@ -87,46 +256,61 @@ class CipherGUI:
             variable=self.cipher_var,
             value="t",
             command=self._update_key_section
-        ).grid(row=1, column=0, sticky="w", padx=(0, 10))
+        ).grid(
+            row=1, column=0, sticky="w",
+            padx=(0, self.SPACING['md']), pady=self.SPACING['sm']
+        )
         ttk.Radiobutton(
             cipher_types_frame,
             text="Rail Fence",
             variable=self.cipher_var,
             value="r",
             command=self._update_key_section
-        ).grid(row=1, column=1, sticky="w", padx=(0, 10))
+        ).grid(
+            row=1, column=1, sticky="w",
+            padx=(0, self.SPACING['md']), pady=self.SPACING['sm']
+        )
         ttk.Radiobutton(
             cipher_types_frame,
             text="Affine",
             variable=self.cipher_var,
             value="a",
             command=self._update_key_section
-        ).grid(row=1, column=2, sticky="w")
+        ).grid(row=1, column=2, sticky="w", pady=self.SPACING['sm'])
         
         cipher_types_frame.pack(side="left")
-        cipher_selection.pack(fill="x", padx=10, pady=5)
+        cipher_selection.pack(
+            fill="x", padx=self.SPACING['md'], pady=self.SPACING['md']
+        )
         
         # Operation selection
         self.action_var = tk.StringVar(value="e")  # 'e' for encrypt, 'd' for decrypt
         operation_selection = ttk.Frame(self.settings_frame)
         ttk.Label(
-            operation_selection, text="Operation:"
-        ).pack(side="left", padx=(0, 10))
-        ttk.Radiobutton(
             operation_selection,
+            text="Operation:",
+            font=self.font_subheading
+        ).pack(side="left", padx=(0, self.SPACING['md']))
+        
+        operation_buttons_frame = ttk.Frame(operation_selection)
+        ttk.Radiobutton(
+            operation_buttons_frame,
             text="Encrypt",
             variable=self.action_var,
             value="e"
-        ).pack(side="left", padx=(0, 10))
+        ).pack(side="left", padx=(0, self.SPACING['lg']))
         ttk.Radiobutton(
-            operation_selection,
+            operation_buttons_frame,
             text="Decrypt",
             variable=self.action_var,
             value="d"
         ).pack(side="left")
-        operation_selection.pack(fill="x", padx=10, pady=5)
+        operation_buttons_frame.pack(side="left")
+        operation_selection.pack(
+            fill="x", padx=self.SPACING['md'], pady=self.SPACING['md']
+        )
         
-        # Key/shift input section - will be updated dynamically based on cipher type
+        # Key section frame - will hold different key inputs based on cipher type
         self.key_section_frame = ttk.Frame(self.settings_frame)
         
         # Create different key input frames for each cipher type
@@ -136,82 +320,106 @@ class CipherGUI:
         self.caesar_key_frame = ttk.Frame(self.key_section_frame)
         ttk.Label(
             self.caesar_key_frame,
-            text="Shift value:"
-        ).pack(side="left", padx=(0, 10))
-        self.caesar_key_entry = ttk.Entry(self.caesar_key_frame, width=10)
+            text="Shift Value:",
+            font=self.font_subheading
+        ).pack(side="left", padx=(0, self.SPACING['md']))
+        self.caesar_key_entry = ttk.Entry(
+            self.caesar_key_frame, width=10, font=self.font_body
+        )
         self.caesar_key_entry.pack(side="left")
         ttk.Label(
             self.caesar_key_frame,
-            text="(1-25)"
-        ).pack(side="left", padx=(5, 0))
+            text="(1-25)", font=self.font_small
+        ).pack(side="left", padx=(self.SPACING['sm'], 0))
         
         # 2. Polyalphabetic cipher key input (keyword)
         self.poly_key_frame = ttk.Frame(self.key_section_frame)
         ttk.Label(
             self.poly_key_frame,
-            text="Keyword:"
-        ).pack(side="left", padx=(0, 10))
-        self.poly_key_entry = ttk.Entry(self.poly_key_frame, width=30)
+            text="Keyword:",
+            font=self.font_subheading
+        ).pack(side="left", padx=(0, self.SPACING['md']))
+        self.poly_key_entry = ttk.Entry(
+            self.poly_key_frame, width=30, font=self.font_body
+        )
         self.poly_key_entry.pack(side="left", fill="x", expand=True)
         
         # 3. Substitution cipher key input (26 chars)
         self.sub_key_frame = ttk.Frame(self.key_section_frame)
         ttk.Label(
             self.sub_key_frame,
-            text="Key:"
-        ).pack(side="left", padx=(0, 10))
-        self.sub_key_entry = ttk.Entry(self.sub_key_frame, width=30)
+            text="Key:",
+            font=self.font_subheading
+        ).pack(side="left", padx=(0, self.SPACING['md']))
+        self.sub_key_entry = ttk.Entry(
+            self.sub_key_frame, width=30, font=self.font_body
+        )
         self.sub_key_entry.pack(side="left", fill="x", expand=True)
         self.sub_gen_key_button = ttk.Button(
             self.sub_key_frame,
             text="Generate Key",
+            style="Accent.TButton",
             command=self._generate_substitution_key
         )
-        self.sub_gen_key_button.pack(side="left", padx=(10, 0))
+        self.sub_gen_key_button.pack(side="left", padx=(self.SPACING['md'], 0))
         
         # 4. Transposition cipher key input
         self.trans_key_frame = ttk.Frame(self.key_section_frame)
         ttk.Label(
             self.trans_key_frame,
-            text="Key:"
-        ).pack(side="left", padx=(0, 10))
-        self.trans_key_entry = ttk.Entry(self.trans_key_frame, width=30)
+            text="Key:",
+            font=self.font_subheading
+        ).pack(side="left", padx=(0, self.SPACING['md']))
+        self.trans_key_entry = ttk.Entry(
+            self.trans_key_frame, width=30, font=self.font_body
+        )
         self.trans_key_entry.pack(side="left", fill="x", expand=True)
         
         # 5. Rail Fence cipher key input
         self.rail_key_frame = ttk.Frame(self.key_section_frame)
         ttk.Label(
             self.rail_key_frame,
-            text="Rails:"
-        ).pack(side="left", padx=(0, 10))
-        self.rail_key_entry = ttk.Entry(self.rail_key_frame, width=10)
+            text="Rails:",
+            font=self.font_subheading
+        ).pack(side="left", padx=(0, self.SPACING['md']))
+        self.rail_key_entry = ttk.Entry(
+            self.rail_key_frame, width=10, font=self.font_body
+        )
         self.rail_key_entry.pack(side="left")
         ttk.Label(
             self.rail_key_frame,
-            text="(2 or more)"
-        ).pack(side="left", padx=(5, 0))
+            text="(2 or more)", font=self.font_small
+        ).pack(side="left", padx=(self.SPACING['sm'], 0))
         
         # 6. Affine cipher key input
         self.affine_key_frame = ttk.Frame(self.key_section_frame)
         ttk.Label(
             self.affine_key_frame,
-            text="a value:"
-        ).pack(side="left", padx=(0, 10))
-        self.affine_a_entry = ttk.Entry(self.affine_key_frame, width=5)
+            text="a value:", font=self.font_subheading
+        ).pack(side="left", padx=(0, self.SPACING['md']))
+        self.affine_a_entry = ttk.Entry(
+            self.affine_key_frame, width=5, font=self.font_body
+        )
         self.affine_a_entry.pack(side="left")
         ttk.Label(
             self.affine_key_frame,
-            text="b value:"
-        ).pack(side="left", padx=(10, 10))
-        self.affine_b_entry = ttk.Entry(self.affine_key_frame, width=5)
+            text="b value:", font=self.font_subheading
+        ).pack(
+            side="left", padx=(self.SPACING['md'], self.SPACING['md'])
+        )
+        self.affine_b_entry = ttk.Entry(
+            self.affine_key_frame, width=5, font=self.font_body
+        )
         self.affine_b_entry.pack(side="left")
         ttk.Label(
             self.affine_key_frame,
-            text="(a must be coprime to 26)"
-        ).pack(side="left", padx=(5, 0))
+            text="(a must be coprime to 26)", font=self.font_small
+        ).pack(side="left", padx=(self.SPACING['sm'], 0))
         
         # Add all frames to the key section (only one will be visible at a time)
-        self.key_section_frame.pack(fill="x", padx=10, pady=5)
+        self.key_section_frame.pack(
+            fill="x", padx=self.SPACING['md'], pady=self.SPACING['md']
+        )
         
         # Help text container - will be updated based on the selected cipher
         self.help_text_var = tk.StringVar()
@@ -221,45 +429,64 @@ class CipherGUI:
         self.help_text_label = ttk.Label(
             self.settings_frame,
             textvariable=self.help_text_var,
-            font=('Helvetica', 8),
-            wraplength=500  # Wrap text if it's too long
+            font=self.font_small,
+            wraplength=700,  # Wrap text if it's too long
+            foreground=self.COLORS['text']
         )
-        self.help_text_label.pack(padx=10, pady=(0, 5), anchor="w")
+        self.help_text_label.pack(
+            padx=self.SPACING['md'], pady=(0, self.SPACING['md']), anchor="w"
+        )
 
         # ===== Input/Output Frame =====
-        self.io_frame = ttk.LabelFrame(self.root, text="Input/Output")
+        self.io_frame = ttk.LabelFrame(
+            self.root,
+            text="Input/Output",
+            padding=self.SPACING['md']
+        )
 
         # Input text or file
         input_frame = ttk.Frame(self.io_frame)
         ttk.Label(
             input_frame,
-            text="Input:"
-        ).pack(side="left", padx=(0, 10))
-        self.input_entry = ttk.Entry(input_frame)
-        self.input_entry.pack(side="left", fill="x", expand=True, padx=(0, 10))
+            text="Input:", font=self.font_subheading
+        ).pack(side="left", padx=(0, self.SPACING['md']))
+        self.input_entry = ttk.Entry(input_frame, font=self.font_body)
+        self.input_entry.pack(
+            side="left", fill="x", expand=True,
+            padx=(0, self.SPACING['md'])
+        )
         self.input_file_button = ttk.Button(
             input_frame,
             text="Select File...",
+            style="Accent.TButton",
             command=self._select_input_file
         )
         self.input_file_button.pack(side="left")
-        input_frame.pack(fill="x", padx=10, pady=5)
+        input_frame.pack(
+            fill="x", padx=self.SPACING['md'], pady=self.SPACING['md']
+        )
         
         # Output file
         output_frame = ttk.Frame(self.io_frame)
         ttk.Label(
             output_frame,
-            text="Output:"
-        ).pack(side="left", padx=(0, 10))
-        self.output_entry = ttk.Entry(output_frame)
-        self.output_entry.pack(side="left", fill="x", expand=True, padx=(0, 10))
+            text="Output:", font=self.font_subheading
+        ).pack(side="left", padx=(0, self.SPACING['md']))
+        self.output_entry = ttk.Entry(output_frame, font=self.font_body)
+        self.output_entry.pack(
+            side="left", fill="x", expand=True,
+            padx=(0, self.SPACING['md'])
+        )
         self.output_file_button = ttk.Button(
             output_frame,
             text="Select File...",
+            style="Accent.TButton",
             command=self._select_output_file
         )
         self.output_file_button.pack(side="left")
-        output_frame.pack(fill="x", padx=10, pady=5)
+        output_frame.pack(
+            fill="x", padx=self.SPACING['md'], pady=self.SPACING['md']
+        )
         
         # Delete input file option
         self.delete_input_var = tk.BooleanVar(value=False)
@@ -267,133 +494,138 @@ class CipherGUI:
             self.io_frame,
             text="Delete input file after processing",
             variable=self.delete_input_var
-        ).pack(anchor="w", padx=10, pady=5)
+        ).pack(anchor="w", padx=self.SPACING['md'], pady=self.SPACING['md'])
         
         # ===== Buttons Frame =====
         self.buttons_frame = ttk.Frame(self.root)
 
-        # Process button - using standard tk buttons for better color support
-        self.process_button = tk.Button(
+        # Process button
+        self.process_button = ttk.Button(
             self.buttons_frame,
             text="Process",
-            command=self._process_text,
-            bg="#4CAF50",  # Green background
-            fg="white",    # White text
-            padx=20,
-            pady=5,
-            font=('Helvetica', 10, 'bold')
+            style="Success.TButton",
+            command=self._process_text
         )
 
         # Analyze button
-        self.analyze_button = tk.Button(
+        self.analyze_button = ttk.Button(
             self.buttons_frame,
             text="AI Analysis",
-            command=self._analyze_text,
-            bg="#3F51B5",  # Blue background
-            fg="white",    # White text
-            padx=20,
-            pady=5,
-            font=('Helvetica', 10, 'bold')
+            style="Primary.TButton",
+            command=self._analyze_text
         )
 
         # ===== Results Frame =====
-        self.results_frame = ttk.LabelFrame(self.root, text="Results")
+        self.results_frame = ttk.LabelFrame(
+            self.root,
+            text="Results",
+            padding=self.SPACING['md']
+        )
         
         # Results area
         self.result_text = scrolledtext.ScrolledText(
             self.results_frame,
             height=10,
             width=60,
-            wrap=tk.WORD
+            wrap=tk.WORD,
+            font=self.font_code,
+            bd=2,  # Add subtle border
+            relief=tk.GROOVE,
+            bg='white'  # White background for text area
         )
-        self.result_text.pack(fill="both", expand=True, padx=10, pady=10)
+        self.result_text.pack(
+            fill="both", expand=True,
+            padx=self.SPACING['md'], pady=self.SPACING['md']
+        )
         
         # ===== Analysis Frame =====
         self.analysis_frame = ttk.LabelFrame(
-            self.root, text="AI Analysis Results")
+            self.root,
+            text="AI Analysis Results",
+            padding=self.SPACING['md']
+        )
 
         # Analysis results
         self.analysis_result = scrolledtext.ScrolledText(
             self.analysis_frame,
             height=8,
             width=60,
-            wrap=tk.WORD
+            wrap=tk.WORD,
+            font=self.font_code,
+            bd=2,  # Add subtle border
+            relief=tk.GROOVE,
+            bg='white'  # White background for text area
         )
-        self.analysis_result.pack(fill="both", expand=True, padx=10, pady=10)
+        self.analysis_result.pack(
+            fill="both", expand=True,
+            padx=self.SPACING['md'], pady=self.SPACING['md']
+        )
         
-        # Apply suggestion button - matching style with other buttons
-        self.apply_button = tk.Button(
+        # Apply suggestion button
+        self.apply_button = ttk.Button(
             self.analysis_frame,
             text="Apply Selected Key",
+            style="Warning.TButton",
             command=self._apply_suggested_key,
-            bg="#FF9800",  # Orange background
-            fg="white",    # White text
-            padx=10,
-            pady=3,
-            font=('Helvetica', 10, 'bold'),
             state=tk.DISABLED
         )
-        self.apply_button.pack(pady=5)
+        self.apply_button.pack(pady=self.SPACING['md'])
 
         # Store analysis results for later use
         self.analysis_results = []
         self.selected_suggestion = None
-
-        # Create custom button styles
-        self._create_styles()
-    
-    def _create_styles(self):
-        """Create custom ttk styles for buttons."""
-        style = ttk.Style()
-
-        # Green "Process" button
-        style.configure(
-            "Green.TButton",
-            background="#4CAF50",
-            foreground="white",
-            padding=(20, 5)
-        )
-
-        # Blue "AI Analysis" button
-        style.configure(
-            "Blue.TButton",
-            background="#3F51B5",
-            foreground="white",
-            padding=(20, 5)
-        )
     
     def _layout_widgets(self):
         """Arrange all widgets in the UI."""
         # Add some padding around all widgets
         for child in self.root.winfo_children():
-            child.grid_configure(padx=5, pady=5)
+            child.grid_configure(padx=self.SPACING['md'], pady=self.SPACING['md'])
             
         # Configure the grid
         self.root.grid_columnconfigure(0, weight=1)
         
         # Title at the top
-        self.title_label.grid(row=0, column=0, pady=10, sticky="ew")
+        self.title_label.grid(
+            row=0, column=0, pady=(self.SPACING['lg'], 0), sticky="ew"
+        )
+        self.subtitle_label.grid(
+            row=1, column=0, pady=(0, self.SPACING['md']), sticky="ew"
+        )
         
         # Settings frame
-        self.settings_frame.grid(row=1, column=0, sticky="ew", padx=10, pady=5)
+        self.settings_frame.grid(
+            row=2, column=0, sticky="ew",
+            padx=self.SPACING['lg'], pady=self.SPACING['md']
+        )
         
         # Input/Output frame
-        self.io_frame.grid(row=2, column=0, sticky="ew", padx=10, pady=5)
+        self.io_frame.grid(
+            row=3, column=0, sticky="ew",
+            padx=self.SPACING['lg'], pady=self.SPACING['md']
+        )
         
         # Buttons frame
-        self.buttons_frame.grid(row=3, column=0, pady=10)
-        self.process_button.pack(side="left", padx=(0, 10))
-        self.analyze_button.pack(side="left")
+        self.buttons_frame.grid(row=4, column=0, pady=self.SPACING['md'])
+        self.process_button.pack(
+            side="left", padx=(0, self.SPACING['md']), pady=self.SPACING['sm']
+        )
+        self.analyze_button.pack(side="left", pady=self.SPACING['sm'])
         
         # Results frame
-        self.results_frame.grid(row=4, column=0, sticky="nsew", padx=10, pady=5)
+        self.results_frame.grid(
+            row=5, column=0, sticky="nsew",
+            padx=self.SPACING['lg'], pady=self.SPACING['md']
+        )
         
         # Analysis frame - initially hidden
-        self.analysis_frame.grid(row=5, column=0, sticky="nsew", padx=10, pady=5)
+        self.analysis_frame.grid(
+            row=6, column=0, sticky="nsew",
+            padx=self.SPACING['lg'], pady=self.SPACING['md']
+        )
         self.analysis_frame.grid_remove()  # Hide initially
         
         # Make the results area expandable
-        self.root.grid_rowconfigure(4, weight=1)
+        self.root.grid_rowconfigure(5, weight=1)
     
     def _select_input_file(self):
         """Open file dialog to select an input file."""
@@ -428,38 +660,45 @@ class CipherGUI:
         if cipher_type == 'c':  # Caesar
             self.caesar_key_frame.pack(fill="x")
             self.help_text_var.set(
-                "Caesar cipher shifts each letter in the plaintext by a fixed number of positions in the alphabet. " +
-                "Enter a shift value between 1 and 25."
+                "Caesar cipher shifts each letter in the plaintext by a fixed "
+                "number of positions in the alphabet. Enter a shift value "
+                "between 1 and 25."
             )
         elif cipher_type == 'p':  # Polyalphabetic
             self.poly_key_frame.pack(fill="x")
             self.help_text_var.set(
-                "Polyalphabetic (Vigenère) cipher uses a keyword to determine different shift values for each letter. " +
-                "Enter a keyword without spaces."
+                "Polyalphabetic (Vigenère) cipher uses a keyword to determine "
+                "different shift values for each letter. Enter a keyword "
+                "without spaces."
             )
         elif cipher_type == 's':  # Substitution
             self.sub_key_frame.pack(fill="x")
             self.help_text_var.set(
-                "Substitution cipher replaces each letter with another letter according to a fixed mapping. " +
-                "Enter a 26-character key, or use the 'Generate Key' button to create a random one."
+                "Substitution cipher replaces each letter with another letter "
+                "according to a fixed mapping. Enter a 26-character key, or use "
+                "the 'Generate Key' button to create a random one."
             )
         elif cipher_type == 't':  # Transposition
             self.trans_key_frame.pack(fill="x")
             self.help_text_var.set(
-                "Transposition cipher rearranges the letters of the plaintext according to a key. " +
-                "Enter a word or comma-separated numbers (e.g., '2,0,1,3' or 'KEY')."
+                "Transposition cipher rearranges the letters of the plaintext "
+                "according to a key. Enter a word or comma-separated numbers "
+                "(e.g., '2,0,1,3' or 'KEY')."
             )
         elif cipher_type == 'r':  # Rail Fence
             self.rail_key_frame.pack(fill="x")
             self.help_text_var.set(
-                "Rail Fence cipher writes the message in a zig-zag pattern across a number of rows (rails), " +
-                "then reads off each row. Enter the number of rails (2 or more)."
+                "Rail Fence cipher writes the message in a zig-zag pattern "
+                "across a number of rows (rails), then reads off each row. "
+                "Enter the number of rails (2 or more)."
             )
         elif cipher_type == 'a':  # Affine
             self.affine_key_frame.pack(fill="x")
             self.help_text_var.set(
-                "Affine cipher uses the formula (ax + b) mod 26 for encryption, where x is the position of each letter. " +
-                "Value 'a' must be coprime to 26 (typically 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, or 25)."
+                "Affine cipher uses the formula (ax + b) mod 26 for encryption, "
+                "where x is the position of each letter. Value 'a' must be "
+                "coprime to 26 (typically 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, "
+                "23, or 25)."
             )
     
     def _generate_substitution_key(self):
@@ -489,6 +728,16 @@ class CipherGUI:
             a_value = self.affine_a_entry.get()
             b_value = self.affine_b_entry.get()
             return (a_value, b_value)  # Return as tuple for Affine cipher
+    
+    def _display_result(self, result):
+        """Display the result in the result text area."""
+        self.result_text.delete('1.0', tk.END)  # Clear previous results
+        self.result_text.insert(tk.END, result)
+
+    def _display_error(self, error_message):
+        """Display an error message in the result text area."""
+        self.result_text.delete('1.0', tk.END)  # Clear previous results
+        self.result_text.insert(tk.END, f"Error: {error_message}")
     
     def _process_text(self):
         """
@@ -523,465 +772,8 @@ class CipherGUI:
                     self._display_error("Please enter a shift value.")
                     return
                 self._process_caesar_cipher(
-                    is_encrypt, key, input_text, output_file, is_file_input, delete_input
+                    is_encrypt, key, input_text, output_file, 
+                    is_file_input, delete_input
                 )
             elif cipher_type == 'p':  # Polyalphabetic cipher
-                key = self.poly_key_entry.get()
-                if not key:
-                    self._display_error("Please enter a keyword.")
-                    return
-                self._process_polyalphabetic_cipher(
-                    is_encrypt, key, input_text, output_file, is_file_input, delete_input
-                )
-            elif cipher_type == 's':  # Substitution cipher
-                key = self.sub_key_entry.get()
-                if not key or len(key) != 26:
-                    self._display_error("Please enter a 26-character substitution key.")
-                    return
-                self._process_substitution_cipher(
-                    is_encrypt, key, input_text, output_file, is_file_input, delete_input
-                )
-            elif cipher_type == 't':  # Transposition cipher
-                key = self.trans_key_entry.get()
-                if not key:
-                    self._display_error("Please enter a transposition key.")
-                    return
-                self._process_transposition_cipher(
-                    is_encrypt, key, input_text, output_file, is_file_input, delete_input
-                )
-            elif cipher_type == 'r':  # Rail Fence cipher
-                key = self.rail_key_entry.get()
-                if not key:
-                    self._display_error("Please enter the number of rails.")
-                    return
-                self._process_rail_fence_cipher(
-                    is_encrypt, key, input_text, output_file, is_file_input, delete_input
-                )
-            elif cipher_type == 'a':  # Affine cipher
-                a_value = self.affine_a_entry.get()
-                b_value = self.affine_b_entry.get()
-                if not a_value or not b_value:
-                    self._display_error("Please enter both 'a' and 'b' values.")
-                    return
-                self._process_affine_cipher(
-                    is_encrypt, a_value, b_value, input_text, output_file, is_file_input, delete_input
-                )
-                
-        except Exception as e:
-            self._display_error(str(e))
-    
-    def _process_caesar_cipher(
-            self, is_encrypt, shift_str, input_text,
-            output_file, is_file_input, delete_input):
-        """
-        Process text or file using the Caesar cipher.
-
-        Args:
-            is_encrypt (bool): True for encryption, False for decryption
-            shift_str (str): Shift value as string (will be converted to int)
-            input_text (str): Text to process or path to input file
-            output_file (str): Path to output file (if processing file)
-            is_file_input (bool): True if input is a file, False for direct text
-            delete_input (bool): Whether to delete input file after processing
-        """
-        try:
-            shift = int(shift_str)
-        except ValueError:
-            self._display_error("Shift value must be an integer for Caesar cipher.")
-            return
-        
-        if is_file_input and output_file:
-            # Process file with Caesar cipher
-            if is_encrypt:
-                def cipher_func(x):
-                    return self.cipher_service.encrypt_caesar(x, shift)
-            else:
-                def cipher_func(x):
-                    return self.cipher_service.decrypt_caesar(x, shift)
-                
-            result = self.cipher_service.process_file_with_cipher(
-                input_text,
-                output_file,
-                cipher_func,
-                delete_input
-            )
-            self._display_result(result)
-        else:
-            # Process text with Caesar cipher
-            if is_encrypt:
-                result = self.cipher_service.encrypt_caesar(input_text, shift)
-            else:
-                result = self.cipher_service.decrypt_caesar(input_text, shift)
-                
-            self._display_result(result)
-    
-    def _process_polyalphabetic_cipher(
-            self, is_encrypt, keyword, input_text,
-            output_file, is_file_input, delete_input):
-        """
-        Process text or file using the Polyalphabetic cipher.
-
-        Args:
-            is_encrypt (bool): True for encryption, False for decryption
-            keyword (str): Keyword for the cipher
-            input_text (str): Text to process or path to input file
-            output_file (str): Path to output file (if processing file)
-            is_file_input (bool): True if input is a file, False for direct text
-            delete_input (bool): Whether to delete input file after processing
-        """
-        if not keyword:
-            self._display_error("Keyword cannot be empty for Polyalphabetic cipher.")
-            return
-            
-        if is_file_input and output_file:
-            # Process file with Polyalphabetic cipher
-            if is_encrypt:
-                def cipher_func(x):
-                    return self.cipher_service.encrypt_polyalphabetic(x, keyword)
-            else:
-                def cipher_func(x):
-                    return self.cipher_service.decrypt_polyalphabetic(x, keyword)
-                
-            result = self.cipher_service.process_file_with_cipher(
-                input_text,
-                output_file,
-                cipher_func,
-                delete_input
-            )
-            self._display_result(result)
-        else:
-            # Process text with Polyalphabetic cipher
-            if is_encrypt:
-                result = self.cipher_service.encrypt_polyalphabetic(
-                    input_text, keyword)
-            else:
-                result = self.cipher_service.decrypt_polyalphabetic(
-                    input_text, keyword)
-                
-            self._display_result(result)
-    
-    def _display_result(self, result):
-        """Display the result in the result text area."""
-        self.result_text.insert(tk.END, result)
-
-    def _display_error(self, error_message):
-        """Display an error message in the result text area."""
-        self.result_text.insert(tk.END, f"Error: {error_message}")
-
-    def _analyze_text(self):
-        """
-        Analyze encrypted text to guess the key using AI-driven methods.
-
-        This method analyzes the input text and suggests possible keys
-        based on statistical analysis and language patterns.
-        """
-        # Clear previous analysis results
-        self.analysis_result.delete('1.0', tk.END)
-        self.analysis_results = []
-        self.selected_suggestion = None
-        self.apply_button.config(state=tk.DISABLED)
-        
-        # Get input text
-        input_text = self.input_entry.get()
-        if not input_text:
-            self._display_error("Please enter text to analyze.")
-            return
-            
-        # Read from file if path is provided
-        if os.path.isfile(input_text):
-            try:
-                with open(input_text, 'r', encoding='utf-8') as file:
-                    ciphertext = file.read()
-            except Exception as e:
-                self._display_error(f"Failed to read file: {e}")
-                return
-        else:
-            ciphertext = input_text
-            
-        # Check if we have enough text to analyze
-        if len(ciphertext.strip()) < 10:
-            self._display_error("Text is too short for meaningful analysis.")
-            return
-            
-        # Set the operation to decrypt
-        self.action_var.set('d')
-            
-        # Show the analysis frame
-        self.analysis_frame.grid()  # Show the previously hidden frame
-        
-        try:
-            # Perform analysis based on cipher type
-            cipher_type = self.cipher_var.get()  # 'c' for Caesar, 'p' for Poly
-            
-            if cipher_type == 'c':
-                # Analyze with Caesar cipher
-                results = self.cipher_service.analyze_caesar_encryption(ciphertext)
-                self.analysis_results = results
-                
-                # Display results
-                self.analysis_result.insert(
-                    tk.END, "=== Caesar Cipher Analysis ===\n\n")
-                
-                for i, result in enumerate(results):
-                    confidence = result['confidence']
-                    shift = result['shift']
-                    sample = result['sample']
-                    
-                    suggestion = f"Suggestion {i+1}: Shift = {shift} "
-                    suggestion += f"(Confidence: {confidence}%)\n"
-                    self.analysis_result.insert(tk.END, suggestion)
-                    self.analysis_result.insert(
-                        tk.END, f"Sample: {sample}\n\n")
-                
-                # Enable the apply button if we have results
-                if results:
-                    self.apply_button.config(state=tk.NORMAL)
-                    # Select the first one by default
-                    self.selected_suggestion = results[0]
-                    
-            else:
-                # Analyze with Polyalphabetic cipher
-                results = self.cipher_service.analyze_polyalphabetic_encryption(
-                    ciphertext)
-                self.analysis_results = results
-                
-                # Display results
-                self.analysis_result.insert(
-                    tk.END, "=== Polyalphabetic Cipher Analysis ===\n\n")
-                
-                for i, result in enumerate(results):
-                    confidence = result['confidence']
-                    keyword = result['keyword']
-                    sample = result['sample']
-                    
-                    suggestion = f"Suggestion {i+1}: Keyword = '{keyword}' "
-                    suggestion += f"(Confidence: {confidence}%)\n"
-                    self.analysis_result.insert(tk.END, suggestion)
-                    self.analysis_result.insert(
-                        tk.END, f"Sample: {sample}\n\n")
-                
-                # Enable the apply button if we have results
-                if results and '?' not in results[0]['keyword']:
-                    self.apply_button.config(state=tk.NORMAL)
-                    # Select the first one by default
-                    self.selected_suggestion = results[0]
-        
-        except Exception as e:
-            self._display_error(f"Analysis error: {e}")
-    
-    def _process_substitution_cipher(
-            self, is_encrypt, key, input_text,
-            output_file, is_file_input, delete_input):
-        """
-        Process text or file using the Substitution cipher.
-
-        Args:
-            is_encrypt (bool): True for encryption, False for decryption
-            key (str): 26-character substitution key
-            input_text (str): Text to process or path to input file
-            output_file (str): Path to output file (if processing file)
-            is_file_input (bool): True if input is a file, False for direct text
-            delete_input (bool): Whether to delete input file after processing
-        """
-        if len(key) != 26:
-            self._display_error("Substitution key must be 26 characters long.")
-            return
-            
-        if is_file_input and output_file:
-            # Process file with Substitution cipher
-            if is_encrypt:
-                def cipher_func(x):
-                    return self.cipher_service.encrypt_substitution(x, key)
-            else:
-                def cipher_func(x):
-                    return self.cipher_service.decrypt_substitution(x, key)
-                
-            result = self.cipher_service.process_file_with_cipher(
-                input_text,
-                output_file,
-                cipher_func,
-                delete_input
-            )
-            self._display_result(result)
-        else:
-            # Process text with Substitution cipher
-            if is_encrypt:
-                result = self.cipher_service.encrypt_substitution(input_text, key)
-            else:
-                result = self.cipher_service.decrypt_substitution(input_text, key)
-                
-            self._display_result(result)
-    
-    def _process_transposition_cipher(
-            self, is_encrypt, key, input_text,
-            output_file, is_file_input, delete_input):
-        """
-        Process text or file using the Transposition cipher.
-
-        Args:
-            is_encrypt (bool): True for encryption, False for decryption
-            key (str): String key or comma-separated numbers
-            input_text (str): Text to process or path to input file
-            output_file (str): Path to output file (if processing file)
-            is_file_input (bool): True if input is a file, False for direct text
-            delete_input (bool): Whether to delete input file after processing
-        """
-        # Convert numeric key if needed
-        if ',' in key:
-            try:
-                key = [int(k.strip()) for k in key.split(',')]
-            except ValueError:
-                self._display_error("Invalid numeric key format. Use comma-separated integers.")
-                return
-        
-        if is_file_input and output_file:
-            # Process file with Transposition cipher
-            if is_encrypt:
-                def cipher_func(x):
-                    return self.cipher_service.encrypt_transposition(x, key)
-            else:
-                def cipher_func(x):
-                    return self.cipher_service.decrypt_transposition(x, key)
-                
-            result = self.cipher_service.process_file_with_cipher(
-                input_text,
-                output_file,
-                cipher_func,
-                delete_input
-            )
-            self._display_result(result)
-        else:
-            # Process text with Transposition cipher
-            if is_encrypt:
-                result = self.cipher_service.encrypt_transposition(input_text, key)
-            else:
-                result = self.cipher_service.decrypt_transposition(input_text, key)
-                
-            self._display_result(result)
-    
-    def _process_rail_fence_cipher(
-            self, is_encrypt, rails_str, input_text,
-            output_file, is_file_input, delete_input):
-        """
-        Process text or file using the Rail Fence cipher.
-
-        Args:
-            is_encrypt (bool): True for encryption, False for decryption
-            rails_str (str): Number of rails as string (will be converted to int)
-            input_text (str): Text to process or path to input file
-            output_file (str): Path to output file (if processing file)
-            is_file_input (bool): True if input is a file, False for direct text
-            delete_input (bool): Whether to delete input file after processing
-        """
-        try:
-            rails = int(rails_str)
-            if rails < 2:
-                self._display_error("Number of rails must be at least 2.")
-                return
-        except ValueError:
-            self._display_error("Number of rails must be an integer.")
-            return
-            
-        if is_file_input and output_file:
-            # Process file with Rail Fence cipher
-            if is_encrypt:
-                def cipher_func(x):
-                    return self.cipher_service.encrypt_rail_fence(x, rails)
-            else:
-                def cipher_func(x):
-                    return self.cipher_service.decrypt_rail_fence(x, rails)
-                
-            result = self.cipher_service.process_file_with_cipher(
-                input_text,
-                output_file,
-                cipher_func,
-                delete_input
-            )
-            self._display_result(result)
-        else:
-            # Process text with Rail Fence cipher
-            if is_encrypt:
-                result = self.cipher_service.encrypt_rail_fence(input_text, rails)
-            else:
-                result = self.cipher_service.decrypt_rail_fence(input_text, rails)
-                
-            self._display_result(result)
-    
-    def _process_affine_cipher(
-            self, is_encrypt, a_str, b_str, input_text,
-            output_file, is_file_input, delete_input):
-        """
-        Process text or file using the Affine cipher.
-
-        Args:
-            is_encrypt (bool): True for encryption, False for decryption
-            a_str (str): 'a' value as string (will be converted to int)
-            b_str (str): 'b' value as string (will be converted to int)
-            input_text (str): Text to process or path to input file
-            output_file (str): Path to output file (if processing file)
-            is_file_input (bool): True if input is a file, False for direct text
-            delete_input (bool): Whether to delete input file after processing
-        """
-        try:
-            a = int(a_str)
-            b = int(b_str)
-            key_pair = (a, b)
-        except ValueError:
-            self._display_error("Both 'a' and 'b' values must be integers.")
-            return
-            
-        if is_file_input and output_file:
-            # Process file with Affine cipher
-            if is_encrypt:
-                def cipher_func(x):
-                    return self.cipher_service.encrypt_affine(x, key_pair)
-            else:
-                def cipher_func(x):
-                    return self.cipher_service.decrypt_affine(x, key_pair)
-                
-            result = self.cipher_service.process_file_with_cipher(
-                input_text,
-                output_file,
-                cipher_func,
-                delete_input
-            )
-            self._display_result(result)
-        else:
-            # Process text with Affine cipher
-            if is_encrypt:
-                result = self.cipher_service.encrypt_affine(input_text, key_pair)
-            else:
-                result = self.cipher_service.decrypt_affine(input_text, key_pair)
-                
-            self._display_result(result)
-    
-    def _apply_suggested_key(self):
-        """Apply the selected key suggestion to the appropriate key field."""
-        if not self.selected_suggestion:
-            return
-            
-        # Get the current cipher type
-        cipher_type = self.cipher_var.get()
-        
-        if cipher_type == 'c':
-            # For Caesar cipher, insert the shift value
-            self.caesar_key_entry.delete(0, tk.END)
-            self.caesar_key_entry.insert(0, str(self.selected_suggestion['shift']))
-        elif cipher_type == 'p':
-            # For Polyalphabetic cipher, insert the keyword
-            self.poly_key_entry.delete(0, tk.END)
-            self.poly_key_entry.insert(0, self.selected_suggestion['keyword'])
-        
-        # Set focus to the process button
-        self.process_button.focus_set()
-
-
-def main():
-    """Run the Cipher GUI application."""
-    root = tk.Tk()
-    app = CipherGUI(root)  # Variable kept to avoid linting warning
-    root.mainloop()
-
-
-if __name__ == "__main__":
-    main()
+                key = self.poly_key_
