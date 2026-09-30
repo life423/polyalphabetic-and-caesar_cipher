@@ -56,16 +56,33 @@ CipherCraft is a comprehensive cryptography toolkit that demonstrates advanced c
 
 ### From Source
 
+CipherCraft only needs the Python standard library plus **Tkinter** for the GUI. The packages in `requirements.txt` (pytest, flake8, pyinstaller, pyyaml) are for testing and building executables.
+
+#### macOS prerequisite: a Python with Tk
+
+Homebrew and pyenv builds of Python don't include Tkinter by default. If you see `ModuleNotFoundError: No module named '_tkinter'`, install the Tk add-on that matches your Python version:
+
+```bash
+python3 --version                  # e.g. Python 3.14.x
+brew install python-tk@3.14        # match your major.minor version
+python3 -c "import tkinter; print(tkinter.TkVersion)"   # should print 8.6 or 9.0
+```
+
+Avoid Apple's `/usr/bin/python3` for the GUI: it ships a deprecated Tk 8.5 that renders poorly on current macOS.
+
+#### Setup
+
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/ciphercraft.git
-cd ciphercraft
+git clone https://github.com/life423/polyalphabetic-and-caesar_cipher.git
+cd polyalphabetic-and-caesar_cipher
 
-# Install dependencies
+# Create and activate a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+
+# Install dev/test/build tools (not needed just to run the app)
 pip install -r requirements.txt
-
-# Install the package
-python setup.py install
 ```
 
 ### Using Prebuilt Executables
@@ -79,24 +96,41 @@ Download the latest release package from the [Releases](https://github.com/youru
 ### Starting the Application (Recommended)
 
 ```bash
-# The simple way to start CipherCraft
-python run.py  # Launches GUI by default
-
-# With arguments to use CLI mode
-python run.py --help
+# From the repo root, with the virtual environment active
+python run.py        # launches the GUI
 ```
+
+Without an active venv, use `python3` on macOS/Linux. On Windows you can also double-click `launch_gui.bat`.
+
+If the window doesn't appear, look for the `Error starting GUI: ...` line in the terminal. It names the real cause (usually missing Tk; see Installation).
 
 ### Command Line Interface
 
+The CLI is an interactive menu, not a flag-based tool. Start it either way (any argument to `run.py` switches it into CLI mode):
+
 ```bash
-# Encrypt a message using Caesar cipher
-python -m src.ui.cli -c caesar -e -s 3 -t "Hello, World!"
+python -m src.ui.cli
+python run.py --cli
+```
 
-# Decrypt a message using Polyalphabetic cipher
-python -m src.ui.cli -c poly -d -k "KEYWORD" -t "Fcvpu, Uyvnd!"
+It prompts for, in order:
 
-# Analyze encrypted text to guess the key
-python -m src.ui.cli -c caesar -a -t "Khoor, Zruog!"
+1. **Clean .txt files?** **Warning:** `yes` deletes *every* `.txt` file in the current directory, including `requirements.txt` if you're in the repo root. Answer `no` unless you mean it.
+2. **Operation:** `e` encrypt, `d` decrypt
+3. **Cipher:** `c` Caesar, `p` Polyalphabetic (Vigenère), `s` Substitution, `t` Transposition, `r` Rail Fence, `a` Affine
+4. **Input source:** `1` typed text, `2` file (then input/output paths, and whether to delete the input afterward)
+5. **Key:** shift, keyword, 26-letter key, rail count, or affine `a`/`b`, depending on the cipher
+
+Example session:
+
+```text
+Clean .txt files before proceeding? (yes/no): no
+Choose operation (e=encrypt, d=decrypt): e
+Choose cipher type: c
+Input source: (1=text, 2=file): 1
+Enter text: Hello, World!
+Enter shift value (1-25): 3
+Result: Khoor, Zruog!
 ```
 
 ### Python API
