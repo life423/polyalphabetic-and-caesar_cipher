@@ -12,6 +12,9 @@ import sys
 import yaml
 from pathlib import Path
 
+# Resolve paths from the repo root so tests pass from any working directory
+ROOT = Path(__file__).resolve().parent.parent
+
 
 class TestBuildSetup(unittest.TestCase):
     """Test cases for the build and CI/CD configuration."""
@@ -21,19 +24,18 @@ class TestBuildSetup(unittest.TestCase):
         required_files = [
             "requirements.txt",
             "setup.py",
-            "cipher_tool.spec",
-            "build_exe.py",
+            "scripts/build_exe.py",
             "pytest.ini",
             ".github/workflows/python-app.yml"
         ]
         
         for file_path in required_files:
             with self.subTest(file=file_path):
-                self.assertTrue(os.path.exists(file_path), f"Required file {file_path} does not exist")
+                self.assertTrue(os.path.exists(ROOT / file_path), f"Required file {file_path} does not exist")
     
     def test_github_workflow_config(self):
         """Test that GitHub workflow configuration is valid."""
-        workflow_path = '.github/workflows/python-app.yml'
+        workflow_path = ROOT / '.github/workflows/python-app.yml'
         
         # Skip this test if the workflow file doesn't exist
         if not os.path.exists(workflow_path):
@@ -48,7 +50,7 @@ class TestBuildSetup(unittest.TestCase):
         self.assertIn('on:', content, "Workflow should define triggers")
         self.assertIn('jobs:', content, "Workflow should define jobs")
         self.assertIn('test:', content, "Workflow should have a test job")
-        self.assertIn('build:', content, "Workflow should have a build job")
+        self.assertIn('build-and-release:', content, "Workflow should have a build job")
         self.assertIn('needs: test', content, "Build job should depend on test job")
             
         # Now attempt to parse the YAML with safe loading
@@ -63,11 +65,11 @@ class TestBuildSetup(unittest.TestCase):
             
             # Check that test and build jobs are defined
             self.assertIn('test', workflow['jobs'], "Workflow should have a test job")
-            self.assertIn('build', workflow['jobs'], "Workflow should have a build job")
+            self.assertIn('build-and-release', workflow['jobs'], "Workflow should have a build job")
             
             # Check that build depends on test
-            self.assertIn('needs', workflow['jobs']['build'], "Build job should depend on test job")
-            self.assertEqual(workflow['jobs']['build']['needs'], 'test', 
+            self.assertIn('needs', workflow['jobs']['build-and-release'], "Build job should depend on test job")
+            self.assertEqual(workflow['jobs']['build-and-release']['needs'], 'test', 
                             "Build job should depend on test job")
         except Exception as e:
             # Log the error but don't fail the test as we already checked the content via string matching
@@ -75,7 +77,7 @@ class TestBuildSetup(unittest.TestCase):
     
     def test_pyinstaller_spec(self):
         """Test that PyInstaller spec file is properly configured."""
-        spec_path = 'cipher_tool.spec'
+        spec_path = ROOT / 'cipher_tool.spec'
         
         # Skip this test if the spec file doesn't exist
         if not os.path.exists(spec_path):
@@ -93,7 +95,7 @@ class TestBuildSetup(unittest.TestCase):
     
     def test_setup_py_config(self):
         """Test that setup.py is properly configured."""
-        setup_path = 'setup.py'
+        setup_path = ROOT / 'setup.py'
         
         # Skip this test if the setup file doesn't exist
         if not os.path.exists(setup_path):
@@ -113,7 +115,7 @@ class TestBuildSetup(unittest.TestCase):
     
     def test_requirements_txt(self):
         """Test that requirements.txt includes necessary packages."""
-        req_path = 'requirements.txt'
+        req_path = ROOT / 'requirements.txt'
         
         # Skip this test if the requirements file doesn't exist
         if not os.path.exists(req_path):
@@ -131,7 +133,7 @@ class TestBuildSetup(unittest.TestCase):
     
     def test_build_exe_script(self):
         """Test that build_exe.py is executable and properly configured."""
-        script_path = 'build_exe.py'
+        script_path = ROOT / 'scripts' / 'build_exe.py'
         
         # Skip this test if the script doesn't exist
         if not os.path.exists(script_path):
@@ -158,21 +160,21 @@ class TestProjectStructure(unittest.TestCase):
     def test_core_modules_exist(self):
         """Test that all core modules exist."""
         core_modules = [
-            "cipher_core.py",
-            "cipher_service.py",
-            "cipher_ai.py",
-            "file_service.py",
-            "cipher_tool.py",
-            "cipher_gui.py"
+            "src/core/ciphers.py",
+            "src/services/cipher_service.py",
+            "src/ai/analyzer.py",
+            "src/services/file_service.py",
+            "src/ui/cli.py",
+            "src/ui/gui.py"
         ]
         
         for module in core_modules:
             with self.subTest(module=module):
-                self.assertTrue(os.path.exists(module), f"Core module {module} does not exist")
+                self.assertTrue(os.path.exists(ROOT / module), f"Core module {module} does not exist")
     
     def test_updated_cipher_implementations(self):
         """Test that the cipher implementations include the new ciphers."""
-        with open('cipher_core.py', 'r') as f:
+        with open(ROOT / 'src' / 'core' / 'ciphers.py', 'r') as f:
             core_content = f.read()
         
         # Check that all cipher classes are defined
@@ -187,11 +189,11 @@ class TestProjectStructure(unittest.TestCase):
         
         for cipher in required_ciphers:
             self.assertIn(f"class {cipher}", core_content, 
-                         f"{cipher} should be defined in cipher_core.py")
+                         f"{cipher} should be defined in src/core/ciphers.py")
     
     def test_enhanced_ai_capabilities(self):
         """Test that the AI module has enhanced capabilities."""
-        with open('cipher_ai.py', 'r') as f:
+        with open(ROOT / 'src' / 'ai' / 'analyzer.py', 'r') as f:
             ai_content = f.read()
         
         # Check for enhanced analysis methods
@@ -204,7 +206,7 @@ class TestProjectStructure(unittest.TestCase):
         
         for feature in enhanced_features:
             self.assertIn(feature, ai_content, 
-                         f"Enhanced feature {feature} should be in cipher_ai.py")
+                         f"Enhanced feature {feature} should be in src/ai/analyzer.py")
 
 
 class TestServiceIntegration(unittest.TestCase):
@@ -212,7 +214,7 @@ class TestServiceIntegration(unittest.TestCase):
     
     def test_service_includes_new_ciphers(self):
         """Test that the service layer includes methods for all cipher types."""
-        with open('cipher_service.py', 'r') as f:
+        with open(ROOT / 'src' / 'services' / 'cipher_service.py', 'r') as f:
             service_content = f.read()
         
         # Check that methods for all cipher types are defined
@@ -227,7 +229,7 @@ class TestServiceIntegration(unittest.TestCase):
         
         for method in required_methods:
             self.assertIn(f"def {method}", service_content, 
-                         f"Method {method} should be defined in cipher_service.py")
+                         f"Method {method} should be defined in src/services/cipher_service.py")
 
 
 if __name__ == "__main__":
