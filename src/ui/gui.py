@@ -527,7 +527,9 @@ class CipherGUI:
             font=self.font_code,
             bd=2,  # Add subtle border
             relief=tk.GROOVE,
-            bg='white'  # White background for text area
+            bg='white',  # White background for text area
+            fg=self.COLORS['text'],  # Explicit text color: system default turns white in macOS Dark Mode
+            insertbackground=self.COLORS['text']  # Visible cursor on the white background
         )
         self.result_text.pack(
             fill="both", expand=True,
@@ -550,7 +552,9 @@ class CipherGUI:
             font=self.font_code,
             bd=2,  # Add subtle border
             relief=tk.GROOVE,
-            bg='white'  # White background for text area
+            bg='white',  # White background for text area
+            fg=self.COLORS['text'],  # Explicit text color: system default turns white in macOS Dark Mode
+            insertbackground=self.COLORS['text']  # Visible cursor on the white background
         )
         self.analysis_result.pack(
             fill="both", expand=True,
