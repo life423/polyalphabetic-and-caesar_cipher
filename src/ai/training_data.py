@@ -226,8 +226,8 @@ def generate_dataset(
         split_docs = partitions[split]
         labels_count: Counter[str] = Counter()
         with ExitStack() as stack:
-            examples = stack.enter_context((output_dir / f"{split}.jsonl").open("w", encoding="utf-8"))
-            answers = stack.enter_context((output_dir / f"{split}_answers.jsonl").open("w", encoding="utf-8"))
+            examples = stack.enter_context((output_dir / f"{split}.jsonl").open("w", encoding="utf-8", newline="\n"))
+            answers = stack.enter_context((output_dir / f"{split}_answers.jsonl").open("w", encoding="utf-8", newline="\n"))
             for index in range(counts[split]):
                 source, plain, width = draw_plaintext(
                     split_docs, rng, min_length, max_length, seen_plaintexts
@@ -253,9 +253,10 @@ def generate_dataset(
             "label_counts": dict(sorted(labels_count.items())),
             "sources_sha256": sorted(sha256(content) for _, content in split_docs),
         }
-    (output_dir / "manifest.json").write_text(
-        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    with (output_dir / "manifest.json").open(
+        "w", encoding="utf-8", newline="\n"
+    ) as manifest_file:
+        manifest_file.write(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
     return manifest
 
 
