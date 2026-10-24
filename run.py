@@ -7,9 +7,6 @@ Provides access to both the GUI and command-line interfaces.
 """
 
 import sys
-import tkinter as tk
-from src.ui.gui import CipherGUI
-from src.services.cipher_service import CipherService
 
 
 def main():
@@ -34,6 +31,8 @@ def main():
     print("Starting CipherCraft GUI...")
     try:
         # Initialize the GUI
+        import tkinter as tk
+        from src.ui.gui import CipherGUI
         root = tk.Tk()
         _ = CipherGUI(root)  # Initialize but don't need the reference
         root.mainloop()
