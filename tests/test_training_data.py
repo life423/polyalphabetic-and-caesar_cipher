@@ -33,12 +33,14 @@ def rows(path):
 def make_corpus(root: Path):
     root.mkdir()
     # Distinct source documents, sufficiently long for independent windows.
-    for number in range(12):
+    identifiers = ("alpha", "bravo", "charlie", "delta", "echo", "foxtrot",
+                   "golf", "hotel", "india", "juliet", "kilo", "lima")
+    for number, marker in enumerate(identifiers):
         text = (
-            f"Document {number} covers local history and careful field research. "
-            f"The author visited district {number} to record observations of the city. "
-            f"Several residents described what the neighborhood looked like during summer. "
-            f"Field teams gathered unusual results from instrument station {number}. "
+            f"The {marker} survey covers local history and careful field research. "
+            f"The author visited the {marker} district to record city observations. "
+            f"Several residents described how the {marker} neighborhood looked in summer. "
+            f"Field teams gathered unusual results near the {marker} instrument station. "
             f"These findings raised specific questions about urban development. "
         ) * 3
         (root / f"document-{number:02d}.txt").write_text(text, encoding="utf-8")
