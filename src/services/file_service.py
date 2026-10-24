@@ -59,16 +59,3 @@ class FileService:
             return True
         except Exception:
             return False
-    
-    @staticmethod
-    def file_exists(file_path):
-        """
-        Check if a file exists.
-        
-        Args:
-            file_path (str): Path to the file to check
-            
-        Returns:
-            bool: True if the file exists, False otherwise
-        """
-        return os.path.isfile(file_path)
