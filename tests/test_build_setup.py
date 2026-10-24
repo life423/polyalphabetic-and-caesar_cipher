@@ -50,7 +50,7 @@ class TestBuildSetup(unittest.TestCase):
         self.assertIn('on:', content, "Workflow should define triggers")
         self.assertIn('jobs:', content, "Workflow should define jobs")
         self.assertIn('test:', content, "Workflow should have a test job")
-        self.assertIn('build-and-release:', content, "Workflow should have a build job")
+        self.assertIn('build:', content, "Workflow should have a build job")
         self.assertIn('needs: test', content, "Build job should depend on test job")
             
         # Now attempt to parse the YAML with safe loading
@@ -65,11 +65,11 @@ class TestBuildSetup(unittest.TestCase):
             
             # Check that test and build jobs are defined
             self.assertIn('test', workflow['jobs'], "Workflow should have a test job")
-            self.assertIn('build-and-release', workflow['jobs'], "Workflow should have a build job")
+            self.assertIn('build', workflow['jobs'], "Workflow should have a build job")
             
             # Check that build depends on test
-            self.assertIn('needs', workflow['jobs']['build-and-release'], "Build job should depend on test job")
-            self.assertEqual(workflow['jobs']['build-and-release']['needs'], 'test', 
+            self.assertIn('needs', workflow['jobs']['build'], "Build job should depend on test job")
+            self.assertEqual(workflow['jobs']['build']['needs'], 'test', 
                             "Build job should depend on test job")
         except Exception as e:
             # Log the error but don't fail the test as we already checked the content via string matching
