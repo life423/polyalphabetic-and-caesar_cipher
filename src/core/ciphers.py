@@ -8,13 +8,6 @@ without any I/O operations or business logic.
 import string
 import random
 import math
-# These base classes can be used for future inheritance
-# from src.core.base import (
-#     BaseCipher,
-#     SubstitutionBaseCipher,
-#     TranspositionBaseCipher,
-#     MathematicalCipher
-# )
 
 
 class CaesarCipher:
