@@ -51,13 +51,14 @@ def test_ci_configuration_parses_and_has_nine_test_targets():
     assert "pull_request" in workflow["on"]
     assert "main" in workflow["on"]["pull_request"]["branches"]
     jobs = workflow["jobs"]
-    assert {"test", "build", "publish"} <= set(jobs)
-    assert jobs["build"]["needs"] == "test"
+    assert {"test", "gui-smoke", "build", "publish"} <= set(jobs)
+    assert set(jobs["build"]["needs"]) == {"test", "gui-smoke"}
     matrix = jobs["test"]["strategy"]["matrix"]
     assert len(matrix["os"]) == 3
     assert len(matrix["python-version"]) == 3
     assert any("pytest tests/" in step.get("run", "") for step in jobs["test"]["steps"])
     assert any("smoke_executable.py" in step.get("run", "") for step in jobs["build"]["steps"])
+    assert any("smoke_tk_gui.py" in step.get("run", "") for step in jobs["gui-smoke"]["steps"])
 
 
 def test_packaging_entry_points_are_real():
