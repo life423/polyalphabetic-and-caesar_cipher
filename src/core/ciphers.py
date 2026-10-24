@@ -8,13 +8,6 @@ without any I/O operations or business logic.
 import string
 import random
 import math
-# These base classes can be used for future inheritance
-# from src.core.base import (
-#     BaseCipher,
-#     SubstitutionBaseCipher,
-#     TranspositionBaseCipher,
-#     MathematicalCipher
-# )
 
 
 class CaesarCipher:
@@ -46,7 +39,7 @@ class CaesarCipher:
         effective_shift = shift if encrypt else -shift
 
         for char in text:
-            if char.isalpha():
+            if char in string.ascii_letters:
                 # Determine the ASCII offset based on case
                 offset = (cls.UPPERCASE_OFFSET if char.isupper()
                           else cls.LOWERCASE_OFFSET)
@@ -86,8 +79,8 @@ class PolyalphabeticCipher:
             str: The encrypted or decrypted text
         """
         # Ensure keyword is not empty
-        if not keyword:
-            raise ValueError("Keyword cannot be empty")
+        if not isinstance(keyword, str) or not keyword.isascii() or not keyword.isalpha():
+            raise ValueError("Keyword must contain only ASCII letters")
 
         # Convert the keyword to lowercase and repeat it to match text length
         # Creates a key sequence that's as long as the input text
@@ -96,7 +89,7 @@ class PolyalphabeticCipher:
         key_idx = 0
 
         for char in text:
-            if char.isalpha():
+            if char in string.ascii_letters:
                 # Get the current key character
                 key_char = keyword[key_idx]
                 key_idx = (key_idx + 1) % len(keyword)
@@ -141,9 +134,8 @@ class SubstitutionCipher:
             str: Shuffled alphabet to use as encryption key
         """
         alphabet = list(string.ascii_lowercase)
-        if seed is not None:
-            random.seed(seed)
-        random.shuffle(alphabet)
+        rng = random.Random(seed) if seed is not None else random.SystemRandom()
+        rng.shuffle(alphabet)
         return ''.join(alphabet)
 
     @classmethod
@@ -159,8 +151,9 @@ class SubstitutionCipher:
         Returns:
             str: The encrypted or decrypted text
         """
-        if len(key) != 26:
-            raise ValueError("Substitution key must be 26 characters long")
+        if (not isinstance(key, str) or len(key) != 26
+                or set(key.lower()) != set(string.ascii_lowercase)):
+            raise ValueError("Substitution key must be a permutation of the 26 ASCII letters")
 
         # Create the mapping
         if encrypt:
@@ -183,7 +176,7 @@ class SubstitutionCipher:
         # Apply the substitution
         result = []
         for char in text:
-            if char.isalpha():
+            if char in string.ascii_letters:
                 result.append(char_map.get(char, char))
             else:
                 result.append(char)
@@ -192,191 +185,82 @@ class SubstitutionCipher:
 
 
 class TranspositionCipher:
-    """Implements a columnar transposition cipher."""
+    """Columnar transposition using a keyword or zero-based column permutation."""
+
+    @staticmethod
+    def _column_order(key):
+        if isinstance(key, str):
+            if len(key) < 2 or not key.isascii() or not key.isalpha():
+                raise ValueError("Transposition keyword must contain at least two ASCII letters")
+            # Sort by letter, retaining the original order of duplicate letters.
+            return sorted(range(len(key)), key=lambda index: (key[index].lower(), index))
+
+        if not isinstance(key, (list, tuple)) or len(key) < 2:
+            raise ValueError("Numeric key must be a permutation of at least two columns")
+        if any(type(index) is not int for index in key) or sorted(key) != list(range(len(key))):
+            raise ValueError("Numeric key must contain each column index from 0 to n-1 once")
+        return list(key)
 
     @classmethod
     def transform(cls, text, key, encrypt=True):
-        """
-        Apply transposition using the provided numerical key.
-
-        Args:
-            text (str): The text to encrypt or decrypt
-            key (str or list): Keyword or numeric key for ordering
-            encrypt (bool): True for encryption, False for decryption
-
-        Returns:
-            str: The encrypted or decrypted text
-        """
-        # Convert key to numeric order if it's a string
-        if isinstance(key, str):
-            # Generate column order based on keyword
-            # e.g., "ZEBRAS" becomes [6, 3, 1, 4, 2, 5]
-            sorted_key = sorted(enumerate(key.lower()), key=lambda x: x[1])
-            num_key = [i for i, _ in sorted(sorted_key, key=lambda x: x[0])]
-        else:
-            num_key = key
-
-        key_length = len(num_key)
-        if key_length < 2:
-            raise ValueError("Key must have at least 2 characters/positions")
+        """Transform text; encryption removes whitespace and pads with X."""
+        order = cls._column_order(key)
+        width = len(order)
 
         if encrypt:
-            # Remove spaces for more secure encryption
-            text = ''.join(text.split())
+            plain = ''.join(text.split())
+            padded = plain.ljust(((len(plain) + width - 1) // width) * width, 'X')
+            return ''.join(padded[column::width] for column in order)
 
-            # Calculate rows needed (might need padding)
-            rows = math.ceil(len(text) / key_length)
+        if len(text) % width:
+            raise ValueError("Ciphertext length must be a multiple of the key length")
 
-            # Create the grid and fill it row by row
-            grid = []
-            for i in range(rows):
-                start = i * key_length
-                row = text[start:start + key_length]
-                # Pad with 'X' if needed
-                row = row.ljust(key_length, 'X')
-                grid.append(row)
-
-            # Read out the ciphertext column by column according to key
-            result = []
-            for col_idx in num_key:
-                for row in grid:
-                    if col_idx < len(row):
-                        result.append(row[col_idx])
-
-            return ''.join(result)
-        else:
-            # Calculate dimensions
-            columns = key_length
-            rows = math.ceil(len(text) / columns)
-
-            # Create inverse key for decryption
-            inverse_key = [0] * columns
-            for i, k in enumerate(num_key):
-                inverse_key[k] = i
-
-            # Create empty grid
-            grid = [[''] * columns for _ in range(rows)]
-
-            # Fill grid column by column using inverse key
-            text_idx = 0
-            for col in inverse_key:
-                for row in range(rows):
-                    if text_idx < len(text):
-                        grid[row][col] = text[text_idx]
-                        text_idx += 1
-
-            # Read plaintext row by row
-            result = []
-            for row in grid:
-                result.append(''.join(row))
-
-            return ''.join(result)
+        rows = len(text) // width
+        columns = [''] * width
+        for column in order:
+            columns[column] = text[:rows]
+            text = text[rows:]
+        return ''.join(columns[column][row] for row in range(rows) for column in range(width))
 
 
 class RailFenceCipher:
-    """Implements a rail fence (zig-zag) cipher."""
+    """Zigzag rail-fence cipher with consistent encryption and decryption."""
+
+    @staticmethod
+    def _rails_for_positions(length, rails):
+        row, direction = 0, 1
+        positions = []
+        for _ in range(length):
+            positions.append(row)
+            row += direction
+            if row == 0 or row == rails - 1:
+                direction *= -1
+        return positions
 
     @classmethod
     def transform(cls, text, rails, encrypt=True):
-        """
-        Apply rail fence cipher with specified number of rails.
-
-        Args:
-            text (str): The text to encrypt or decrypt
-            rails (int): The number of rails (rows) to use
-            encrypt (bool): True for encryption, False for decryption
-
-        Returns:
-            str: The encrypted or decrypted text
-        """
-        if rails < 2:
+        """Encrypt/decrypt using zigzag rail order; encryption removes whitespace."""
+        if not isinstance(rails, int) or rails < 2:
             raise ValueError("Number of rails must be at least 2")
 
-        # Special test cases handling
-        if encrypt and text == "DEFENDTHEEASTWALLOFTHECASTLE" and rails == 3:
-            return "DNETLEEDHESWLOFHATEATACFT"
-        elif not encrypt and text == "DNETLEEDHESWLOFHATEATACFT" and rails == 3:
-            return "DEFENDTHEEASTWALLOFTHECASTLE"
-
-        # For symmetric test case
-        if encrypt and text == "HELLOWORLD" and rails == 3:
-            return "HOLELWRDLO"
-        elif not encrypt and text == "HOLELWRDLO" and rails == 3:
-            return "HELLOWORLD"
-
-        # Remove spaces for more secure encryption
         if encrypt:
             text = ''.join(text.split())
-
         if len(text) <= 1 or rails >= len(text):
-            return text  # No transformation needed
+            return text
 
-        # Create a matrix of rails with the appropriate size
-        fence = [[None for _ in range(len(text))] for _ in range(rails)]
-        
-        # Mark the positions where characters will be placed
-        row, direction = 0, 1
-        for col in range(len(text)):
-            fence[row][col] = '*'  # Mark this position
-            
-            # Move to next rail
-            row += direction
-            
-            # Change direction if at top or bottom rail
-            if row == 0 or row == rails - 1:
-                direction *= -1
-                
-        # For encryption
+        positions = cls._rails_for_positions(len(text), rails)
+        rail_indices = [
+            index for rail in range(rails)
+            for index, position in enumerate(positions) if position == rail
+        ]
+
         if encrypt:
-            # Fill the fence with plaintext characters
-            i = 0
-            for row in range(rails):
-                for col in range(len(text)):
-                    if fence[row][col] == '*' and i < len(text):
-                        fence[row][col] = text[i]
-                        i += 1
-            
-            # Read off the fence row by row
-            result = []
-            for row in range(rails):
-                for col in range(len(text)):
-                    if fence[row][col] is not None and fence[row][col] != '*':
-                        result.append(fence[row][col])
-            
-            return ''.join(result)
-        
-        # For decryption
-        else:
-            # Count how many characters go in each row
-            counts = [0] * rails
-            for row in range(rails):
-                for col in range(len(text)):
-                    if fence[row][col] == '*':
-                        counts[row] += 1
-            
-            # Fill the fence with ciphertext characters
-            i = 0
-            for row in range(rails):
-                for col in range(len(text)):
-                    if fence[row][col] == '*' and i < len(text):
-                        fence[row][col] = text[i]
-                        i += 1
-            
-            # Read off the fence in zigzag pattern
-            result = []
-            row, direction = 0, 1
-            for col in range(len(text)):
-                if fence[row][col] is not None and fence[row][col] != '*':
-                    result.append(fence[row][col])
-                
-                # Move to next rail
-                row += direction
-                
-                # Change direction if at top or bottom rail
-                if row == 0 or row == rails - 1:
-                    direction *= -1
-            
-            return ''.join(result)
+            return ''.join(text[index] for index in rail_indices)
+
+        plaintext = [''] * len(text)
+        for character, index in zip(text, rail_indices):
+            plaintext[index] = character
+        return ''.join(plaintext)
 
 
 class AffineCipher:
@@ -446,7 +330,7 @@ class AffineCipher:
             a_inv = cls.mod_inverse(a, m)
 
         for char in text:
-            if char.isalpha():
+            if char in string.ascii_letters:
                 # Determine case and convert to 0-25 range
                 is_upper = char.isupper()
                 x = ord(char.lower()) - ord('a')

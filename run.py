@@ -1,55 +1,34 @@
 #!/usr/bin/env python3
+"""CipherCraft source launcher.
+
+Use 'python run.py' for the desktop GUI, or 'python run.py --cli' for
+the interactive command-line mode. Tk is only required for the GUI.
 """
-Unified Launcher for CipherCraft - Cryptography Toolkit
 
-A single, simple entry point for the CipherCraft application.
-Provides access to both the GUI and command-line interfaces.
-"""
-
-import sys
-import tkinter as tk
-from src.ui.gui import CipherGUI
-from src.services.cipher_service import CipherService
+import argparse
 
 
-def main():
-    """Main function to start the application."""
-    # Print welcome message
-    print("=" * 60)
-    print("                    CIPHERCRAFT")
-    print("=" * 60)
-    print("A comprehensive toolkit for encryption and decryption")
-    print("with multiple cipher algorithms and AI-driven analysis.")
-    print("=" * 60)
-    print()
-    
-    # Check for command-line arguments - if present, run CLI mode
-    if len(sys.argv) > 1:
-        # Import CLI functionality
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="CipherCraft classical cipher toolkit")
+    parser.add_argument("--cli", action="store_true", help="run the interactive command-line interface")
+    args = parser.parse_args(argv)
+
+    if args.cli:
         from src.ui.cli import main as cli_main
-        cli_main()
-        return
-    
-    # If no arguments, start the GUI
-    print("Starting CipherCraft GUI...")
+        return cli_main()
+
     try:
-        # Initialize the GUI
+        import tkinter as tk
         root = tk.Tk()
-        _ = CipherGUI(root)  # Initialize but don't need the reference
-        root.mainloop()
-    except Exception as e:
-        print(f"Error starting GUI: {e}")
-        print("Falling back to interactive CLI mode...")
-        
-        # If GUI fails, offer CLI mode as a fallback
-        _ = CipherService()  # Initialize but don't need the reference
-        print("\nWelcome to CipherCraft CLI")
-        print("=" * 40)
-        
-        _ = input("Choose operation (e=encrypt, d=decrypt, a=analyze): ")
-        # Rest of CLI functionality would go here
-        # For simplicity, just exit for now
-        print("Please run 'python -m src.ui.cli' for full CLI functionality")
+    except Exception as exc:
+        # A headless system can still use CipherCraft's interactive CLI.
+        print(f"GUI is unavailable ({exc}); starting the CLI instead.")
+        from src.ui.cli import main as cli_main
+        return cli_main()
+
+    from src.ui.gui import CipherGUI
+    CipherGUI(root)
+    root.mainloop()
 
 
 if __name__ == "__main__":

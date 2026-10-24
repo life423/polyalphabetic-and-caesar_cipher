@@ -6,12 +6,8 @@ keys and suggest possible plaintext interpretations.
 """
 
 import string
-import os
-import json
 from collections import Counter
 import re
-import math
-import itertools
 
 
 class CipherAnalyzer:

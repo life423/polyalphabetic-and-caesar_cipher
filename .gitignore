@@ -160,3 +160,5 @@ cython_debug/
 #.idea/
 
 *.vscode
+# Generated executables belong in GitHub Actions artifacts/releases
+dist/

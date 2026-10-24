@@ -1,29 +1,24 @@
-from setuptools import setup, find_packages
+"""Packaging metadata and GUI/CLI entry points for CipherCraft."""
+from setuptools import find_packages, setup
 
 setup(
-    name="cipher_tools",
-    version="1.0.0",
-    description="A comprehensive cipher encryption/decryption tool with AI analysis",
-    author="Cipher Team",
+    name="ciphercraft",
+    version="2.0.0",
+    description="Educational classical ciphers and statistical cryptanalysis",
     packages=find_packages(),
-    install_requires=[
-        "pytest>=7.3.1",
-        "flake8>=6.0.0",
-        "pyinstaller>=5.9.0",
-        "pyyaml>=6.0.1",
-    ],
+    python_requires=">=3.10",
+    install_requires=[],
+    extras_require={
+        "dev": ["pytest>=7.3.1", "flake8>=6.0.0", "pyyaml>=6.0.1"],
+        "build": ["pyinstaller>=6.0.0"],
+    },
+    entry_points={
+        "console_scripts": ["cipher_tool=src.ui.cli:main"],
+        "gui_scripts": ["cipher_gui=src.ui.gui:main"],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
+        "Topic :: Education",
     ],
-    python_requires=">=3.7",
-    entry_points={
-        "console_scripts": [
-            "cipher_tool=src.ui.cli:main",
-        ],
-        "gui_scripts": [
-            "cipher_gui=src.ui.gui:main",
-        ],
-    },
 )
