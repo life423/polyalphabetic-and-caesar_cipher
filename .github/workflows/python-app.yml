@@ -127,6 +127,6 @@ jobs:
             echo "Release $TAG already exists; not replacing published artifacts."
             exit 0
           fi
-          gh release create "$TAG" ciphercraft-macos.zip ciphercraft-windows.zip \\
-            --target "$GITHUB_SHA" --title "CipherCraft $TAG" \\
+          gh release create "$TAG" ciphercraft-macos.zip ciphercraft-windows.zip \
+            --target "$GITHUB_SHA" --title "CipherCraft $TAG" \
             --notes-file RELEASE_NOTES.md --latest
