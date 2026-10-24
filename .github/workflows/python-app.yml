@@ -6,8 +6,6 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
-  release:
-    types: [published]
 
 permissions:
   contents: read
@@ -36,10 +34,26 @@ jobs:
       - name: All tests
         run: python -m pytest tests/ -q
 
+  gui-smoke:
+    name: Verify real Tk window under virtual display
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install display server and application
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          python -m pip install -e .
+      - name: Test actual Tk controls, resizing and startup
+        run: xvfb-run -a python tests/smoke_tk_gui.py
+
   build:
     name: Build ${{ matrix.os }}
-    needs: test
-    if: github.event_name == 'pull_request' || github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+    needs: [test, gui-smoke]
+    if: github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -83,20 +97,36 @@ jobs:
           if-no-files-found: error
 
   publish:
+    name: Publish stable versioned downloads
     needs: build
-    if: github.event_name == 'release'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - name: Download release packages
+      - uses: actions/checkout@v4
+      - name: Download packaged macOS and Windows archives
         uses: actions/download-artifact@v4
         with:
           pattern: ciphercraft-*
           merge-multiple: true
-      - name: Upload to published GitHub release
+      - name: Read application version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(python -c 'import pathlib,re; print(re.search(r"version=\"([^\"]+)\"", pathlib.Path("setup.py").read_text()).group(1))')
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Publish release once per version
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          TAG: ${{ github.event.release.tag_name }}
-        run: gh release upload "$TAG" ciphercraft-*.zip --clobber
+          TAG: ${{ steps.version.outputs.tag }}
+        shell: bash
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists; not replacing published artifacts."
+            exit 0
+          fi
+          gh release create "$TAG" ciphercraft-macos.zip ciphercraft-windows.zip \\
+            --target "$GITHUB_SHA" --title "CipherCraft $TAG" \\
+            --notes-file RELEASE_NOTES.md --latest
