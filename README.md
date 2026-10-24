@@ -1,6 +1,6 @@
 # CipherCraft: Advanced Cryptography Toolkit
 
-[![Build Status](https://github.com/yourusername/ciphercraft/workflows/Python%20Application/badge.svg)](https://github.com/yourusername/ciphercraft/actions)
+[![Build Status](https://github.com/life423/polyalphabetic-and-caesar_cipher/workflows/Python%20Application/badge.svg)](https://github.com/life423/polyalphabetic-and-caesar_cipher/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
@@ -87,7 +87,7 @@ pip install -r requirements.txt
 
 ### Using Prebuilt Executables
 
-Download the latest release package from the [Releases](https://github.com/yourusername/ciphercraft/releases) page:
+Download the latest release package from the [Releases](https://github.com/life423/polyalphabetic-and-caesar_cipher/releases) page:
 
 - `cipher_tool.exe` - Unified application executable (includes both CLI and GUI)
 
@@ -115,7 +115,7 @@ python run.py --cli
 
 It prompts for, in order:
 
-1. **Clean .txt files?** **Warning:** `yes` deletes *every* `.txt` file in the current directory, including `requirements.txt` if you're in the repo root. Answer `no` unless you mean it.
+1. **Removed for safety; the CLI never bulk-deletes text files.
 2. **Operation:** `e` encrypt, `d` decrypt
 3. **Cipher:** `c` Caesar, `p` Polyalphabetic (Vigenère), `s` Substitution, `t` Transposition, `r` Rail Fence, `a` Affine
 4. **Input source:** `1` typed text, `2` file (then input/output paths, and whether to delete the input afterward)
@@ -124,7 +124,6 @@ It prompts for, in order:
 Example session:
 
 ```text
-Clean .txt files before proceeding? (yes/no): no
 Choose operation (e=encrypt, d=decrypt): e
 Choose cipher type: c
 Input source: (1=text, 2=file): 1
