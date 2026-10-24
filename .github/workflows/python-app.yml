@@ -64,6 +64,8 @@ jobs:
         run: python -m PyInstaller --clean --noconfirm --onefile --name cipher_tool src/ui/cli.py
       - name: Build GUI
         run: python -m PyInstaller --clean --noconfirm --onefile --windowed --name cipher_gui gui.py
+      - name: Smoke-test packaged CLI
+        run: python tests/smoke_executable.py
       - name: Package Windows build
         if: runner.os == 'Windows'
         shell: pwsh
