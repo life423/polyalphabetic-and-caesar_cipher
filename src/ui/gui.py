@@ -102,6 +102,13 @@ class CipherGUI:
                         borderwidth=1, relief="solid", padding=12)
         style.configure("TLabelframe.Label", background=self.COLORS["bg"],
                         foreground=navy, font=self.font_subheading)
+        style.configure("TNotebook", background=self.COLORS["bg"], bordercolor=border,
+                        borderwidth=1, tabmargins=(0, 0, 0, 0))
+        style.configure("TNotebook.Tab", background=self.COLORS["outline"],
+                        foreground=navy, padding=(18, 9), font=self.font_button)
+        style.map("TNotebook.Tab",
+                  background=[("selected", bg), ("active", self.COLORS["surface"])],
+                  foreground=[("selected", navy)])
         for widget in ("TRadiobutton", "TCheckbutton"):
             style.configure(widget, background=bg, foreground=navy, font=self.font_body)
             style.map(widget, background=[("active", bg)],
@@ -471,12 +478,12 @@ class CipherGUI:
             command=self._analyze_text
         )
 
-        # ===== Results Frame =====
-        self.results_frame = ttk.LabelFrame(
-            self.root,
-            text="03   RESULTS",
-            padding=self.SPACING['md']
+        # Tabbed workspace keeps results and analysis visible on smaller screens.
+        self.output_tabs = ttk.Notebook(self.root)
+        self.results_frame = ttk.Frame(
+            self.output_tabs, padding=self.SPACING['md']
         )
+        self.output_tabs.add(self.results_frame, text="RESULTS")
         
         # Results area
         self.result_text = scrolledtext.ScrolledText(
@@ -496,12 +503,10 @@ class CipherGUI:
             padx=self.SPACING['md'], pady=self.SPACING['md']
         )
         
-        # ===== Analysis Frame =====
-        self.analysis_frame = ttk.LabelFrame(
-            self.root,
-            text="STATISTICAL KEY SUGGESTIONS",
-            padding=self.SPACING['md']
+        self.analysis_frame = ttk.Frame(
+            self.output_tabs, padding=self.SPACING['md']
         )
+        self.output_tabs.add(self.analysis_frame, text="KEY SUGGESTIONS")
 
         # Analysis results
         self.analysis_result = scrolledtext.ScrolledText(
@@ -540,7 +545,6 @@ class CipherGUI:
         """Arrange a compact workspace, with results expanding on resize."""
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_rowconfigure(4, weight=1, minsize=100)
-        self.root.grid_rowconfigure(5, weight=0)
 
         self.header_frame.grid(row=0, column=0, sticky="ew")
         self.title_label.pack(fill="x", padx=24, pady=(13, 0))
@@ -550,9 +554,7 @@ class CipherGUI:
         self.buttons_frame.grid(row=3, column=0, sticky="e", padx=20, pady=(7, 4))
         self.process_button.pack(side="left", padx=(0, 10))
         self.analyze_button.pack(side="left")
-        self.results_frame.grid(row=4, column=0, sticky="nsew", padx=18, pady=(5, 8))
-        self.analysis_frame.grid(row=5, column=0, sticky="nsew", padx=18, pady=(0, 8))
-        self.analysis_frame.grid_remove()
+        self.output_tabs.grid(row=4, column=0, sticky="nsew", padx=18, pady=(5, 8))
 
         self.footer = tk.Label(
             self.root, text="EDUCATIONAL TOOL  •  CLASSICAL CIPHERS ARE NOT SECURE ENCRYPTION",
@@ -750,6 +752,8 @@ class CipherGUI:
             else:
                 result = transform(source, key)
             self._display_result(result)
+            if hasattr(self, "output_tabs"):
+                self.output_tabs.select(self.results_frame)
         except (ValueError, TypeError, OSError) as exc:
             self._display_error(str(exc))
 
@@ -784,9 +788,8 @@ class CipherGUI:
         self.selected_suggestion = None
         self.apply_button.configure(state=tk.DISABLED)
         
-        # Show the analysis frame
-        self.analysis_frame.grid()
-        self.root.grid_rowconfigure(5, weight=1)
+        # Switch tabs instead of stacking another panel below the window.
+        self.output_tabs.select(self.analysis_frame)
         self.analysis_result.delete('1.0', tk.END)
         
         # Perform analysis based on cipher type
