@@ -1,6 +1,7 @@
 """Enforce the maintained architecture and GitHub Actions contract."""
 from pathlib import Path
 import ast
+import subprocess
 
 import pytest
 import yaml
@@ -32,7 +33,13 @@ def test_removed_legacy_file_stays_removed(relative):
 
 
 def test_generated_executables_not_tracked():
-    assert not (ROOT / "dist").exists()
+    # Developers may have a local dist/ after building; only Git tracking matters.
+    assert "dist/" in (ROOT / ".gitignore").read_text(encoding="utf-8")
+    if (ROOT / ".git").exists():
+        files = subprocess.check_output(
+            ["git", "ls-files", "--cached", "dist"], cwd=ROOT, text=True
+        ).strip()
+        assert not files, f"Generated bundles are still tracked:\\n{files}"
 
 
 def test_ci_configuration_parses_and_has_nine_test_targets():
