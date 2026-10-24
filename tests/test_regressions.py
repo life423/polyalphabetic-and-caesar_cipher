@@ -155,15 +155,15 @@ def test_cli_file_processing_no_delete(tmp_path, monkeypatch, capsys):
 
     source = tmp_path / "original.txt"
     output = tmp_path / "ciphertext.txt"
-    source.write_text("ATTACK\\nATDAWN\\n", encoding="utf-8")
+    source.write_text("ATTACK\nATDAWN\n", encoding="utf-8")
     answers = iter(["e", "p", "2", str(source), str(output), "no", "LEMON"])
     monkeypatch.setattr("builtins.input", lambda _: next(answers))
     cli_main()
     assert "Successfully" in capsys.readouterr().out
-    assert source.read_text(encoding="utf-8") == "ATTACK\\nATDAWN\\n"
+    assert source.read_text(encoding="utf-8") == "ATTACK\nATDAWN\n"
     expected = (
-        PolyalphabeticCipher.transform("ATTACK\\n", "LEMON")
-        + PolyalphabeticCipher.transform("ATDAWN\\n", "LEMON")
+        PolyalphabeticCipher.transform("ATTACK\n", "LEMON")
+        + PolyalphabeticCipher.transform("ATDAWN\n", "LEMON")
     )
     assert output.read_text(encoding="utf-8") == expected
 
