@@ -83,6 +83,7 @@ def test_demo_generator_balanced_and_recoverable(tmp_path):
             sample_id = example["sample_id"]
             answer = answer_by_id[sample_id]
             assert sample_id.startswith(split + "-")
+            assert not any(sample_id.endswith("-" + name) for name in LABELS)
             assert example["label"] in LABELS
             assert example["ciphertext"].isascii()
             assert example["ciphertext"].isalpha()
