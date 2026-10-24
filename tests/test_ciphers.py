@@ -189,13 +189,13 @@ class TestRailFenceCipher(unittest.TestCase):
         """Test encryption with Rail Fence cipher."""
         plaintext = "DEFENDTHEEASTWALLOFTHECASTLE"
         rails = 3
-        expected = "DNETLEEDHESWLOFHATEATACFT"  # Verified manually
+        expected = "DNETLHSEEDHESWLOTEATEFTAAFCL"  # Standard zigzag encoding
         encrypted = RailFenceCipher.transform(plaintext, rails, encrypt=True)
         self.assertEqual(encrypted, expected)
     
     def test_decryption(self):
         """Test decryption with Rail Fence cipher."""
-        ciphertext = "DNETLEEDHESWLOFHATEATACFT"
+        ciphertext = "DNETLHSEEDHESWLOTEATEFTAAFCL"
         rails = 3
         expected = "DEFENDTHEEASTWALLOFTHECASTLE"
         decrypted = RailFenceCipher.transform(ciphertext, rails, encrypt=False)
