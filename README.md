@@ -133,3 +133,17 @@ System Settings → Privacy & Security after the first launch attempt.
 
 These are historical, educational ciphers, **not modern encryption**.
 Do not use them for passwords, secrets, personal data, or confidential files.
+
+## Offline ML dataset generator (experimental)
+
+Step 1 of the in-house cipher-identification project adds a **local, reproducible**
+training-data generator; it does **not** train or ship an ML model yet. It uses
+CipherCraft's six real cipher implementations and separates plaintext/keys from
+classifier examples. The built-in corpus is only for pipeline validation.
+
+```bash
+python -m src.ai.training_data --demo --output-dir generated_datasets/demo --samples-per-class 30
+```
+
+For a larger legally sourced local corpus, see [ML training data instructions](docs/ml-training-data.md).
+Neither downloaded training material nor generated examples are committed to Git.
