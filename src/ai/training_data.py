@@ -233,9 +233,11 @@ def generate_dataset(
                     split_docs, rng, min_length, max_length, seen_plaintexts
                 )
                 group = f"{split}-{index:07d}"
-                for label in LABELS:
+                labels_for_group = list(LABELS)
+                rng.shuffle(labels_for_group)  # do not leak class through row order
+                for label in labels_for_group:
                     ciphertext, key = encrypt_example(label, plain, width, rng)
-                    sample_id = f"{group}-{label}"
+                    sample_id = f"{group}-{rng.getrandbits(64):016x}"
                     examples.write(json.dumps({
                         "sample_id": sample_id, "group_id": group,
                         "ciphertext": ciphertext, "label": label,
