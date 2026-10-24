@@ -115,11 +115,10 @@ python run.py --cli
 
 It prompts for, in order:
 
-1. **Removed for safety; the CLI never bulk-deletes text files.
-2. **Operation:** `e` encrypt, `d` decrypt
-3. **Cipher:** `c` Caesar, `p` Polyalphabetic (Vigenère), `s` Substitution, `t` Transposition, `r` Rail Fence, `a` Affine
-4. **Input source:** `1` typed text, `2` file (then input/output paths, and whether to delete the input afterward)
-5. **Key:** shift, keyword, 26-letter key, rail count, or affine `a`/`b`, depending on the cipher
+1. **Operation:** `e` encrypt, `d` decrypt
+2. **Cipher:** `c` Caesar, `p` Polyalphabetic (Vigenère), `s` Substitution, `t` Transposition, `r` Rail Fence, `a` Affine
+3. **Input source:** `1` typed text, `2` file (then input/output paths, and whether to delete the input afterward)
+4. **Key:** shift, keyword, 26-letter key, rail count, or affine `a`/`b`, depending on the cipher
 
 Example session:
 
