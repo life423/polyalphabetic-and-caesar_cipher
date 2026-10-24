@@ -481,15 +481,15 @@ class CipherGUI:
         # Results area
         self.result_text = scrolledtext.ScrolledText(
             self.results_frame,
-            height=10,
+            height=7,
             width=60,
             wrap=tk.WORD,
             font=self.font_code,
-            bd=2,  # Add subtle border
-            relief=tk.GROOVE,
-            bg='white',  # White background for text area
-            fg=self.COLORS['text'],  # Explicit text color: system default turns white in macOS Dark Mode
-            insertbackground=self.COLORS['text']  # Visible cursor on the white background
+            bd=0, relief=tk.FLAT, padx=12, pady=10,
+            highlightthickness=1, highlightbackground=self.COLORS['outline'],
+            highlightcolor=self.COLORS['secondary'],
+            bg=self.COLORS['surface'], fg=self.COLORS['text'],
+            insertbackground=self.COLORS['text']
         )
         self.result_text.pack(
             fill="both", expand=True,
@@ -506,15 +506,15 @@ class CipherGUI:
         # Analysis results
         self.analysis_result = scrolledtext.ScrolledText(
             self.analysis_frame,
-            height=8,
+            height=6,
             width=60,
             wrap=tk.WORD,
             font=self.font_code,
-            bd=2,  # Add subtle border
-            relief=tk.GROOVE,
-            bg='white',  # White background for text area
-            fg=self.COLORS['text'],  # Explicit text color: system default turns white in macOS Dark Mode
-            insertbackground=self.COLORS['text']  # Visible cursor on the white background
+            bd=0, relief=tk.FLAT, padx=12, pady=10,
+            highlightthickness=1, highlightbackground=self.COLORS['outline'],
+            highlightcolor=self.COLORS['secondary'],
+            bg=self.COLORS['surface'], fg=self.COLORS['text'],
+            insertbackground=self.COLORS['text']
         )
         self.analysis_result.pack(
             fill="both", expand=True,
@@ -535,63 +535,45 @@ class CipherGUI:
         self.analysis_results = []
         self.selected_suggestion = None
     
+
     def _layout_widgets(self):
-        """Arrange all widgets in the UI."""
-        # Add some padding around all widgets
-        for child in self.root.winfo_children():
-            child.grid_configure(padx=self.SPACING['md'], pady=self.SPACING['md'])
-            
-        # Configure the grid
+        """Arrange a compact workspace, with results expanding on resize."""
         self.root.grid_columnconfigure(0, weight=1)
-        
-        # Title at the top
-        self.title_label.grid(
-            row=0, column=0, pady=(self.SPACING['lg'], 0), sticky="ew"
+        self.root.grid_rowconfigure(4, weight=1, minsize=100)
+        self.root.grid_rowconfigure(5, weight=0)
+
+        self.header_frame.grid(row=0, column=0, sticky="ew")
+        self.title_label.pack(fill="x", padx=24, pady=(13, 0))
+        self.subtitle_label.pack(fill="x", padx=25, pady=(1, 15))
+        self.settings_frame.grid(row=1, column=0, sticky="ew", padx=18, pady=(13, 5))
+        self.io_frame.grid(row=2, column=0, sticky="ew", padx=18, pady=5)
+        self.buttons_frame.grid(row=3, column=0, sticky="e", padx=20, pady=(7, 4))
+        self.process_button.pack(side="left", padx=(0, 10))
+        self.analyze_button.pack(side="left")
+        self.results_frame.grid(row=4, column=0, sticky="nsew", padx=18, pady=(5, 8))
+        self.analysis_frame.grid(row=5, column=0, sticky="nsew", padx=18, pady=(0, 8))
+        self.analysis_frame.grid_remove()
+
+        self.footer = tk.Label(
+            self.root, text="EDUCATIONAL TOOL  •  CLASSICAL CIPHERS ARE NOT SECURE ENCRYPTION",
+            bg=self.COLORS["bg"], fg=self.COLORS["muted"],
+            font=self.font_small, anchor="w",
         )
-        self.subtitle_label.grid(
-            row=1, column=0, pady=(0, self.SPACING['md']), sticky="ew"
-        )
-        
-        # Settings frame
-        self.settings_frame.grid(
-            row=2, column=0, sticky="ew",
-            padx=self.SPACING['lg'], pady=self.SPACING['md']
-        )
-        
-        # Input/Output frame
-        self.io_frame.grid(
-            row=3, column=0, sticky="ew",
-            padx=self.SPACING['lg'], pady=self.SPACING['md']
-        )
-        
-        # Buttons frame
-        self.buttons_frame.grid(row=4, column=0, pady=self.SPACING['md'])
-        self.process_button.pack(
-            side="left", padx=(0, self.SPACING['md']), pady=self.SPACING['sm']
-        )
-        self.analyze_button.pack(side="left", pady=self.SPACING['sm'])
-        
-        # Results frame
-        self.results_frame.grid(
-            row=5, column=0, sticky="nsew",
-            padx=self.SPACING['lg'], pady=self.SPACING['md']
-        )
-        
-        # Analysis frame - initially hidden
-        self.analysis_frame.grid(
-            row=6, column=0, sticky="nsew",
-            padx=self.SPACING['lg'], pady=self.SPACING['md']
-        )
-        self.analysis_frame.grid_remove()  # Hide initially
-        
-        # Make the results area expandable
-        self.root.grid_rowconfigure(5, weight=1)
+        self.footer.grid(row=6, column=0, sticky="ew", padx=22, pady=(0, 9))
+        self.root.bind("<Configure>", self._on_resize, add="+")
+
+    def _on_resize(self, event):
+        """Keep help text legible when the window is resized."""
+        if event.widget is self.root:
+            self.help_text_label.configure(wraplength=max(320, event.width - 100))
+
     def _update_input_mode(self):
         """Keep file-only controls inactive when working with typed text."""
         is_file = self.input_mode_var.get() == "file"
-        self.delete_input_checkbox.configure(
-            state=tk.NORMAL if is_file else tk.DISABLED
-        )
+        state = tk.NORMAL if is_file else tk.DISABLED
+        self.delete_input_checkbox.configure(state=state)
+        self.output_entry.configure(state=state)
+        self.output_file_button.configure(state=state)
         if not is_file:
             self.delete_input_var.set(False)
 
@@ -697,6 +679,7 @@ class CipherGUI:
         """Display an error message in the result text area."""
         self.result_text.delete('1.0', tk.END)  # Clear previous results
         self.result_text.insert(tk.END, f"Error: {error_message}")
+
     def _process_text(self):
         """Validate UI state and dispatch every cipher through one shared path."""
         self.result_text.delete('1.0', tk.END)
@@ -803,6 +786,7 @@ class CipherGUI:
         
         # Show the analysis frame
         self.analysis_frame.grid()
+        self.root.grid_rowconfigure(5, weight=1)
         self.analysis_result.delete('1.0', tk.END)
         
         # Perform analysis based on cipher type
