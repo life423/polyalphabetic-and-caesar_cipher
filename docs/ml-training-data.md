@@ -62,12 +62,13 @@ These local folders are .gitignored, not uploaded to GitHub.
 Classifier row example (illustrative):
 
 ~~~json
-{"sample_id":"train-0000001-caesar","group_id":"train-0000001","ciphertext":"KHOORZRUOG","label":"caesar"}
+{"sample_id":"train-0000001-e81f33da4b7960de","group_id":"train-0000001","ciphertext":"KHOORZRUOG","label":"caesar"}
 ~~~
 
 **Only ciphertext should be passed into the classifier.**
 The label field is the supervised learning target. sample_id and group_id
-help tests and audits, not model features. Keys and plaintext are in separate
+help tests and audits, not model features. IDs do not encode the class, and
+label ordering within each plaintext group is randomized. Keys and plaintext are in separate
 answer files.
 
 ## How we prevent misleading performance claims
