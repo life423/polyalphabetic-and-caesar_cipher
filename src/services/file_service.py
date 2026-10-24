@@ -30,10 +30,10 @@ class FileService:
             destination = Path(output_path).resolve()
             if source == destination:
                 return "Error: Input and output files must be different."
+            # Preserve legacy line-by-line cipher processing (including keyword
+            # resets per line), without risking an existing destination on error.
             with source.open('r', encoding='utf-8') as input_file:
-                content = input_file.read()
-            # Transform before touching the destination, so invalid keys do not truncate files.
-            result = transform_function(content)
+                result = ''.join(transform_function(line) for line in input_file)
             with destination.open('w', encoding='utf-8') as output_file:
                 output_file.write(result)
             
