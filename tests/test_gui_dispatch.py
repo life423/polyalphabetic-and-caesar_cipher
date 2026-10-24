@@ -23,11 +23,12 @@ def _entry(value):
     return SimpleNamespace(get=lambda: value)
 
 
-def gui(cipher, source, key, output="", delete_input=False, action="e"):
+def gui(cipher, source, key, output="", delete_input=False, action="e", mode="text"):
     app = CipherGUI.__new__(CipherGUI)
     app.cipher_service = CipherService()
     app.cipher_var = _entry(cipher)
     app.action_var = _entry(action)
+    app.input_mode_var = _entry(mode)
     app.input_entry = _entry(source)
     app.output_entry = _entry(output)
     app.delete_input_var = _entry(delete_input)
@@ -60,7 +61,7 @@ def test_gui_file_mode_preserves_input(tmp_path):
     source = tmp_path / "source.txt"
     destination = tmp_path / "destination.txt"
     source.write_text("Hello", encoding="utf-8")
-    app = gui("c", str(source), "3", output=str(destination))
+    app = gui("c", str(source), "3", output=str(destination), mode="file")
     app._process_text()
     assert app.result_text.value.startswith("Successfully")
     assert destination.read_text(encoding="utf-8") == "Khoor"
@@ -71,3 +72,19 @@ def test_gui_invalid_key_displays_error():
     app = gui("s", "Hello", "a" * 26)
     app._process_text()
     assert app.result_text.value.startswith("Error:")
+
+
+def test_existing_filename_in_text_mode_is_not_read_as_a_file(tmp_path):
+    source = tmp_path / "existing.txt"
+    source.write_text("Not this content", encoding="utf-8")
+    app = gui("c", str(source), "3", mode="text")
+    app._process_text()
+    assert app.result_text.value == app.cipher_service.encrypt_caesar(str(source), 3)
+    assert source.read_text(encoding="utf-8") == "Not this content"
+
+
+def test_file_mode_requires_existing_input(tmp_path):
+    app = gui("c", str(tmp_path / "does-not-exist.txt"), "3", mode="file", output=str(tmp_path / "result.txt"))
+    app._process_text()
+    assert "Input file not found" in app.result_text.value
+    assert not (tmp_path / "result.txt").exists()
