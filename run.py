@@ -40,16 +40,8 @@ def main():
     except Exception as e:
         print(f"Error starting GUI: {e}")
         print("Falling back to interactive CLI mode...")
-        
-        # If GUI fails, offer CLI mode as a fallback
-        _ = CipherService()  # Initialize but don't need the reference
-        print("\nWelcome to CipherCraft CLI")
-        print("=" * 40)
-        
-        _ = input("Choose operation (e=encrypt, d=decrypt, a=analyze): ")
-        # Rest of CLI functionality would go here
-        # For simplicity, just exit for now
-        print("Please run 'python -m src.ui.cli' for full CLI functionality")
+        from src.ui.cli import main as cli_main
+        cli_main()
 
 
 if __name__ == "__main__":
