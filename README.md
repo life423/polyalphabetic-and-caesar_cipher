@@ -114,15 +114,20 @@ multi-stage launchers and unused framework classes have been removed.
 
 Pull requests test against Python 3.10, 3.12, and 3.13 on Linux, Windows,
 and macOS, then package Windows and macOS desktop executables. CI launches
-the packaged CLI to verify a known cipher result. A published GitHub Release
-can receive the downloadable archives from the release workflow:
+the packaged CLI to verify a known cipher result. When a version changes and a commit lands on main, GitHub Actions publishes
+a new release with permanent Windows and macOS download links:
 
 - [Actions](https://github.com/life423/polyalphabetic-and-caesar_cipher/actions)
-- [Releases](https://github.com/life423/polyalphabetic-and-caesar_cipher/releases)
+- [Latest release](https://github.com/life423/polyalphabetic-and-caesar_cipher/releases/latest)
+- [macOS ZIP](https://github.com/life423/polyalphabetic-and-caesar_cipher/releases/latest/download/ciphercraft-macos.zip)
+- [Windows ZIP](https://github.com/life423/polyalphabetic-and-caesar_cipher/releases/latest/download/ciphercraft-windows.zip)
 
 Generated `dist/` binaries are intentionally **not kept in Git**.
-Executable packaging and CLI smoke tests run in CI; the GUI still requires
-separate human interaction testing on both operating systems.
+CI checks actual Tk widget startup, operations and layout under a virtual
+Linux display, along with packaged CLI smoke tests on Windows and macOS.
+Interactive QA on actual Windows and macOS desktops is still recommended.
+The macOS build is not Apple notarized; users may need to approve it under
+System Settings → Privacy & Security after the first launch attempt.
 
 ## Security note
 
