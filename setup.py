@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="ciphercraft",
-    version="1.0.0",
+    version="2.0.0",
     description="Educational classical ciphers and statistical cryptanalysis",
     packages=find_packages(),
     python_requires=">=3.10",
