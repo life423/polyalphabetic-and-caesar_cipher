@@ -89,3 +89,45 @@ def test_file_transform_failure_does_not_truncate_destination(tmp_path):
 
     assert FileService.process_file(source, destination, fail).startswith("Error:")
     assert destination.read_text(encoding="utf-8") == "original output"
+
+def test_file_processing_preserves_per_line_keyword_reset(tmp_path):
+    source = tmp_path / "input.txt"
+    destination = tmp_path / "output.txt"
+    source.write_text("ATTACK\nATDAWN\n", encoding="utf-8")
+    result = FileService.process_file(
+        source, destination,
+        lambda line: PolyalphabeticCipher.transform(line, "LEMON")
+    )
+    assert result.startswith("Successfully")
+    expected = (
+        PolyalphabeticCipher.transform("ATTACK\n", "LEMON")
+        + PolyalphabeticCipher.transform("ATDAWN\n", "LEMON")
+    )
+    assert destination.read_text(encoding="utf-8") == expected
+
+
+def test_cli_does_not_import_gui_or_tk(monkeypatch):
+    import importlib
+    import sys
+    import src.ui.cli as cli
+
+    called = []
+    monkeypatch.setattr(cli, "main", lambda: called.append(True))
+    monkeypatch.setattr(sys, "argv", ["run.py", "--cli"])
+    monkeypatch.setitem(sys.modules, "tkinter", None)
+    app = importlib.import_module("run")
+    app.main()
+    assert called == [True]
+
+
+def test_interactive_cli_never_deletes_existing_txt(tmp_path, monkeypatch, capsys):
+    from src.ui.cli import main as cli_main
+
+    victim = tmp_path / "preserve.txt"
+    victim.write_text("original", encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    answers = iter(["e", "c", "1", "Hello", "3"])
+    monkeypatch.setattr("builtins.input", lambda _: next(answers))
+    cli_main()
+    assert "Khoor" in capsys.readouterr().out
+    assert victim.read_text(encoding="utf-8") == "original"
