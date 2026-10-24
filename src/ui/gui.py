@@ -29,7 +29,11 @@ class CipherGUI:
         'light': '#ECF0F1',        # Light gray
         'dark': '#2C3E50',         # Dark blue-gray
         'text': '#34495E',         # Dark gray-blue
-        'bg': '#F5F7FA'            # Light background
+        'bg': '#F5F7FA',           # Light background
+        'surface': '#FFFFFF',      # Clean content cards
+        'outline': '#D9E2EB',      # Card and field borders
+        'muted': '#627589',        # Supporting copy
+        'hover': '#243647'         # Navy interactive state
     }
 
     # Spacing scale (in pixels)
@@ -53,7 +57,8 @@ class CipherGUI:
         self.root.configure(bg=self.COLORS['bg'])
         
         # Set minimum window size
-        self.root.minsize(800, 650)
+        self.root.minsize(780, 640)
+        self.root.geometry('1040x790')
         
         # Initialize the service layer
         self.cipher_service = CipherService()
@@ -68,142 +73,77 @@ class CipherGUI:
         self._create_widgets()
         self._layout_widgets()
     
+
     def _setup_fonts(self):
-        """Setup custom fonts for the application."""
-        # Store fonts as instance variables for later use
-        self.font_heading = font.Font(
-            family='Arial', size=18, weight='bold')
-        self.font_subheading = font.Font(
-            family='Arial', size=12, weight='bold')
-        self.font_body = font.Font(
-            family='Arial', size=10)
-        self.font_small = font.Font(
-            family='Arial', size=9)
-        self.font_button = font.Font(
-            family='Arial', size=10, weight='bold')
-        self.font_code = font.Font(
-            family='Courier New', size=10)
-    
+        """Prefer native system fonts with readable scaling."""
+        system_family = "Helvetica Neue" if self.root.tk.call("tk", "windowingsystem") == "aqua" else "Segoe UI"
+        families = set(font.families(self.root))
+        if system_family not in families:
+            system_family = font.nametofont("TkDefaultFont").actual("family")
+        self.font_heading = font.Font(root=self.root, family=system_family, size=23, weight="bold")
+        self.font_subheading = font.Font(root=self.root, family=system_family, size=11, weight="bold")
+        self.font_body = font.Font(root=self.root, family=system_family, size=10)
+        self.font_small = font.Font(root=self.root, family=system_family, size=9)
+        self.font_button = font.Font(root=self.root, family=system_family, size=10, weight="bold")
+        self.font_code = font.Font(root=self.root, family="Courier", size=11)
+
     def _create_styles(self):
-        """Create custom ttk styles for widgets."""
-        style = ttk.Style()
-        
-        # Configure the overall theme
-        style.theme_use('clam')  # Use a modern-looking base theme
-        
-        # Configure TLabel
-        style.configure(
-            'TLabel',
-            background=self.COLORS['bg'],
-            foreground=self.COLORS['text'],
-            font=self.font_body
-        )
-        
-        # Configure TFrame
-        style.configure(
-            'TFrame',
-            background=self.COLORS['bg']
-        )
-        
-        # Configure TLabelframe
-        style.configure(
-            'TLabelframe',
-            background=self.COLORS['bg'],
-            foreground=self.COLORS['primary'],
-            font=self.font_subheading
-        )
-        style.configure(
-            'TLabelframe.Label',
-            background=self.COLORS['bg'],
-            foreground=self.COLORS['primary'],
-            font=self.font_subheading
-        )
-        
-        # Configure TButton
-        style.configure(
-            'TButton',
-            background=self.COLORS['primary'],
-            foreground=self.COLORS['light'],
-            font=self.font_button,
-            padding=(self.SPACING['md'], self.SPACING['sm'])
-        )
-        
-        # Special button styles
-        style.configure(
-            'Primary.TButton',
-            background=self.COLORS['primary'],
-            foreground='white',
-            font=self.font_button
-        )
-        
-        style.configure(
-            'Success.TButton',
-            background=self.COLORS['success'],
-            foreground='white',
-            font=self.font_button
-        )
-        
-        style.configure(
-            'Accent.TButton',
-            background=self.COLORS['accent'],
-            foreground='white',
-            font=self.font_button
-        )
-        
-        style.configure(
-            'Warning.TButton',
-            background=self.COLORS['warning'],
-            foreground='white',
-            font=self.font_button
-        )
-        
-        # Configure TRadiobutton
-        style.configure(
-            'TRadiobutton',
-            background=self.COLORS['bg'],
-            foreground=self.COLORS['text'],
-            font=self.font_body
-        )
-        
-        # Configure TCheckbutton
-        style.configure(
-            'TCheckbutton',
-            background=self.COLORS['bg'],
-            foreground=self.COLORS['text'],
-            font=self.font_body
-        )
-        
-        # Configure TEntry
-        style.configure(
-            'TEntry',
-            fieldbackground='white',
-            foreground=self.COLORS['text'],
-            font=self.font_body,
-            padding=self.SPACING['sm']
-        )
+        """Use the original navy, teal, blue and green across the UI."""
+        style = ttk.Style(self.root)
+        if "clam" in style.theme_names():
+            style.theme_use("clam")
+        bg = self.COLORS["surface"]
+        navy = self.COLORS["primary"]
+        border = self.COLORS["outline"]
+        style.configure("TFrame", background=bg)
+        style.configure("TLabel", background=bg, foreground=self.COLORS["text"],
+                        font=self.font_body)
+        style.configure("TLabelframe", background=bg, bordercolor=border,
+                        borderwidth=1, relief="solid", padding=12)
+        style.configure("TLabelframe.Label", background=self.COLORS["bg"],
+                        foreground=navy, font=self.font_subheading)
+        for widget in ("TRadiobutton", "TCheckbutton"):
+            style.configure(widget, background=bg, foreground=navy, font=self.font_body)
+            style.map(widget, background=[("active", bg)],
+                      foreground=[("disabled", self.COLORS["muted"])])
+        style.configure("TEntry", fieldbackground=bg, foreground=navy,
+                        padding=8, bordercolor=border, lightcolor=border,
+                        darkcolor=border)
+        style.map("TEntry", fieldbackground=[("disabled", self.COLORS["bg"])],
+                  foreground=[("disabled", self.COLORS["muted"])])
+        buttons = {
+            "Primary.TButton": (navy, "#FFFFFF", self.COLORS["hover"]),
+            "Success.TButton": (self.COLORS["secondary"], navy, "#16A085"),
+            "Accent.TButton": (self.COLORS["accent"], "#FFFFFF", "#287DB6"),
+            "Warning.TButton": (self.COLORS["warning"], navy, "#DE8B08"),
+        }
+        for name, (background, foreground, hover) in buttons.items():
+            style.configure(name, background=background, foreground=foreground,
+                            bordercolor=background, lightcolor=background,
+                            darkcolor=background, relief="flat", padding=(14, 9),
+                            font=self.font_button)
+            style.map(name, background=[("disabled", border), ("active", hover),
+                                        ("pressed", hover)],
+                      foreground=[("disabled", self.COLORS["muted"]),
+                                  ("active", foreground)])
+
     def _create_widgets(self):
         """Create all the widgets for the application."""
-        # Title
+        self.header_frame = tk.Frame(self.root, bg=self.COLORS['primary'])
         self.title_label = tk.Label(
-            self.root,
-            text="CipherCraft",
-            font=self.font_heading,
-            bg=self.COLORS['bg'],
-            fg=self.COLORS['primary']
+            self.header_frame, text="CipherCraft", font=self.font_heading,
+            bg=self.COLORS['primary'], fg="#FFFFFF", anchor="w"
         )
-        
         self.subtitle_label = tk.Label(
-            self.root,
-            text="Classical Ciphers & Cryptanalysis",
-            font=self.font_subheading,
-            bg=self.COLORS['bg'],
-            fg=self.COLORS['secondary']
+            self.header_frame, text="CLASSICAL CIPHERS  /  CRYPTANALYSIS",
+            font=self.font_small, bg=self.COLORS['primary'],
+            fg=self.COLORS['secondary'], anchor="w"
         )
 
         # ===== Settings Frame =====
         self.settings_frame = ttk.LabelFrame(
             self.root,
-            text="Cipher Settings",
+            text="01   CIPHER SETTINGS",
             padding=self.SPACING['md']
         )
 
@@ -436,7 +376,7 @@ class CipherGUI:
         # ===== Input/Output Frame =====
         self.io_frame = ttk.LabelFrame(
             self.root,
-            text="Input/Output",
+            text="02   INPUT / OUTPUT",
             padding=self.SPACING['md']
         )
 
@@ -518,7 +458,7 @@ class CipherGUI:
         # Process button
         self.process_button = ttk.Button(
             self.buttons_frame,
-            text="Process",
+            text="Encrypt / Decrypt",
             style="Success.TButton",
             command=self._process_text
         )
@@ -534,7 +474,7 @@ class CipherGUI:
         # ===== Results Frame =====
         self.results_frame = ttk.LabelFrame(
             self.root,
-            text="Results",
+            text="03   RESULTS",
             padding=self.SPACING['md']
         )
         
@@ -559,7 +499,7 @@ class CipherGUI:
         # ===== Analysis Frame =====
         self.analysis_frame = ttk.LabelFrame(
             self.root,
-            text="Statistical Key Suggestions",
+            text="STATISTICAL KEY SUGGESTIONS",
             padding=self.SPACING['md']
         )
 
