@@ -709,25 +709,6 @@ class CipherGUI:
         self.sub_key_entry.delete(0, tk.END)
         self.sub_key_entry.insert(0, key)
 
-    def _get_current_key(self):
-        """Get the key from the appropriate entry field based on the selected cipher type."""
-        cipher_type = self.cipher_var.get()
-        
-        if cipher_type == 'c':  # Caesar
-            return self.caesar_key_entry.get()
-        elif cipher_type == 'p':  # Polyalphabetic
-            return self.poly_key_entry.get()
-        elif cipher_type == 's':  # Substitution
-            return self.sub_key_entry.get()
-        elif cipher_type == 't':  # Transposition
-            return self.trans_key_entry.get()
-        elif cipher_type == 'r':  # Rail Fence
-            return self.rail_key_entry.get()
-        elif cipher_type == 'a':  # Affine
-            a_value = self.affine_a_entry.get()
-            b_value = self.affine_b_entry.get()
-            return (a_value, b_value)  # Return as tuple for Affine cipher
-    
     def _display_result(self, result):
         """Display the result in the result text area."""
         self.result_text.delete('1.0', tk.END)  # Clear previous results
