@@ -131,3 +131,66 @@ def test_interactive_cli_never_deletes_existing_txt(tmp_path, monkeypatch, capsy
     cli_main()
     assert "Khoor" in capsys.readouterr().out
     assert victim.read_text(encoding="utf-8") == "original"
+
+
+@pytest.mark.parametrize("cipher,plaintext,key_prompts,expected", [
+    ("c", "Hello", ["3"], "Khoor"),
+    ("p", "HELLO", ["KEY"], "RIJVS"),
+    ("s", "HELLO", ["no", "zyxwvutsrqponmlkjihgfedcba"], "SVOOL"),
+    ("t", "WEAREDISCOVEREDFLEEATONCE", ["ZEBRAS"], "EVLNXACDTXESEAXROFOXDEECXWIREE"),
+    ("r", "WEAREDISCOVEREDFLEEATONCE", ["3"], "WECRLTEERDSOEEFEAOCAIVDEN"),
+    ("a", "AFFINECIPHER", ["5", "8"], "IHHWVCSWFRCP"),
+])
+def test_cli_all_six_ciphers(monkeypatch, capsys, cipher, plaintext, key_prompts, expected):
+    from src.ui.cli import main as cli_main
+
+    answers = iter(["e", cipher, "1", plaintext, *key_prompts])
+    monkeypatch.setattr("builtins.input", lambda _: next(answers))
+    cli_main()
+    assert f"Result: {expected}" in capsys.readouterr().out
+
+
+def test_cli_file_processing_no_delete(tmp_path, monkeypatch, capsys):
+    from src.ui.cli import main as cli_main
+
+    source = tmp_path / "original.txt"
+    output = tmp_path / "ciphertext.txt"
+    source.write_text("ATTACK\\nATDAWN\\n", encoding="utf-8")
+    answers = iter(["e", "p", "2", str(source), str(output), "no", "LEMON"])
+    monkeypatch.setattr("builtins.input", lambda _: next(answers))
+    cli_main()
+    assert "Successfully" in capsys.readouterr().out
+    assert source.read_text(encoding="utf-8") == "ATTACK\\nATDAWN\\n"
+    expected = (
+        PolyalphabeticCipher.transform("ATTACK\\n", "LEMON")
+        + PolyalphabeticCipher.transform("ATDAWN\\n", "LEMON")
+    )
+    assert output.read_text(encoding="utf-8") == expected
+
+
+def test_cli_file_explicit_delete(tmp_path, monkeypatch, capsys):
+    from src.ui.cli import main as cli_main
+
+    source = tmp_path / "message.txt"
+    output = tmp_path / "output.txt"
+    source.write_text("Hello", encoding="utf-8")
+    answers = iter(["e", "c", "2", str(source), str(output), "yes", "3"])
+    monkeypatch.setattr("builtins.input", lambda _: next(answers))
+    cli_main()
+    assert "Successfully" in capsys.readouterr().out
+    assert not source.exists()
+    assert output.read_text(encoding="utf-8") == "Khoor"
+
+
+def test_cli_invalid_key_keeps_source(tmp_path, monkeypatch, capsys):
+    from src.ui.cli import main as cli_main
+
+    source = tmp_path / "message.txt"
+    output = tmp_path / "output.txt"
+    source.write_text("Hello", encoding="utf-8")
+    answers = iter(["e", "s", "2", str(source), str(output), "yes", "no", "a" * 26])
+    monkeypatch.setattr("builtins.input", lambda _: next(answers))
+    cli_main()
+    assert "Error:" in capsys.readouterr().out
+    assert source.read_text(encoding="utf-8") == "Hello"
+    assert not output.exists()
