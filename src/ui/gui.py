@@ -53,7 +53,7 @@ class CipherGUI:
         self.root.configure(bg=self.COLORS['bg'])
         
         # Set minimum window size
-        self.root.minsize(800, 700)
+        self.root.minsize(800, 650)
         
         # Initialize the service layer
         self.cipher_service = CipherService()
@@ -194,7 +194,7 @@ class CipherGUI:
         
         self.subtitle_label = tk.Label(
             self.root,
-            text="Advanced Encryption/Decryption Tool",
+            text="Classical Ciphers & Cryptanalysis",
             font=self.font_subheading,
             bg=self.COLORS['bg'],
             fg=self.COLORS['secondary']
@@ -440,11 +440,27 @@ class CipherGUI:
             padding=self.SPACING['md']
         )
 
+        # Explicit input mode avoids interpreting ordinary text as a filename.
+        self.input_mode_var = tk.StringVar(value="text")
+        mode_frame = ttk.Frame(self.io_frame)
+        ttk.Label(mode_frame, text="Input Mode:", font=self.font_subheading).pack(
+            side="left", padx=(0, self.SPACING['md'])
+        )
+        ttk.Radiobutton(
+            mode_frame, text="Text", value="text", variable=self.input_mode_var,
+            command=self._update_input_mode,
+        ).pack(side="left", padx=(0, self.SPACING['lg']))
+        ttk.Radiobutton(
+            mode_frame, text="File", value="file", variable=self.input_mode_var,
+            command=self._update_input_mode,
+        ).pack(side="left")
+        mode_frame.pack(fill="x", padx=self.SPACING['md'], pady=self.SPACING['sm'])
+
         # Input text or file
         input_frame = ttk.Frame(self.io_frame)
         ttk.Label(
             input_frame,
-            text="Input:", font=self.font_subheading
+            text="Text / File Path:", font=self.font_subheading
         ).pack(side="left", padx=(0, self.SPACING['md']))
         self.input_entry = ttk.Entry(input_frame, font=self.font_body)
         self.input_entry.pack(
@@ -466,7 +482,7 @@ class CipherGUI:
         output_frame = ttk.Frame(self.io_frame)
         ttk.Label(
             output_frame,
-            text="Output:", font=self.font_subheading
+            text="Output File:", font=self.font_subheading
         ).pack(side="left", padx=(0, self.SPACING['md']))
         self.output_entry = ttk.Entry(output_frame, font=self.font_body)
         self.output_entry.pack(
@@ -486,11 +502,15 @@ class CipherGUI:
         
         # Delete input file option
         self.delete_input_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(
+        self.delete_input_checkbox = ttk.Checkbutton(
             self.io_frame,
-            text="Delete input file after processing",
+            text="Delete source file after processing",
             variable=self.delete_input_var
-        ).pack(anchor="w", padx=self.SPACING['md'], pady=self.SPACING['md'])
+        )
+        self.delete_input_checkbox.pack(
+            anchor="w", padx=self.SPACING['md'], pady=self.SPACING['md']
+        )
+        self._update_input_mode()
         
         # ===== Buttons Frame =====
         self.buttons_frame = ttk.Frame(self.root)
@@ -506,7 +526,7 @@ class CipherGUI:
         # Analyze button
         self.analyze_button = ttk.Button(
             self.buttons_frame,
-            text="AI Analysis",
+            text="Analyze Cipher",
             style="Primary.TButton",
             command=self._analyze_text
         )
@@ -539,7 +559,7 @@ class CipherGUI:
         # ===== Analysis Frame =====
         self.analysis_frame = ttk.LabelFrame(
             self.root,
-            text="AI Analysis Results",
+            text="Statistical Key Suggestions",
             padding=self.SPACING['md']
         )
 
@@ -564,7 +584,7 @@ class CipherGUI:
         # Apply suggestion button
         self.apply_button = ttk.Button(
             self.analysis_frame,
-            text="Apply Selected Key",
+            text="Apply Best Guess",
             style="Warning.TButton",
             command=self._apply_suggested_key,
             state=tk.DISABLED
@@ -626,10 +646,21 @@ class CipherGUI:
         
         # Make the results area expandable
         self.root.grid_rowconfigure(5, weight=1)
+    def _update_input_mode(self):
+        """Keep file-only controls inactive when working with typed text."""
+        is_file = self.input_mode_var.get() == "file"
+        self.delete_input_checkbox.configure(
+            state=tk.NORMAL if is_file else tk.DISABLED
+        )
+        if not is_file:
+            self.delete_input_var.set(False)
+
     def _select_input_file(self):
-        """Open file dialog to select an input file."""
+        """Open file dialog, then explicitly switch to file mode."""
         filename = filedialog.askopenfilename()
         if filename:
+            self.input_mode_var.set("file")
+            self._update_input_mode()
             self.input_entry.delete(0, tk.END)
             self.input_entry.insert(0, filename)
 
@@ -641,7 +672,15 @@ class CipherGUI:
             self.output_entry.insert(0, filename)
 
     def _update_key_section(self):
-        """Update the key section based on the selected cipher type."""
+        """Update cipher-specific controls and invalidate obsolete analysis results."""
+        if hasattr(self, "analysis_results"):
+            self.analysis_results = []
+            self.selected_suggestion = None
+            self.apply_button.configure(state=tk.DISABLED)
+        if hasattr(self, "analyze_button"):
+            self.analyze_button.configure(
+                state=tk.NORMAL if self.cipher_var.get() in ("c", "p") else tk.DISABLED
+            )
         # Hide all key frames first
         for frame in [
             self.caesar_key_frame, 
@@ -770,9 +809,18 @@ class CipherGUI:
 
             action = "encrypt" if encrypt else "decrypt"
             transform = getattr(self.cipher_service, f"{action}_{algorithm}")
-            if os.path.isfile(source):
+            if self.input_mode_var.get() == "file":
+                if not os.path.isfile(source):
+                    raise ValueError("Input file not found. Select an existing file.")
                 if not output_file:
                     raise ValueError("Please specify an output file.")
+                if delete_input and not messagebox.askyesno(
+                    "Delete source file?",
+                    "The original source file will be permanently deleted after "
+                    "a successful operation. Continue?",
+                    parent=self.root,
+                ):
+                    return
                 result = self.cipher_service.process_file_with_cipher(
                     source, output_file, lambda content: transform(content, key), delete_input
                 )
@@ -796,10 +844,10 @@ class CipherGUI:
             self._display_error("Please enter text to analyze.")
             return
             
-        # Check if input is a file
-        if os.path.isfile(input_text):
+        # Only treat a path as a file when the user explicitly selected File mode.
+        if self.input_mode_var.get() == "file":
             try:
-                with open(input_text, 'r') as file:
+                with open(input_text, 'r', encoding='utf-8') as file:
                     text = file.read()
             except Exception as e:
                 self._display_error(f"Could not read file: {e}")
@@ -807,8 +855,11 @@ class CipherGUI:
         else:
             text = input_text
         
-        # Get the selected cipher type
+        # Get the selected cipher type and invalidate stale suggestions first.
         cipher_type = self.cipher_var.get()
+        self.analysis_results = []
+        self.selected_suggestion = None
+        self.apply_button.configure(state=tk.DISABLED)
         
         # Show the analysis frame
         self.analysis_frame.grid()
@@ -816,7 +867,7 @@ class CipherGUI:
         
         # Perform analysis based on cipher type
         if cipher_type == 'c':  # Caesar cipher
-            self.analysis_result.insert(tk.END, "Analyzing with Caesar cipher techniques...\n\n")
+            self.analysis_result.insert(tk.END, "Ranking Caesar keys using statistical analysis...\n\n")
             results = self.cipher_service.analyze_caesar_encryption(text)
             
             if not results:
@@ -838,7 +889,7 @@ class CipherGUI:
             # Enable the apply button
             self.apply_button.config(state=tk.NORMAL)
         elif cipher_type == 'p':  # Polyalphabetic cipher
-            self.analysis_result.insert(tk.END, "Analyzing with Polyalphabetic cipher techniques...\n\n")
+            self.analysis_result.insert(tk.END, "Ranking Vigenère keys using statistical analysis...\n\n")
             results = self.cipher_service.analyze_polyalphabetic_encryption(text)
             
             if not results:
@@ -900,7 +951,7 @@ class CipherGUI:
         # Show a message
         messagebox.showinfo(
             "Key Applied", 
-            "The suggested key has been applied. Click 'Process' to decrypt."
+            "The highest-ranked key has been applied. Click 'Process' to decrypt."
         )
 
 
