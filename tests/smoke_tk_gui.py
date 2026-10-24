@@ -42,10 +42,22 @@ def main():
         app._update_key_section()
         assert not app.analyze_button.instate(["disabled"])
 
+        assert app.header_frame.cget("bg") == app.COLORS["primary"]
+        assert app.title_label.cget("fg") == "#FFFFFF"
+        assert app.output_entry.instate(["disabled"])
+
+        app.input_entry.delete(0, tk.END)
+        app.input_entry.insert(0, "Khoor, Zruog!")
+        app.analyze_button.invoke()
+        root.update()
+        assert app.analysis_frame.winfo_ismapped(), "Analysis panel not visible"
+        assert "Suggestion 1" in app.analysis_result.get("1.0", "end-1c")
+        assert not app.apply_button.instate(["disabled"])
+
         root.geometry("820x720")
         root.update()
         assert app.results_frame.winfo_height() > 20, "Results clipped on resize"
-        print("Real Tk GUI startup, input mode, buttons, analysis state, and resizing passed")
+        print("Real Tk startup, palette, cipher actions, analysis, file modes and resizing passed")
     finally:
         root.destroy()
 
