@@ -225,18 +225,6 @@ class CipherService:
         
         return result
     
-    def clean_txt_files(self, directory="."):
-        """
-        Delete all .txt files in the specified directory.
-        
-        Args:
-            directory (str): Directory to search for .txt files
-            
-        Returns:
-            list: Names of files that were deleted
-        """
-        return self.file_service.clean_txt_files(directory)
-    
     # Analysis Methods
     def analyze_caesar_encryption(self, ciphertext):
         """
@@ -274,15 +262,6 @@ def main():
     print("Welcome to the Cipher Tool CLI")
     print("==============================")
     
-    # Ask if user wants to clean up .txt files
-    cleanup_confirm = input("Clean .txt files before proceeding? (yes/no): ")
-    if cleanup_confirm.lower() == 'yes':
-        deleted_files = service.clean_txt_files()
-        if deleted_files:
-            print(f"Deleted files: {', '.join(deleted_files)}")
-        else:
-            print("No .txt files found to delete.")
-
     # Get encryption or decryption choice
     choice = input("Choose operation (e=encrypt, d=decrypt): ")
     if choice.lower() not in {'e', 'd'}:
