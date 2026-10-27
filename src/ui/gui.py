@@ -25,9 +25,6 @@ class CipherGUI:
         'accent': '#3498DB',       # Blue
         'danger': '#E74C3C',       # Red
         'warning': '#F39C12',      # Orange
-        'success': '#2ECC71',      # Green
-        'light': '#ECF0F1',        # Light gray
-        'dark': '#2C3E50',         # Dark blue-gray
         'text': '#34495E',         # Dark gray-blue
         'bg': '#F5F7FA',           # Light background
         'surface': '#FFFFFF',      # Clean content cards
@@ -38,11 +35,9 @@ class CipherGUI:
 
     # Spacing scale (in pixels)
     SPACING = {
-        'xs': 2,
         'sm': 5,
         'md': 10,
-        'lg': 20,
-        'xl': 30
+        'lg': 20
     }
 
     def __init__(self, root):
