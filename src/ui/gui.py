@@ -598,7 +598,7 @@ class CipherGUI:
             self.apply_button.configure(state=tk.DISABLED)
         if hasattr(self, "analyze_button"):
             self.analyze_button.configure(
-                state=tk.NORMAL if self.cipher_var.get() in ("c", "p") else tk.DISABLED
+                state=tk.NORMAL if self.cipher_var.get() in ("c", "p", "a", "r") else tk.DISABLED
             )
         # Hide all key frames first
         for frame in [
@@ -789,57 +789,64 @@ class CipherGUI:
         
         # Perform analysis based on cipher type
         if cipher_type == 'c':  # Caesar cipher
-            self.analysis_result.insert(tk.END, "Ranking Caesar keys using statistical analysis...\n\n")
-            results = self.cipher_service.analyze_caesar_encryption(text)
-            
-            if not results:
-                self.analysis_result.insert(tk.END, "No results found. Try a different cipher type.")
-                return
-                
-            # Store results for later use
-            self.analysis_results = results
-            
-            # Display results
-            for i, result in enumerate(results):
-                self.analysis_result.insert(
-                    tk.END, 
-                    f"Suggestion {i+1}: Shift = {result['shift']} "
-                    f"(Confidence: {result['confidence']}%)\n"
-                )
-                self.analysis_result.insert(tk.END, f"Sample: {result['sample']}\n\n")
-                
-            # Enable the apply button
-            self.apply_button.config(state=tk.NORMAL)
+            self._show_analysis(
+                "Ranking Caesar keys using statistical analysis...",
+                self.cipher_service.analyze_caesar_encryption(text),
+                lambda result: f"Shift = {result['shift']}"
+            )
         elif cipher_type == 'p':  # Polyalphabetic cipher
-            self.analysis_result.insert(tk.END, "Ranking Vigenère keys using statistical analysis...\n\n")
-            results = self.cipher_service.analyze_polyalphabetic_encryption(text)
-            
-            if not results:
-                self.analysis_result.insert(tk.END, "No results found. Try a different cipher type.")
-                return
-                
-            # Store results for later use
-            self.analysis_results = results
-            
-            # Display results
-            for i, result in enumerate(results):
-                self.analysis_result.insert(
-                    tk.END, 
-                    f"Suggestion {i+1}: Keyword = '{result['keyword']}' "
-                    f"(Confidence: {result['confidence']}%)\n"
-                )
-                self.analysis_result.insert(tk.END, f"Sample: {result['sample']}\n\n")
-                
-            # Enable the apply button
-            self.apply_button.config(state=tk.NORMAL)
-            
+            self._show_analysis(
+                "Ranking Vigenère keys using statistical analysis...",
+                self.cipher_service.analyze_polyalphabetic_encryption(text),
+                lambda result: f"Keyword = '{result['keyword']}'"
+            )
+        elif cipher_type == 'a':  # Affine cipher
+            self._show_analysis(
+                "Trying every valid Affine key (a, b) and ranking the results...",
+                self.cipher_service.analyze_affine_encryption(text),
+                lambda result: f"a = {result['a']}, b = {result['b']}"
+            )
+        elif cipher_type == 'r':  # Rail Fence cipher
+            self._show_analysis(
+                "Trying each rail count and ranking the results...",
+                self.cipher_service.analyze_rail_fence_encryption(text),
+                lambda result: f"Rails = {result['rails']}"
+            )
         else:
             self.analysis_result.insert(
-                tk.END, 
-                f"AI analysis is currently only available for Caesar and "
-                f"Polyalphabetic ciphers.\n\n"
-                f"Please select one of these cipher types and try again."
+                tk.END,
+                "AI analysis is currently available for Caesar, Polyalphabetic, "
+                "Affine, and Rail Fence ciphers.\n\n"
+                "Please select one of these cipher types and try again."
             )
+
+    def _show_analysis(self, heading, results, describe_key):
+        """
+        Show ranked analysis results and enable applying the top suggestion.
+
+        Args:
+            heading (str): Line shown above the results
+            results (list): Ranked candidates returned by the analyzer
+            describe_key (callable): Turns one candidate into its key text
+        """
+        self.analysis_result.insert(tk.END, f"{heading}\n\n")
+        if not results:
+            self.analysis_result.insert(tk.END, "No results found. Try a different cipher type.")
+            return
+
+        # Store results for later use
+        self.analysis_results = results
+
+        for i, result in enumerate(results):
+            self.analysis_result.insert(
+                tk.END,
+                f"Suggestion {i+1}: {describe_key(result)} "
+                f"(Confidence: {result['confidence']}%)\n"
+            )
+            self.analysis_result.insert(tk.END, f"Sample: {result['sample']}\n\n")
+
+        # Enable the apply button
+        self.apply_button.config(state=tk.NORMAL)
 
     def _apply_suggested_key(self):
         """
@@ -867,6 +874,18 @@ class CipherGUI:
             self.poly_key_entry.delete(0, tk.END)
             self.poly_key_entry.insert(0, result['keyword'])
             
+        elif cipher_type == 'a':  # Affine cipher
+            # Set the a and b values
+            self.affine_a_entry.delete(0, tk.END)
+            self.affine_a_entry.insert(0, str(result['a']))
+            self.affine_b_entry.delete(0, tk.END)
+            self.affine_b_entry.insert(0, str(result['b']))
+
+        elif cipher_type == 'r':  # Rail Fence cipher
+            # Set the number of rails
+            self.rail_key_entry.delete(0, tk.END)
+            self.rail_key_entry.insert(0, str(result['rails']))
+
         # Set action to decrypt
         self.action_var.set('d')
         

@@ -5,6 +5,9 @@ The macOS and Windows graphical windows still require interactive QA.
 """
 import tkinter as tk
 
+from tkinter import messagebox
+
+from src.core.ciphers import AffineCipher, RailFenceCipher
 from src.ui.gui import CipherGUI
 
 
@@ -53,6 +56,31 @@ def main():
         assert app.analysis_frame.winfo_ismapped(), "Analysis panel not visible"
         assert "Suggestion 1" in app.analysis_result.get("1.0", "end-1c")
         assert not app.apply_button.instate(["disabled"])
+
+        # Affine and Rail Fence analysis: rank, show, and apply the top key
+        messagebox.showinfo = lambda *args, **kwargs: None
+        plaintext = ("When in the Course of human events it becomes necessary for one "
+                     "people to dissolve the political bands which have connected them")
+
+        app.cipher_var.set("a")
+        app._update_key_section()
+        app.input_entry.delete(0, tk.END)
+        app.input_entry.insert(0, AffineCipher.transform(plaintext, (5, 8), encrypt=True))
+        app.analyze_button.invoke()
+        root.update()
+        assert "a = 5, b = 8" in app.analysis_result.get("1.0", "end-1c"), "Affine analysis missed the key"
+        app._apply_suggested_key()
+        assert (app.affine_a_entry.get(), app.affine_b_entry.get()) == ("5", "8")
+
+        app.cipher_var.set("r")
+        app._update_key_section()
+        app.input_entry.delete(0, tk.END)
+        app.input_entry.insert(0, RailFenceCipher.transform(plaintext, 4, encrypt=True))
+        app.analyze_button.invoke()
+        root.update()
+        assert "Rails = 4" in app.analysis_result.get("1.0", "end-1c"), "Rail Fence analysis missed the rails"
+        app._apply_suggested_key()
+        assert app.rail_key_entry.get() == "4"
 
         root.geometry("820x720")
         root.update()

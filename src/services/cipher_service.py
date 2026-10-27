@@ -249,3 +249,27 @@ class CipherService:
             list: List of potential keywords with confidence scores
         """
         return CipherAnalyzer.analyze_polyalphabetic(ciphertext)
+
+    def analyze_affine_encryption(self, ciphertext):
+        """
+        Analyze Affine-encrypted text by trying every valid key.
+
+        Args:
+            ciphertext (str): The encrypted text to analyze
+
+        Returns:
+            list: List of candidate (a, b) keys with confidence scores
+        """
+        return CipherAnalyzer.analyze_affine(ciphertext)
+
+    def analyze_rail_fence_encryption(self, ciphertext):
+        """
+        Analyze Rail Fence-encrypted text by trying each rail count.
+
+        Args:
+            ciphertext (str): The encrypted text to analyze
+
+        Returns:
+            list: List of candidate rail counts with confidence scores
+        """
+        return CipherAnalyzer.analyze_rail_fence(ciphertext)

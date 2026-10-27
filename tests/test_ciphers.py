@@ -340,6 +340,54 @@ class TestAIAnalyzer(unittest.TestCase):
         # English text should have a higher bigram score
         self.assertGreater(english_score, random_score)
 
+    def test_caesar_analyzer_ranks_zero_shift(self):
+        """A shift of 0 leaves the text unchanged and must still be a candidate."""
+        plaintext = "The quick brown fox jumps over the lazy dog and runs back home."
+
+        results = CipherAnalyzer.analyze_caesar(plaintext)
+
+        self.assertEqual(results[0]['shift'], 0)
+
+    def test_polyalphabetic_analyzer_recovers_keyword_with_a(self):
+        """Keyword letter 'a' is a zero shift and must not stop recovery."""
+        plaintext = """When in the Course of human events, it becomes
+        necessary for one people to dissolve the political bands which
+        have connected them with another, and to assume among the powers
+        of the earth, the separate and equal station to which the Laws
+        of Nature and of Nature's God entitle them."""
+        ciphertext = PolyalphabeticCipher.transform(plaintext, "larder", encrypt=True)
+
+        results = CipherAnalyzer.analyze_polyalphabetic(ciphertext)
+
+        recovered = PolyalphabeticCipher.transform(ciphertext, results[0]['keyword'], encrypt=False)
+        letters = lambda text: "".join(char for char in text.lower() if char.isalpha())
+        self.assertEqual(letters(recovered), letters(plaintext))
+
+    def test_affine_analyzer_recovers_key(self):
+        """Affine analysis tries every valid key and ranks the true one first."""
+        plaintext = """When in the Course of human events, it becomes necessary for one
+        people to dissolve the political bands which have connected them with another."""
+        ciphertext = AffineCipher.transform(plaintext, (5, 8), encrypt=True)
+
+        results = CipherAnalyzer.analyze_affine(ciphertext)
+
+        self.assertEqual((results[0]['a'], results[0]['b']), (5, 8))
+
+    def test_rail_fence_analyzer_recovers_rails(self):
+        """Rail fence analysis tries each rail count and ranks the true one first."""
+        plaintext = """When in the Course of human events, it becomes necessary for one
+        people to dissolve the political bands which have connected them with another."""
+        ciphertext = RailFenceCipher.transform(plaintext, 4, encrypt=True)
+
+        results = CipherAnalyzer.analyze_rail_fence(ciphertext)
+
+        self.assertEqual(results[0]['rails'], 4)
+
+    def test_affine_and_rail_fence_analysis_handle_empty_input(self):
+        """Text with no letters gives no candidates instead of an error."""
+        self.assertEqual(CipherAnalyzer.analyze_affine("1234 !?"), [])
+        self.assertEqual(CipherAnalyzer.analyze_rail_fence(""), [])
+
 
 if __name__ == "__main__":
     unittest.main()

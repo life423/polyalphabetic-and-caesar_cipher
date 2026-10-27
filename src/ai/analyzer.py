@@ -9,6 +9,8 @@ import string
 from collections import Counter
 import re
 
+from src.core.ciphers import AffineCipher, RailFenceCipher
+
 
 class CipherAnalyzer:
     """
@@ -58,7 +60,16 @@ class CipherAnalyzer:
         'following', 'question', 'american', 'possible', 'understand',
         'business', 'actually', 'problems', 'remember', 'national', 'political'
     ]
-    
+
+    # Longest keyword the polyalphabetic analysis considers
+    MAX_KEY_LENGTH = 20
+
+    # How many likely key lengths (by index of coincidence) get full scoring
+    KEY_LENGTH_CANDIDATES = 6
+
+    # Largest rail count tried by the rail fence analysis
+    MAX_RAILS = 20
+
     @classmethod
     def analyze_caesar(cls, ciphertext):
         """
@@ -84,8 +95,8 @@ class CipherAnalyzer:
         
         # Generate all possible shifts and calculate chi-squared statistic for each
         results = []
-        
-        for shift in range(1, 26):  # All possible shifts (1-25)
+
+        for shift in range(26):  # All possible shifts (0-25); 0 means the text is unchanged
             shifted_freq = {}
             
             # Calculate what the letter frequencies would be after applying this shift
@@ -122,25 +133,18 @@ class CipherAnalyzer:
                 'confidence': 0,  # Will be calculated after sorting
                 'sample': decrypted[:100] + ("..." if len(decrypted) > 100 else "")
             })
-        
-        # Sort results by score (lower is better)
-        results.sort(key=lambda x: x['score'])
-        
-        # Keep only top 5 results
-        top_results = results[:5]
-        
-        # Calculate confidence percentages
-        total_score = sum(1/r['score'] for r in top_results) if top_results else 1
-        for result in top_results:
-            result['confidence'] = round((1/result['score']) / total_score * 100, 1)
-            
-        return top_results
-    
+
+        return cls._rank_candidates(results)
+
     @classmethod
     def analyze_polyalphabetic(cls, ciphertext):
         """
         Analyze Polyalphabetic-encrypted text and suggest possible keywords and decryptions.
-        
+
+        Likely key lengths come from the index of coincidence. For each one, the keyword
+        is recovered column by column. The strongest keyword is then refined one letter
+        at a time, and all candidates are ranked on their full decryption.
+
         Args:
             ciphertext (str): The encrypted text to analyze
             
@@ -158,91 +162,97 @@ class CipherAnalyzer:
                 'confidence': 0, 
                 'sample': 'Insufficient text for analysis'
             }]
-            
-        # Estimate possible key lengths using index of coincidence
-        key_lengths = cls._estimate_key_lengths(letters_only)
-        
-        if not key_lengths:
-            return [{
-                'keyword': '?', 
-                'confidence': 0, 
-                'sample': 'Unable to determine key length'
-            }]
-            
+
+        key_lengths = cls._estimate_key_lengths(letters_only, cls.MAX_KEY_LENGTH)
+        key_lengths = sorted(key_lengths[:cls.KEY_LENGTH_CANDIDATES])
+
+        keywords = [cls._recover_keyword(letters_only, key_length) for key_length in key_lengths]
+
+        # Column-by-column recovery is noisy on short text, so polish the strongest candidate
+        best = min(keywords, key=lambda keyword: cls._plaintext_score(
+            cls._decrypt_polyalphabetic(ciphertext, keyword)
+        ))
+        keywords.append(cls._refine_keyword(ciphertext, best))
+
+        # Different key lengths can decrypt to the same text (e.g. "ab" and "abab"); keep the first
+        decryptions = {}
+        for keyword in keywords:
+            decrypted = cls._decrypt_polyalphabetic(ciphertext, keyword)
+            decryptions.setdefault(decrypted, keyword)
+
         results = []
-        
-        # For each potential key length, try to determine the key
-        for key_length in key_lengths[:3]:  # Consider top 3 key lengths
-            # Split ciphertext into columns based on key length
-            columns = [''] * key_length
-            for i, char in enumerate(letters_only):
-                columns[i % key_length] += char
-                
-            # For each column, perform Caesar analysis
-            potential_key = ''
-            column_scores = []
-            
-            for column in columns:
-                column_result = cls.analyze_caesar(column)
-                if column_result:
-                    best_shift = column_result[0]['shift']
-                    key_char = chr(((best_shift) % 26) + ord('a'))
-                    potential_key += key_char
-                    column_scores.append(column_result[0]['score'])
-                else:
-                    potential_key += '?'
-                    column_scores.append(float('inf'))
-            
-            # Skip if we couldn't determine the key
-            if '?' in potential_key:
-                continue
-                
-            # Decrypt with the potential key
-            decrypted = cls._decrypt_polyalphabetic(ciphertext, potential_key)
-            
-            # Calculate a score based on various factors
-            avg_column_score = sum(column_scores) / len(column_scores) if column_scores else float('inf')
-            
-            word_score = cls._calculate_word_score(decrypted)
-            bigram_score = cls._calculate_ngram_score(decrypted, 2)
-            
-            # Also check for longer indicator words
-            indicator_score = 0
-            for word in cls.INDICATOR_WORDS:
-                if word in decrypted.lower():
-                    indicator_score += 5  # Higher weight for indicator words
-            
-            # Combined score (lower is better)
-            combined_score = avg_column_score / (1 + word_score + bigram_score + indicator_score)
-            
+        for decrypted, keyword in decryptions.items():
             results.append({
-                'keyword': potential_key,
-                'score': combined_score,
+                'keyword': keyword,
+                'score': cls._plaintext_score(decrypted),
                 'confidence': 0,  # Will be calculated after sorting
                 'sample': decrypted[:100] + ("..." if len(decrypted) > 100 else "")
             })
-        
-        # If no key was found, return a fallback message
-        if not results:
-            return [{
-                'keyword': '?', 
-                'confidence': 0, 
-                'sample': 'Unable to determine keyword'
-            }]
-            
-        # Sort results by score (lower is better)
-        results.sort(key=lambda x: x['score'])
-        
-        # Keep only top 5 results
-        top_results = results[:5]
-        
-        # Calculate confidence percentages
-        total_score = sum(1/r['score'] for r in top_results) if top_results else 1
-        for result in top_results:
-            result['confidence'] = round((1/result['score']) / total_score * 100, 1)
-            
-        return top_results
-    
+
+        return cls._rank_candidates(results)
+
+    @classmethod
+    def analyze_affine(cls, ciphertext):
+        """
+        Analyze Affine-encrypted text by trying every valid key (a, b).
+
+        There are only 312 valid keys, so each one is decrypted and ranked on how
+        English the result looks.
+
+        Args:
+            ciphertext (str): The encrypted text to analyze
+
+        Returns:
+            list: List of dicts containing {a, b, score, sample} for top candidates
+        """
+        if not re.sub(r'[^a-zA-Z]', '', ciphertext or ''):
+            return []
+
+        results = []
+        for a in range(1, 26):
+            if not AffineCipher.is_coprime(a, 26):
+                continue
+            for b in range(26):
+                decrypted = AffineCipher.transform(ciphertext, (a, b), encrypt=False)
+                results.append({
+                    'a': a,
+                    'b': b,
+                    'score': cls._plaintext_score(decrypted),
+                    'confidence': 0,  # Will be calculated after sorting
+                    'sample': decrypted[:100] + ("..." if len(decrypted) > 100 else "")
+                })
+
+        return cls._rank_candidates(results)
+
+    @classmethod
+    def analyze_rail_fence(cls, ciphertext):
+        """
+        Analyze Rail Fence-encrypted text by trying each rail count.
+
+        Rail Fence encryption drops whitespace, so the text is stripped of it
+        before each rail count is decrypted and ranked.
+
+        Args:
+            ciphertext (str): The encrypted text to analyze
+
+        Returns:
+            list: List of dicts containing {rails, score, sample} for top candidates
+        """
+        text = ''.join((ciphertext or '').split())
+
+        results = []
+        # A rail count of at least the text length leaves the text unchanged, so stop before that
+        for rails in range(2, min(len(text), cls.MAX_RAILS + 1)):
+            decrypted = RailFenceCipher.transform(text, rails, encrypt=False)
+            results.append({
+                'rails': rails,
+                'score': cls._plaintext_score(decrypted),
+                'confidence': 0,  # Will be calculated after sorting
+                'sample': decrypted[:100] + ("..." if len(decrypted) > 100 else "")
+            })
+
+        return cls._rank_candidates(results)
+
     @classmethod
     def analyze_with_known_plaintext(cls, ciphertext, known_plaintext, cipher_type="caesar"):
         """
@@ -313,7 +323,119 @@ class CipherAnalyzer:
                 'success': False,
                 'message': f'Unsupported cipher type: {cipher_type}'
             }
-    
+
+    @staticmethod
+    def _rank_candidates(results, limit=5):
+        """
+        Order candidates best-first and attach a relative confidence to each.
+
+        Args:
+            results (list): Dicts with a 'score' (lower is better) and 'confidence'
+            limit (int): How many candidates to keep
+
+        Returns:
+            list: The best candidates, with 'confidence' filled in
+        """
+        ranked = sorted(results, key=lambda result: result['score'])[:limit]
+        weights = [1 / max(result['score'], 1e-12) for result in ranked]
+        total = sum(weights)
+        for result, weight in zip(ranked, weights):
+            result['confidence'] = round(weight / total * 100, 1)
+        return ranked
+
+    @classmethod
+    def _recover_keyword(cls, letters, key_length):
+        """
+        Recover a keyword by solving each column as a Caesar cipher.
+
+        Args:
+            letters (str): Lowercase ciphertext letters only
+            key_length (int): Keyword length, which sets the number of columns
+
+        Returns:
+            str: The recovered keyword, one letter per column
+        """
+        keyword = ''
+        for offset in range(key_length):
+            column = letters[offset::key_length]
+            best_shift = min(range(26), key=lambda shift: cls._chi_squared(
+                cls._decrypt_caesar(column, shift)
+            ))
+            keyword += chr(best_shift + ord('a'))
+        return keyword
+
+    @classmethod
+    def _refine_keyword(cls, ciphertext, keyword, passes=3):
+        """
+        Improve a keyword one letter at a time, keeping any change that scores better.
+
+        Args:
+            ciphertext (str): The encrypted text
+            keyword (str): The keyword to start from
+            passes (int): Maximum number of sweeps over the keyword
+
+        Returns:
+            str: The refined keyword (equal to the input if nothing improved)
+        """
+        best = list(keyword)
+        best_score = cls._plaintext_score(cls._decrypt_polyalphabetic(ciphertext, keyword))
+        for _ in range(passes):
+            improved = False
+            for position in range(len(best)):
+                for shift in range(26):
+                    trial = best.copy()
+                    trial[position] = chr(shift + ord('a'))
+                    score = cls._plaintext_score(
+                        cls._decrypt_polyalphabetic(ciphertext, ''.join(trial))
+                    )
+                    if score < best_score:
+                        best, best_score, improved = trial, score, True
+            if not improved:
+                break
+        return ''.join(best)
+
+    @classmethod
+    def _chi_squared(cls, letters):
+        """
+        Chi-squared distance between a text's letter frequencies and English.
+
+        Args:
+            letters (str): Lowercase letters only
+
+        Returns:
+            float: Lower means closer to English letter frequencies
+        """
+        if not letters:
+            return float('inf')
+        counts = Counter(letters)
+        total = len(letters)
+        return sum(
+            (counts.get(letter, 0) / total - expected) ** 2 / expected
+            for letter, expected in cls.ENGLISH_FREQ_MAP.items()
+        )
+
+    @classmethod
+    def _plaintext_score(cls, text):
+        """
+        Score decrypted text for English-likeness. Lower is better.
+
+        Evidence comes from common words, indicator words, and bigrams. Letter
+        frequencies are not used here: on real prose they ranked wrong keys higher.
+
+        Args:
+            text (str): Decrypted text
+
+        Returns:
+            float: Score where lower means more English-like
+        """
+        text_lower = text.lower()
+        indicator_score = sum(5 for word in cls.INDICATOR_WORDS if word in text_lower)
+        evidence = (
+            1 + cls._calculate_word_score(text)
+            + cls._calculate_ngram_score(text, 2) + indicator_score
+        )
+        return 1 / evidence
+
     @classmethod
     def _decrypt_caesar(cls, text, shift):
         """Decrypt text using Caesar cipher with the given shift."""

@@ -97,5 +97,6 @@ def test_all_cipher_services_exist():
 def test_analyzer_public_entry_points():
     from src.ai.analyzer import CipherAnalyzer
 
-    for name in ("analyze_caesar", "analyze_polyalphabetic", "analyze_with_known_plaintext"):
+    for name in ("analyze_caesar", "analyze_polyalphabetic", "analyze_affine",
+                 "analyze_rail_fence", "analyze_with_known_plaintext"):
         assert callable(getattr(CipherAnalyzer, name))
