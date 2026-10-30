@@ -1,5 +1,6 @@
 # CipherCraft 2.0.1
 
+- Windows has a direct `CipherCraft.exe` download: double-click to launch, with no ZIP extraction or Python installation.
 - Source deletion now requires an explicit successful operation, including when filenames contain “Successfully”.
 - File output uses atomic replacement and rejects input/output hard-link aliases.
 - Rail Fence and columnar-transposition file operations preserve independent line boundaries and line endings.
@@ -27,7 +28,7 @@ CipherCraft is a free educational desktop toolkit for six historical ciphers.
 
 ## Download and launch
 
-Download `ciphercraft-macos.zip` for macOS or `ciphercraft-windows.zip` for Windows. Unzip the release asset, then launch `cipher_gui.app` (macOS) or `cipher_gui.exe` (Windows). The `cipher_tool` executable provides an interactive CLI.
+On Windows, download `CipherCraft.exe` and double-click it to launch the app. The optional `ciphercraft-windows.zip` also includes the `cipher_tool` command-line app. On macOS, download and unzip `ciphercraft-macos.zip`, then launch `cipher_gui.app`.
 
 **macOS:** This open-source build is not Apple-notarized. Gatekeeper may block initial launch. If you trust the downloaded release, go to System Settings → Privacy & Security → Open Anyway after attempting to open the app. Do not disable Gatekeeper system-wide.
 

@@ -84,6 +84,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          Copy-Item -LiteralPath dist/cipher_gui.exe -Destination CipherCraft.exe
           Compress-Archive -Path dist/cipher_tool.exe,dist/cipher_gui.exe -DestinationPath ${{ matrix.archive }}
       - name: Package macOS build
         if: runner.os == 'macOS'
@@ -93,7 +94,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: ${{ matrix.archive }}
+          path: |
+            ${{ matrix.archive }}
+            CipherCraft.exe
           if-no-files-found: error
 
   publish:
@@ -105,7 +108,7 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Download packaged macOS and Windows archives
+      - name: Download packaged macOS and Windows releases
         uses: actions/download-artifact@v4
         with:
           pattern: ciphercraft-*
@@ -127,6 +130,6 @@ jobs:
             echo "Release $TAG already exists; not replacing published artifacts."
             exit 0
           fi
-          gh release create "$TAG" ciphercraft-macos.zip ciphercraft-windows.zip \
+          gh release create "$TAG" CipherCraft.exe ciphercraft-macos.zip ciphercraft-windows.zip \
             --target "$GITHUB_SHA" --title "CipherCraft $TAG" \
             --notes-file RELEASE_NOTES.md --latest

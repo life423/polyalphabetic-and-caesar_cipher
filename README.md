@@ -131,8 +131,13 @@ a new release with permanent Windows and macOS download links:
 
 - [Actions](https://github.com/life423/polyalphabetic-and-caesar_cipher/actions)
 - [Latest release](https://github.com/life423/polyalphabetic-and-caesar_cipher/releases/latest)
+- [Windows app — CipherCraft.exe](https://github.com/life423/polyalphabetic-and-caesar_cipher/releases/latest/download/CipherCraft.exe)
 - [macOS ZIP](https://github.com/life423/polyalphabetic-and-caesar_cipher/releases/latest/download/ciphercraft-macos.zip)
-- [Windows ZIP](https://github.com/life423/polyalphabetic-and-caesar_cipher/releases/latest/download/ciphercraft-windows.zip)
+- [Optional Windows ZIP with CLI](https://github.com/life423/polyalphabetic-and-caesar_cipher/releases/latest/download/ciphercraft-windows.zip)
+
+**Windows:** Download `CipherCraft.exe` and double-click it to open the app.
+No ZIP extraction, Python installation, or command prompt is needed. The
+optional ZIP includes the command-line version as well.
 
 Generated `dist/` binaries are intentionally **not kept in Git**.
 CI checks actual Tk widget startup, operations and layout under a virtual
