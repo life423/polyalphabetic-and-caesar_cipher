@@ -9,7 +9,7 @@ import string
 from collections import Counter
 import re
 
-from src.core.ciphers import AffineCipher, RailFenceCipher
+from src.core.ciphers import AffineCipher, CaesarCipher, PolyalphabeticCipher, RailFenceCipher
 
 
 class CipherAnalyzer:
@@ -157,11 +157,7 @@ class CipherAnalyzer:
         # Filter alphabetic characters for analysis
         letters_only = re.sub(r'[^a-zA-Z]', '', ciphertext).lower()
         if len(letters_only) < 20:  # Need sufficient text for analysis
-            return [{
-                'keyword': '?', 
-                'confidence': 0, 
-                'sample': 'Insufficient text for analysis'
-            }]
+            return []
 
         key_lengths = cls._estimate_key_lengths(letters_only, cls.MAX_KEY_LENGTH)
         key_lengths = sorted(key_lengths[:cls.KEY_LENGTH_CANDIDATES])
@@ -239,6 +235,8 @@ class CipherAnalyzer:
             list: List of dicts containing {rails, score, sample} for top candidates
         """
         text = ''.join((ciphertext or '').split())
+        if not re.search(r'[a-zA-Z]', text):
+            return []
 
         results = []
         # A rail count of at least the text length leaves the text unchanged, so stop before that
@@ -275,6 +273,11 @@ class CipherAnalyzer:
         # Preprocess to focus on alphabetic characters
         cipher_clean = re.sub(r'[^a-zA-Z]', '', ciphertext).lower()
         known_clean = re.sub(r'[^a-zA-Z]', '', known_plaintext).lower()
+        if not cipher_clean or not known_clean:
+            return {
+                'success': False,
+                'message': 'Ciphertext and known plaintext must contain ASCII letters'
+            }
         
         if cipher_type.lower() == "caesar":
             # For Caesar, we need to find all potential matches of the known text
@@ -282,8 +285,8 @@ class CipherAnalyzer:
             
             for i in range(len(cipher_clean) - len(known_clean) + 1):
                 segment = cipher_clean[i:i+len(known_clean)]
-                # Try all 25 possible shifts
-                for shift in range(1, 26):
+                # Include unchanged text (shift 0).
+                for shift in range(26):
                     decrypted = cls._decrypt_caesar(segment, shift)
                     if decrypted == known_clean:
                         potential_shifts.append(shift)
@@ -439,40 +442,12 @@ class CipherAnalyzer:
     @classmethod
     def _decrypt_caesar(cls, text, shift):
         """Decrypt text using Caesar cipher with the given shift."""
-        result = ''
-        for char in text:
-            if char.isalpha():
-                ascii_offset = ord('A') if char.isupper() else ord('a')
-                shifted = (ord(char) - ascii_offset - shift) % 26
-                result += chr(shifted + ascii_offset)
-            else:
-                result += char
-        return result
+        return CaesarCipher.transform(text, shift, encrypt=False)
     
     @classmethod
     def _decrypt_polyalphabetic(cls, text, keyword):
         """Decrypt text using Polyalphabetic cipher with the given keyword."""
-        result = ''
-        key_idx = 0
-        keyword = keyword.lower()
-        
-        for char in text:
-            if char.isalpha():
-                # Get the shift value from the keyword
-                key_char = keyword[key_idx % len(keyword)]
-                shift = ord(key_char) - ord('a')
-                
-                # Apply the reverse shift
-                ascii_offset = ord('A') if char.isupper() else ord('a')
-                shifted = (ord(char) - ascii_offset - shift) % 26
-                result += chr(shifted + ascii_offset)
-                
-                # Move to the next key character
-                key_idx += 1
-            else:
-                result += char
-                
-        return result
+        return PolyalphabeticCipher.transform(text, keyword, encrypt=False)
     
     @classmethod
     def _calculate_word_score(cls, text):

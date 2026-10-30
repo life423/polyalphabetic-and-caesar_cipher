@@ -216,14 +216,15 @@ class CipherService:
         Returns:
             str: A message indicating success or the error encountered
         """
-        result = self.file_service.process_file(
+        result = self.file_service.process_file_result(
             input_path, output_path, cipher_func
         )
         
-        if delete_input and "Successfully" in result:
-            self.file_service.delete_file_after_processing(input_path)
+        if delete_input and result.success:
+            if not self.file_service.delete_file_after_processing(input_path):
+                return result.message + " Warning: The source file could not be deleted."
         
-        return result
+        return result.message
     
     # Analysis Methods
     def analyze_caesar_encryption(self, ciphertext):

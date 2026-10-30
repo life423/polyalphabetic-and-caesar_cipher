@@ -20,10 +20,13 @@ branch change outputs compared with the old faulty transposition and Rail
 Fence implementations. **Previously encrypted messages may need legacy
 decoding.** Preserve old ciphertext and keys until compatibility is resolved.
 
-The analyzer performs statistical scoring and key suggestions for Caesar and
-Vigenère ciphertext. The “AI” label means classical statistical techniques:
+The analyzer suggests keys for Caesar, Vigenère, Affine (all 312 valid keys),
+and Rail Fence (2–20 rails). Vigenère analysis needs at least 20 ASCII letters
+and considers keywords up to 20 letters. The “AI” label means classical statistical techniques:
 it does **not** call an LLM or remote AI API. Results are estimates, not
-guaranteed successful decryptions.
+guaranteed successful decryptions. Relative scores compare the displayed guesses;
+they are not probabilities of correct decryption. GUI analysis runs in the
+background, and changing the input or cipher discards obsolete suggestions.
 
 ## Run from source
 
@@ -67,17 +70,26 @@ Choose operation (e=encrypt, d=decrypt): e
 Choose cipher type: c
 Input source: (1=text, 2=file): 1
 Enter text: Hello, World!
-Enter shift value (1-25): 3
+Enter shift value (0-25; 0 leaves text unchanged): 3
 Result: Khoor, Zruog!
 ```
 
 **File safety:** Source files are never bulk-deleted at startup. Explicit
 “delete input file after processing” is still available for file operations;
 leave that option off unless you want the source removed. Input and output
-must not resolve to the same path. The transform finishes before writing an
-output file, to avoid destroying existing output on invalid cipher keys.
-File processing preserves the historical behavior of processing each line
-independently, including resetting Vigenère keywords at line boundaries.
+must not refer to the same file, including through symlinks or hard links.
+Output is written to a temporary file beside the destination and replaces the
+destination only after all transforms and writes succeed. Source deletion
+requires explicit successful completion; failures keep the source.
+
+Files are UTF-8 and processed one line at a time, including resetting Vigenère
+keywords at line boundaries. Line endings are preserved outside the cipher
+transform so Rail Fence and columnar-transposition ciphertext lines stay
+independent and can be decrypted again. Columnar padding applies to each line.
+Old multiline transposition files whose ciphertext boundaries were already lost
+cannot be repaired automatically; preserve their original files and keys.
+Vigenère and Rail Fence file analysis uses the longest letter-bearing line,
+since combining independently encrypted lines would give incorrect key suggestions.
 
 ## Python API
 

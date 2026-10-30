@@ -18,7 +18,7 @@ CIPHERS = {
 def _read_key(service, choice, encrypt):
     """Ask once for a key, regardless of whether input comes from text or a file."""
     if choice == "c":
-        return int(input("Enter shift value (1-25): "))
+        return int(input("Enter shift value (0-25; 0 leaves text unchanged): "))
     if choice == "p":
         key = input("Enter keyword: ")
         if not key:

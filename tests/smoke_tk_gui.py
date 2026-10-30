@@ -4,11 +4,21 @@ This supplements headless dispatch tests and the packaged CLI smoke test.
 The macOS and Windows graphical windows still require interactive QA.
 """
 import tkinter as tk
+from time import monotonic, sleep
 
 from tkinter import messagebox
 
 from src.core.ciphers import AffineCipher, RailFenceCipher
 from src.ui.gui import CipherGUI
+
+
+def wait_for_analysis(root, app):
+    deadline = monotonic() + 10
+    while app._analysis_running and monotonic() < deadline:
+        root.update()
+        sleep(0.01)
+    assert not app._analysis_running, 'Analysis did not finish'
+    root.update()
 
 
 def main():
@@ -52,7 +62,7 @@ def main():
         app.input_entry.delete(0, tk.END)
         app.input_entry.insert(0, "Khoor, Zruog!")
         app.analyze_button.invoke()
-        root.update()
+        wait_for_analysis(root, app)
         assert app.analysis_frame.winfo_ismapped(), "Analysis panel not visible"
         assert "Suggestion 1" in app.analysis_result.get("1.0", "end-1c")
         assert not app.apply_button.instate(["disabled"])
@@ -67,7 +77,7 @@ def main():
         app.input_entry.delete(0, tk.END)
         app.input_entry.insert(0, AffineCipher.transform(plaintext, (5, 8), encrypt=True))
         app.analyze_button.invoke()
-        root.update()
+        wait_for_analysis(root, app)
         assert "a = 5, b = 8" in app.analysis_result.get("1.0", "end-1c"), "Affine analysis missed the key"
         app._apply_suggested_key()
         assert (app.affine_a_entry.get(), app.affine_b_entry.get()) == ("5", "8")
@@ -77,14 +87,81 @@ def main():
         app.input_entry.delete(0, tk.END)
         app.input_entry.insert(0, RailFenceCipher.transform(plaintext, 4, encrypt=True))
         app.analyze_button.invoke()
-        root.update()
+        wait_for_analysis(root, app)
         assert "Rails = 4" in app.analysis_result.get("1.0", "end-1c"), "Rail Fence analysis missed the rails"
         app._apply_suggested_key()
         assert app.rail_key_entry.get() == "4"
 
+        # Short text is a status message, never an applicable '?' keyword.
+        app.cipher_var.set('p')
+        app._update_key_section()
+        app.input_entry.delete(0, tk.END)
+        app.input_entry.insert(0, 'ABC')
+        app.analyze_button.invoke()
+        wait_for_analysis(root, app)
+        assert 'at least 20 ASCII letters' in app.analysis_result.get('1.0', 'end-1c')
+        assert not app.analysis_results
+        assert app.apply_button.instate(['disabled'])
+
+        # Real Vigenère workflow starts with plaintext AND an entered keyword.
+        vigenere_plaintext = (
+            'When in the Course of human events it becomes necessary for one people '
+            'to dissolve the political bands which have connected them with another '
+            'and to assume among the powers of the earth the separate and equal '
+            'station to which the Laws of Nature and of Natures God entitle them.'
+        )
+        app.poly_key_entry.delete(0, tk.END)
+        app.poly_key_entry.insert(0, 'larder')
+        app.input_entry.delete(0, tk.END)
+        app.input_entry.insert(0, vigenere_plaintext)
+        app.action_var.set('e')
+        app.process_button.invoke()
+        root.update()
+        ciphertext = app.result_text.get('1.0', 'end-1c')
+        assert ciphertext != vigenere_plaintext and not ciphertext.startswith('Error:')
+        app.input_entry.delete(0, tk.END)
+        app.input_entry.insert(0, ciphertext)
+        app.poly_key_entry.delete(0, tk.END)
+        app.analyze_button.invoke()
+        wait_for_analysis(root, app)
+        app.apply_button.invoke()
+        app.process_button.invoke()
+        root.update()
+        assert app.result_text.get('1.0', 'end-1c') == vigenere_plaintext
+
+        # An unchanged Caesar message must survive Analyze -> Apply -> Decrypt.
+        app.cipher_var.set('c')
+        app._update_key_section()
+        app.input_entry.delete(0, tk.END)
+        app.input_entry.insert(0, plaintext)
+        app.analyze_button.invoke()
+        wait_for_analysis(root, app)
+        assert app.analysis_results[0]['shift'] == 0
+        app.apply_button.invoke()
+        app.process_button.invoke()
+        root.update()
+        assert app.result_text.get('1.0', 'end-1c') == plaintext
+        assert app.output_tabs.select() == str(app.results_frame)
+
+        app.input_entry.insert(tk.END, ' changed')
+        assert not app.analysis_results
+        assert app.apply_button.instate(['disabled'])
+
+        app.output_tabs.select(app.analysis_frame)
+        app.caesar_key_entry.delete(0, tk.END)
+        app.caesar_key_entry.insert(0, 'invalid')
+        app.process_button.invoke()
+        root.update()
+        assert app.output_tabs.select() == str(app.results_frame), 'Error was hidden'
+
         root.geometry("820x720")
         root.update()
         assert app.results_frame.winfo_height() > 20, "Results clipped on resize"
+        app.output_tabs.select(app.analysis_frame)
+        root.update()
+        assert app.apply_button.winfo_ismapped()
+        assert app.apply_button.winfo_y() + app.apply_button.winfo_height() <= app.analysis_frame.winfo_height()
+        assert app.analysis_result.winfo_height() >= app.font_code.metrics('linespace'), 'Analysis text clipped'
         print("Real Tk startup, palette, cipher actions, analysis, file modes and resizing passed")
     finally:
         root.destroy()

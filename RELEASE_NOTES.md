@@ -1,4 +1,18 @@
-# CipherCraft 2.0.0
+# CipherCraft 2.0.1
+
+- Source deletion now requires an explicit successful operation, including when filenames contain “Successfully”.
+- File output uses atomic replacement and rejects input/output hard-link aliases.
+- Rail Fence and columnar-transposition file operations preserve independent line boundaries and line endings.
+- Analyzer decryptions preserve Unicode and use the same cipher rules as encryption.
+- Caesar shift 0 works through Analyze, Apply and Decrypt, including known-plaintext analysis.
+- Short Vigenère input shows an explanation instead of applying an invalid keyword.
+- Analysis runs in the background, discards obsolete results and reports errors visibly.
+- Affine keys normalize negative multipliers consistently; known-plaintext analysis rejects punctuation-only input.
+- Relative analysis scores are explicitly labeled as comparisons, not probabilities.
+
+Old multiline transposition ciphertext with lost line boundaries still needs the original file or external boundary information. Existing cipher conventions for whitespace removal and columnar X padding remain.
+
+## Previous release: CipherCraft 2.0.0
 
 CipherCraft is a free educational desktop toolkit for six historical ciphers.
 

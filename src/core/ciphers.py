@@ -318,6 +318,7 @@ class AffineCipher:
         """
         a, b = key_pair
         m = 26  # Size of alphabet
+        a, b = a % m, b % m
 
         # Validate that 'a' is coprime with 'm' (alphabet size)
         if not cls.is_coprime(a, m):
