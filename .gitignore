@@ -162,3 +162,7 @@ cython_debug/
 *.vscode
 # Generated executables belong in GitHub Actions artifacts/releases
 dist/
+
+# Offline cipher ML corpora and derived datasets; never commit training text or answers
+local_corpora/
+generated_datasets/
