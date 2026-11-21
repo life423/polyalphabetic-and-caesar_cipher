@@ -147,6 +147,7 @@ def main():
         .brand p {color:#D7E5EE;font-size:1rem;line-height:1.5;margin:6px 0 0;}
         .st-key-settings, .st-key-editor, .st-key-result {background:#FFFFFF;}
         [data-testid="stCode"] pre {white-space:pre-wrap;word-break:break-word;}
+        [data-testid="stCaptionContainer"] {opacity:1;}
         [data-testid="stCaptionContainer"] p {color:#526478;}
         [data-testid="stButton"] button, [data-testid="stDownloadButton"] button,
         .st-key-operation button {min-height:44px;}
