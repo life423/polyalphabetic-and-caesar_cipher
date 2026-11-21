@@ -1,5 +1,38 @@
 # CipherCraft web deployment
 
+## Free custom-domain site
+
+The primary browser app is `https://cipher.drewclark.io`.
+Resource `ciphercraft-public` in `rg-ciphercraft` uses Azure Static Web Apps **Free**
+in East US 2. Its default hostname is
+`mango-bay-03a295b0f.5.azurestaticapps.net`. Azure manages HTTPS at no extra charge.
+The Squarespace DNS record is CNAME `cipher` to that hostname. Root, mail,
+nameservers and other subdomains do not need changing.
+
+`static/` contains the interface and module worker. `scripts/build_static.py`
+copies the pinned Pyodide runtime from `tools/runtime/package-lock.json` and
+packages shared Python sources as `engine.zip` into ignored `dist/static/`.
+All assets come from the same origin. The worker invokes the existing
+`web_service` adapter; inputs are JSON data, never executable Python source.
+Messages, keys and file content stay in the browser. This is client-side Python,
+not an iframe or an API proxy. Existing validation and file semantics apply.
+
+`.github/workflows/static-app.yml` builds, runs shared tests and exercises
+the real WASM engine in Chromium before deploying pushes to main. It uses
+repository secret `AZURE_STATIC_WEB_APPS_API_TOKEN`, scoped to this static app;
+the token is never committed. Pull requests verify without deploying. The
+workflow can also be run manually. Browser checks include six cipher types,
+four analyzers, exact mixed-line-ending downloads, offline operations after
+startup, independent sessions, loading failure/retry, keyboard navigation and
+320/390/768/1440-pixel layouts.
+
+Free hosting has Azure plan quotas. The first load downloads a Python runtime;
+there is no offline reload/service-worker cache. Chromium is automated; Safari
+and Firefox still need manual compatibility checks. Responsive screenshots do
+not establish Core Web Vitals compliance or assistive-technology compatibility.
+
+## Original Streamlit App Service
+
 The browser app uses Streamlit and the same `CipherService`, core ciphers, and
 analyzer as the desktop app. Desktop entry points and downloadable releases
 remain separate from the web runtime.

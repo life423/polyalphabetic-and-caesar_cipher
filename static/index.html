@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#2d3e50" />
+    <title>CipherCraft</title>
+    <link rel="stylesheet" href="app.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">EXPLORE CLASSICAL CRYPTOGRAPHY</p>
+        <h1>CipherCraft</h1>
+        <p>Encrypt, decrypt, and discover the key.</p>
+      </header>
+      <p id="status" role="status">
+        Loading the cipher engine… The first visit may take a moment.
+      </p>
+      <button id="retry" hidden>Retry loading</button>
+      <noscript>Enable JavaScript to use CipherCraft.</noscript>
+      <div class="workspace">
+        <section aria-labelledby="message-heading">
+          <h2 id="message-heading">Your message</h2>
+          <label for="cipher">Cipher</label
+          ><select id="cipher">
+            <option>Caesar</option>
+            <option>Vigenère</option>
+            <option>Substitution</option>
+            <option>Columnar transposition</option>
+            <option>Rail Fence</option>
+            <option>Affine</option>
+          </select>
+          <div class="key-row">
+            <div>
+              <label id="key-label" for="key">Shift (0–25)</label
+              ><input id="key" value="3" autocomplete="off" />
+              <p id="key-help" class="hint">
+                Each letter moves by this many places.
+              </p>
+            </div>
+            <div id="affine-second" hidden>
+              <label for="key-b">Offset b</label
+              ><input id="key-b" type="number" value="8" />
+            </div>
+          </div>
+          <button id="generate" class="secondary" hidden>
+            Generate substitution key
+          </button>
+          <label for="message">Message</label
+          ><textarea
+            id="message"
+            rows="10"
+            maxlength="100000"
+            placeholder="Type or paste your message here"
+          ></textarea>
+          <label for="upload">Or open a UTF-8 text file</label
+          ><input id="upload" type="file" accept=".txt,text/plain" />
+          <p id="file-info" class="hint">
+            Up to 1 MB. Files are processed one line at a time.
+          </p>
+          <div class="actions">
+            <button id="encrypt" disabled>Encrypt</button
+            ><button id="decrypt" class="secondary" disabled>Decrypt</button
+            ><button id="analyze" class="secondary" disabled>
+              Analyze cipher
+            </button>
+          </div>
+        </section>
+        <section aria-labelledby="result-heading">
+          <h2 id="result-heading">Result</h2>
+          <label for="result">Transformed message</label
+          ><textarea
+            id="result"
+            rows="14"
+            readonly
+            placeholder="Your result will appear here"
+          ></textarea>
+          <div class="actions">
+            <button id="download" class="secondary" disabled>
+              Download .txt</button
+            ><button id="reuse" class="secondary" disabled>
+              Use as message
+            </button>
+          </div>
+          <div id="suggestions" aria-live="polite"></div>
+        </section>
+      </div>
+      <footer>
+        Your messages and files stay in this browser. Classical ciphers are for
+        learning and puzzles, not protecting sensitive information.
+      </footer>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,57 @@
+name: CipherCraft Custom Domain
+
+on:
+  push:
+    branches: [main]
+    paths: ['static/**', 'src/**', 'tools/runtime/**', 'scripts/build_static.py', 'tests/smoke_static_browser.py', '.github/workflows/static-app.yml']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ciphercraft-static-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tools/runtime/package-lock.json
+      - name: Install and build
+        run: |
+          npm ci --prefix tools/runtime --no-audit --no-fund
+          python -m pip install -e ".[dev,web-test]"
+          python -m playwright install --with-deps chromium
+          python scripts/build_static.py
+      - name: Verify shared engine and browser workflows
+        run: |
+          python -m pytest tests/ -q
+          python -m http.server 8502 --directory dist/static > /tmp/static.log 2>&1 &
+          python tests/smoke_static_browser.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: static-browser-checks
+          path: dist/static-checks/
+      - name: Deploy free Azure Static Web App
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: upload
+          app_location: dist/static
+          output_location: ''
+          skip_app_build: true
+          skip_api_build: true

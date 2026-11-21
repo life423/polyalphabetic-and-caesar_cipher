@@ -6,13 +6,34 @@ not secure for protecting sensitive information.
 
 ## Browser version
 
-Open [CipherCraft online](https://ciphercraft-drewclark.azurewebsites.net/) to use
-the same cipher engine in a browser. The web app supports all six ciphers,
+Open [CipherCraft online](https://cipher.drewclark.io/) to use
+the same Python cipher engine directly in your browser on free Azure Static Web Apps.
+The web app supports all six ciphers,
 key suggestions for Caesar, Vigenère, Rail Fence and Affine, UTF-8 text uploads,
-and downloadable `.txt` results. Uploads and messages are processed in session
-memory, without writing user files to server storage.
+and downloadable `.txt` results. Messages, keys and uploaded files stay on your
+device. A self-hosted Pyodide runtime loads on the first visit; operations run in
+a background worker and continue working if the connection drops after loading.
+Reloading requires a connection. No user content is saved between visits.
 
-To run the web version locally:
+Build and serve the custom-domain version locally (Node 22 and Python 3.10+):
+
+```bash
+npm ci --prefix tools/runtime
+python scripts/build_static.py
+python -m http.server 8502 --directory dist/static
+```
+
+Open `http://localhost:8502`. To verify the browser workflows:
+
+```bash
+python -m pip install -e ".[dev,web-test]"
+python -m playwright install chromium
+python tests/smoke_static_browser.py
+```
+
+The [original Streamlit version](https://ciphercraft-drewclark.azurewebsites.net/)
+remains available on free App Service. It processes inputs in server session
+memory without writing uploaded files to disk. To run it locally:
 
 ```bash
 python -m pip install -e ".[web]"

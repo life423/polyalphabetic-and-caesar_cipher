@@ -162,3 +162,4 @@ cython_debug/
 *.vscode
 # Generated executables belong in GitHub Actions artifacts/releases
 dist/
+node_modules/
