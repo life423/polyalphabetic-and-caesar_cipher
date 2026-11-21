@@ -24,8 +24,11 @@ concurrency is required; that is a separate hosting-cost decision.
 
 `.github/workflows/web-app.yml` runs the shared tests, Streamlit AppTest tests,
 critical lint, and real Chromium workflows at phone, tablet, and desktop sizes.
-Successful pushes to `main` deploy a small source ZIP to App Service and check
-its health endpoint. The desktop CI/release workflow continues independently.
+Successful pushes to `main` deploy a small source ZIP to App Service, restart
+the worker to load the deployed Python code, and check its health endpoint.
+This restart matters because production file watching is disabled and Oryx
+extracts each deployment to a new runtime directory. The desktop CI/release
+workflow continues independently.
 
 GitHub authenticates with Entra workload federation (OIDC), not a client secret
 or publish-profile password. The deployment identity is scoped to this web app
@@ -38,6 +41,7 @@ Repository variables:
 - `AZURE_TENANT_ID`
 - `AZURE_SUBSCRIPTION_ID`
 - `AZURE_WEBAPP_NAME`
+- `AZURE_RESOURCE_GROUP`
 - `AZURE_WEBAPP_URL`
 
 These variables are identity/resource identifiers, not authentication secrets.
