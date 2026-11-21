@@ -4,6 +4,30 @@
 CLI, file processing, and heuristic ciphertext analysis. Classical ciphers are
 not secure for protecting sensitive information.
 
+## Browser version
+
+Open [CipherCraft online](https://ciphercraft-drewclark.azurewebsites.net/) to use
+the same cipher engine in a browser. The web app supports all six ciphers,
+key suggestions for Caesar, Vigenère, Rail Fence and Affine, UTF-8 text uploads,
+and downloadable `.txt` results. Uploads and messages are processed in session
+memory, without writing user files to server storage.
+
+To run the web version locally:
+
+```bash
+python -m pip install -e ".[web]"
+python -m streamlit run web_app.py
+```
+
+Text is limited to 100,000 characters, uploads to 1 MB, and each analysis sample
+to 5,000 characters. Rail Fence keys support 2–100 rails; analysis tries 2–20.
+File processing keeps the desktop app's independent lines, Vigenère resets,
+whitespace removal, and columnar X padding. Vigenère and Rail Fence file analysis
+uses the longest letter-bearing line. Relative analysis scores are rankings,
+not probabilities of correctness.
+
+See [Azure deployment](docs/AZURE_DEPLOYMENT.md) for hosting and repeatable deployment.
+
 ## Supported ciphers
 
 - Caesar (shift)

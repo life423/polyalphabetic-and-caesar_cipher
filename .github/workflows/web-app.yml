@@ -1,0 +1,87 @@
+name: CipherCraft Web
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web_app.py'
+      - 'src/**'
+      - 'tests/**'
+      - 'scripts/package_web.py'
+      - '.streamlit/**'
+      - 'startup.sh'
+      - 'requirements.txt'
+      - 'setup.py'
+      - '.github/workflows/web-app.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ciphercraft-web-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify browser and shared engine
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install web and test dependencies
+        run: |
+          python -m pip install -e ".[dev,web,web-test]"
+          python -m playwright install --with-deps chromium
+      - name: Tests and critical lint
+        run: |
+          python -m pytest tests/ -q
+          python -m flake8 src tests scripts web_app.py run.py gui.py --select=E9,F63,F7,F82 --show-source --statistics
+      - name: Browser workflows and responsive layouts
+        run: |
+          python -m streamlit run web_app.py --server.address 127.0.0.1 --server.port 8501 > /tmp/ciphercraft-web.log 2>&1 &
+          python tests/smoke_web_browser.py --screenshots web-checks
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: web-browser-checks
+          path: web-checks/
+          if-no-files-found: ignore
+
+  deploy:
+    name: Deploy Azure App Service
+    needs: verify
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.AZURE_WEBAPP_NAME != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build the deployment package
+        run: python scripts/package_web.py --output web-app.zip
+      - name: Sign in to Azure using GitHub OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Deploy Python web app
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_WEBAPP_NAME }}
+          package: web-app.zip
+      - name: Verify hosted health endpoint
+        env:
+          APP_URL: ${{ vars.AZURE_WEBAPP_URL }}
+        run: curl --fail --retry 18 --retry-delay 10 --retry-all-errors "$APP_URL/_stcore/health"

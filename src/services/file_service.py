@@ -22,6 +22,13 @@ class FileProcessResult:
 
 class FileService:
     """Handles file operations for the cipher application."""
+
+    @staticmethod
+    def transform_lines(lines, transform_function):
+        """Transform line bodies while retaining their original CR/LF separators."""
+        for line in lines:
+            body = line.rstrip('\r\n')
+            yield transform_function(body) + line[len(body):]
     
     @staticmethod
     def process_file(input_path, output_path, transform_function):
@@ -57,11 +64,8 @@ class FileService:
                     dir=destination.parent, prefix='.ciphercraft-', delete=False,
                 ) as output_file:
                     temporary_path = Path(output_file.name)
-                    for line in input_file:
-                        body = line.rstrip('\r\n')
-                        separator = line[len(body):]
-                        output_file.write(transform_function(body))
-                        output_file.write(separator)
+                    for line in FileService.transform_lines(input_file, transform_function):
+                        output_file.write(line)
                     output_file.flush()
                     os.fsync(output_file.fileno())
             os.replace(temporary_path, destination)

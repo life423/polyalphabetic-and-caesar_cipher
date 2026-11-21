@@ -11,6 +11,8 @@ setup(
     extras_require={
         "dev": ["pytest>=7.3.1", "flake8>=6.0.0", "pyyaml>=6.0.1"],
         "build": ["pyinstaller>=6.0.0"],
+        "web": ["streamlit==1.67.0"],
+        "web-test": ["playwright==1.65.2"],
     },
     entry_points={
         "console_scripts": ["cipher_tool=src.ui.cli:main"],

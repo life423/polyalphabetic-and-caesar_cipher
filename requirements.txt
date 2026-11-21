@@ -1,4 +1,2 @@
-pytest>=7.3.1
-flake8>=6.0.0
-pyinstaller>=5.9.0
-pyyaml>=6.0.1
+# Web runtime. Developer/build tools: pip install -e ".[dev,build]"
+streamlit==1.67.0
