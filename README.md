@@ -31,12 +31,15 @@ python -m playwright install chromium
 python tests/smoke_static_browser.py
 ```
 
-The static browser app also has **Identify cipher**, an experimental neural
-network we train locally on generated cipher examples. It offers three likely
-types without requiring a key. It runs on-device with no model API or usage
-charges. See [training, evaluation and limitations](docs/CIPHER_IDENTIFICATION.md).
+The static browser app has **Identify & crack**: paste ciphertext and recover a
+suggested message without selecting a cipher or entering a key. It identifies
+likely types and searches Caesar, Vigenère, Rail Fence and Affine, ranking their
+decryptions with our locally trained language model. **Find key** searches only
+the selected cipher. Substitution and columnar transposition still require a
+known key. Everything runs on-device with no model API or usage charges.
+See [training, evaluation and limitations](docs/CIPHER_IDENTIFICATION.md).
 
-**Analyze cipher** now ranks possible decryptions with our own locally trained
+**Find key** ranks possible decryptions with our own locally trained
 next-letter neural language model. It runs on-device without a model API.
 See [local training, benchmarks and limitations](docs/LOCAL_LANGUAGE_MODEL.md).
 

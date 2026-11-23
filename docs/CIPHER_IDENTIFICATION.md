@@ -1,11 +1,27 @@
 # Cipher identification: first trained model
 
-CipherCraft now includes an experimental **Identify cipher** action in the static
-browser app. It ranks three likely types among Caesar, Vigenère, substitution,
-columnar transposition, Rail Fence and Affine. Selecting a result changes the
-cipher controls; the existing **Analyze cipher** action still searches for keys.
-Identification itself needs neither a selected cipher nor a key. It does not
-automatically decrypt, replace user input or claim to recover a key.
+The static browser app's **Identify & crack** action combines our experimental
+cipher classifier with key search and a trained English language scorer.
+Paste ciphertext and click once: it searches all four supported ciphers and
+shows the most plausible recovered message, updating the cipher/key fields.
+It ignores the current cipher/key controls and leaves the source untouched.
+**Find key** is the renamed manual search for the selected cipher.
+
+The classifier ranks Caesar, Vigenère, substitution, columnar transposition,
+Rail Fence and Affine. Automatic key recovery covers Caesar, Vigenère, Rail Fence
+and Affine only. All four searches run, even if classification initially favors
+a different type. Identical plaintext candidates are deduplicated. Candidates
+are ordered by mean language cost plus `k*log(n)/(2*n)` (key complexity per English
+letter), discouraging overfitting with long Vigenère keys. A best cost above
+3.0 nats does not automatically populate the result; the app explains that no
+convincing result was found or that the likely cipher is unsupported. This
+ceiling is an English-plausibility heuristic, not calibrated certainty or a
+general-purpose unknown-cipher detector. Successful results are labeled as
+suggestions and still need human review.
+
+For uploaded files, identification/search use the line with the most English
+letters; a recovered key is then applied independently to all lines with their
+original separators preserved. The user may download the resulting full file.
 
 ## What we built
 
@@ -91,9 +107,10 @@ training is required in CI or at runtime; CI tests the checked-in model.
 
 ## Interface verification and next improvements
 
-Automated Chromium checks cover identification while offline, independence from
-the selected cipher/empty key, selecting a type then recovering a key and
-decrypting, short-input errors, source-change invalidation, keyboard access and
+Automated Chromium checks cover automatic recovery while offline, independence
+from the selected cipher/empty key, the supplied ORBIT example starting with
+incorrect default Caesar controls, full-file recovery, manual Find key,
+short-input errors, source-change invalidation, keyboard access and
 320/390/768/1440-pixel layouts. Existing cipher/file workflows remain covered.
 Screenshots show identification above the transformed-message field, so the
 shortlist does not hide below an empty output box.

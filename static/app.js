@@ -86,7 +86,7 @@ function start() {
       ready = true;
       controls();
       status(
-        "Ready. Enter a message and a key, then choose Encrypt or Decrypt.",
+        "Ready. Paste ciphertext and choose Identify & crack, or select a cipher and key to encrypt.",
       );
       return;
     }
@@ -99,11 +99,8 @@ function start() {
       return;
     }
     if (data.error) return status(data.error, true);
-    if (pending.action === "identify") {
-      showIdentification(data.result);
-      status(
-        "Cipher types ranked. Select one to continue; these are estimates, not a recovered key.",
-      );
+    if (pending.action === "crack") {
+      showAutomaticResult(data.result);
       return;
     }
     if (pending.action === "generate") {
@@ -148,10 +145,10 @@ function run(action) {
   if (!ready || busy || readingFile) return;
   busy = true;
   controls();
-  if (action === "identify") $("identification").replaceChildren();
+  if (action === "crack") invalidate();
   status(
-    action === "identify"
-      ? "Identifying likely cipher types…"
+    action === "crack"
+      ? "Identifying the cipher and searching for a key…"
       : action === "analyze"
         ? "Analyzing possible keys…"
         : "Processing…",
@@ -169,34 +166,54 @@ function run(action) {
     file_mode: fileMode,
   });
 }
-function showIdentification(results) {
+function applyKey(cipher, key) {
+  $("cipher").value = cipher;
+  $("cipher").onchange();
+  if (Array.isArray(key)) {
+    $("key").value = key[0];
+    $("key-b").value = key[1];
+  } else $("key").value = key;
+}
+function showAutomaticResult(data) {
+  const best = data.candidates[0];
+  if (data.status === "suggested") {
+    applyKey(best.cipher, best.key);
+    resultText = data.plaintext;
+    $("result").value = resultText;
+    operation = "Decrypt";
+    $("download").disabled = false;
+    $("reuse").disabled = false;
+  } else {
+    $("cipher").value = data.identified[0].cipher;
+    $("cipher").onchange();
+  }
   const area = $("identification");
   area.replaceChildren();
   const heading = document.createElement("h3");
-  heading.textContent = "Likely cipher types";
+  heading.textContent =
+    data.status === "suggested"
+      ? `Suggested ${best.cipher} decryption · ${best.label}`
+      : data.status === "unsupported"
+        ? `Likely cipher: ${data.identified[0].cipher}`
+        : "No convincing decryption found";
   area.append(heading);
   const note = document.createElement("p");
   note.className = "hint";
   note.textContent =
-    "Experimental · trained on English examples of six ciphers. Other ciphers and plain text can be misidentified. Similar ciphers can produce identical ciphertext.";
+    data.status === "suggested"
+      ? "Review the recovered message below. This is an AI suggestion, not a guaranteed decryption. Find key shows other guesses for the selected cipher."
+      : data.status === "unsupported"
+        ? "Automatic key recovery is not available for this cipher. Enter a known key to decrypt, or choose another cipher manually."
+        : "The available searches did not produce a plausible English message. Try a longer sample or a known key. Unsupported ciphers and plain text can also be misidentified.";
   area.append(note);
-  results.forEach((item, index) => {
-    const button = document.createElement("button");
-    button.className = "secondary";
-    button.textContent = `${index + 1}. Select ${item.cipher}`;
-    button.onclick = () => {
-      $("cipher").value = item.cipher;
-      $("cipher").onchange();
-      status(
-        $("analyze").hidden
-          ? "Cipher selected. Enter a key to decrypt."
-          : "Cipher selected. Choose Analyze cipher to search for a key, or enter a known key.",
-      );
-      $("cipher").focus();
-    };
-    area.append(button);
-  });
-  // Bring the new results into view on phones and to keyboard/screen-reader users.
+  status(
+    data.status === "suggested"
+      ? "Suggested decryption ready. Review the recovered message."
+      : data.status === "unsupported"
+        ? "Cipher identified, but automatic key recovery is not supported."
+        : "No convincing decryption found. Try a longer English sample.",
+    data.status !== "suggested",
+  );
   heading.tabIndex = -1;
   heading.focus();
 }
@@ -269,7 +286,9 @@ $("upload").onchange = async () => {
     if (text.length > 100000)
       throw new Error("Messages can contain up to 100,000 characters.");
     if (!text.trim())
-      throw new Error("This file is empty. Choose a file containing a message.");
+      throw new Error(
+        "This file is empty. Choose a file containing a message.",
+      );
     $("message").value = text;
     fileMode = true;
     filename = file.name;
@@ -295,8 +314,9 @@ $("upload").onchange = async () => {
 };
 let originalFile = "";
 // Keep exact uploaded line endings when sending the file to Python.
-for (const action of ["Encrypt", "Decrypt", "analyze", "identify"])
+for (const action of ["Encrypt", "Decrypt", "analyze"])
   $(action.toLowerCase()).onclick = () => run(action);
+$("identify").onclick = () => run("crack");
 $("generate").onclick = () => run("generate");
 $("retry").onclick = start;
 $("download").onclick = () => {

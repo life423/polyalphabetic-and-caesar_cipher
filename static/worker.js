@@ -15,12 +15,12 @@ try {
   py.runPython(`
 import sys, json
 sys.path.insert(0, '/app')
-from src.services.web_service import transform_message, analyze_message, candidate_key, describe_key, identify_message
+from src.services.web_service import transform_message, analyze_message, candidate_key, describe_key, crack_message
 from src.services.cipher_service import CipherService
 def dispatch(raw):
     p = json.loads(raw)
-    if p['action'] == 'identify':
-        return json.dumps(identify_message(p['text'], p['file_mode']))
+    if p['action'] == 'crack':
+        return json.dumps(crack_message(p['text'], p['file_mode']))
     if p['action'] == 'generate':
         return json.dumps(CipherService().generate_substitution_key())
     if p['action'] == 'analyze':

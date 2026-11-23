@@ -116,6 +116,52 @@ def identify_message(text, file_mode=False):
     return identify_cipher(text)
 
 
+def crack_message(text, file_mode=False):
+    """Identify and search supported ciphers, independently of the selected controls.
+
+    A three-nat language-cost ceiling is a conservative heuristic, not a
+    calibrated probability. A key-length penalty discourages Vigenere overfit.
+    Only a plausible best guess is automatically applied to the full message.
+    """
+    import math
+    from src.ai.language_model import language_score
+
+    identified = identify_message(text, file_mode)
+    sample = text
+    if file_mode:
+        sample = max(StringIO(text, newline=''),
+                     key=lambda line: sum(c.isascii() and c.isalpha() for c in line),
+                     default='').rstrip('\r\n')
+    order = [item['cipher'] for item in identified if item['cipher'] in ANALYZABLE]
+    order += [cipher for cipher in ('Caesar', 'Affine', 'Rail Fence', 'Vigenère') if cipher not in order]
+    letters = sum(c.isascii() and c.isalpha() for c in sample)
+    guesses = []
+    for priority, cipher in enumerate(order):
+        for candidate in analyze_message(sample, cipher):
+            key = candidate_key(cipher, candidate)
+            plain = transform_message(sample, cipher, 'Decrypt', key)
+            cost = language_score(plain)
+            complexity = len(key) if cipher == 'Vigenère' else 2 if cipher == 'Affine' else 1
+            rank = cost + complexity * math.log(letters) / (2 * letters)
+            guesses.append((rank, priority, plain, cost, cipher, key))
+    guesses.sort(key=lambda item: (item[0], item[1]))
+    unique = []
+    seen = set()
+    for _, _, plain, cost, cipher, key in guesses:
+        if plain in seen:
+            continue
+        seen.add(plain)
+        unique.append({'cipher': cipher, 'key': key, 'label': describe_key(cipher, key),
+                       'sample': plain[:100] + ('...' if len(plain) > 100 else ''), 'cost': cost})
+        if len(unique) == 3:
+            break
+    plausible = bool(unique) and unique[0]['cost'] <= 3.0
+    status = 'suggested' if plausible else 'unsupported' if identified[0]['cipher'] not in ANALYZABLE else 'uncertain'
+    return {'status': status, 'identified': identified, 'candidates': unique,
+            'plaintext': transform_message(text, unique[0]['cipher'], 'Decrypt', unique[0]['key'], file_mode)
+            if plausible else None}
+
+
 def candidate_key(cipher, candidate):
     if cipher == 'Caesar':
         return candidate['shift']

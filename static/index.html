@@ -61,24 +61,17 @@
             Up to 1 MB. Files are processed one line at a time.
           </p>
           <div class="actions">
-            <button id="encrypt" disabled>Encrypt</button
-            ><button id="decrypt" class="secondary" disabled>Decrypt</button
-            ><button id="analyze" class="secondary" disabled>
-              Analyze cipher
+            <button id="identify" aria-describedby="identify-help" disabled>
+              Identify &amp; crack
             </button>
-            <button
-              id="identify"
-              class="secondary"
-              aria-describedby="identify-help"
-              disabled
-            >
-              Identify cipher
-            </button>
+            <button id="analyze" class="secondary" disabled>Find key</button>
+            <button id="encrypt" class="secondary" disabled>Encrypt</button>
+            <button id="decrypt" class="secondary" disabled>Decrypt</button>
           </div>
           <p id="identify-help" class="hint">
-            Not sure which cipher? Our experimental model needs 100+ English
-            letters and at most 5,000 characters. For files, it uses the longest
-            line.
+            Unknown cipher? Identify &amp; crack needs 100+ English letters and
+            at most 5,000 characters. Automatic key recovery supports Caesar,
+            Vigenère, Rail Fence and Affine. Files use the longest line.
           </p>
         </section>
         <section aria-labelledby="result-heading">

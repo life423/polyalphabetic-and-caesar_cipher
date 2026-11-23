@@ -2,7 +2,7 @@
 
 This is a small **neural next-letter language model**, trained from random
 initial weights on this computer. It helps rank candidate decryptions in the
-browser app's **Analyze cipher** feature. It is separate from the cipher-type
+browser app's **Find key** and **Identify & crack** features. It is separate from the cipher-type
 classifier, and it is not a general-purpose chatbot or large language model.
 No pretrained model, model API, GPU or paid service is used.
 

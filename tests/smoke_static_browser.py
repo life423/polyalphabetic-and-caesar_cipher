@@ -16,6 +16,8 @@ def check(url, screenshots):
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.goto(url)
         expect(page.locator('#encrypt')).to_be_enabled(timeout=90000)
+        expect(page.get_by_role('button', name='Find key', exact=True)).to_be_visible()
+        expect(page.get_by_role('button', name='Analyze cipher', exact=True)).to_have_count(0)
         # Once loaded, cipher operations must work without a network connection.
         context.set_offline(True)
         unknown_plaintext = (
@@ -31,17 +33,15 @@ def check(url, screenshots):
         unknown_ciphertext = page.locator('#result').input_value()
         page.locator('#reuse').click()
         page.locator('#cipher').select_option('Vigenère')
-        # Identification ignores both the selected cipher and its empty key.
+        # Automatic recovery ignores the selected cipher and its empty key.
         page.locator('#identify').click()
-        expect(page.locator('#identification button')).to_have_count(3, timeout=10000)
+        expect(page.locator('#result')).to_have_value(unknown_plaintext, timeout=60000)
+        expect(page.locator('#cipher')).to_have_value('Caesar')
+        expect(page.locator('#key')).to_have_value('7')
         for width in (320, 390, 768, 1440):
             page.set_viewport_size({'width': width, 'height': 1000})
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), width
             page.screenshot(path=str(screenshots / f'identification-{width}.png'), full_page=True)
-        page.keyboard.press('Tab')
-        expect(page.locator('#identification button').first).to_be_focused()
-        page.keyboard.press('Enter')
-        expect(page.locator('#cipher')).to_have_value('Caesar')
         page.locator('#analyze').click()
         expect(page.locator('#suggestions button')).not_to_have_count(0)
         expect(page.locator('#suggestions')).to_contain_text('locally trained English language model')
@@ -57,10 +57,40 @@ def check(url, screenshots):
         expect(page.locator('#identification button')).to_have_count(0)
         page.locator('#upload').set_input_files({
             'name': 'unknown.txt', 'mimeType': 'text/plain',
-            'buffer': ('short\r\n' + unknown_ciphertext + '\n').encode('utf-8')})
+            'buffer': ('zovya\r\n' + unknown_ciphertext + '\n').encode('utf-8')})
         expect(page.locator('#status')).to_contain_text('File opened')
         page.locator('#identify').click()
-        expect(page.locator('#identification button').first).to_have_text('1. Select Caesar')
+        expect(page.locator('#result')).to_have_value('short\n' + unknown_plaintext + '\n', timeout=60000)
+        with page.expect_download() as automatic_download:
+            page.locator('#download').click()
+        assert automatic_download.value.suggested_filename == 'unknown_decrypted.txt'
+        assert Path(automatic_download.value.path()).read_bytes() == ('short\r\n' + unknown_plaintext + '\n').encode('utf-8')
+        # Regression: the user's ORBIT example must crack directly from default Caesar controls.
+        orbit_ciphertext = ('Hyf wer fcaxfmbbhfp tbhcu bjhjv upx eljmm jrmtxm, nimks r tqgucf ttbkfzg plsvxr sfabrv upx bfsbasio ebbupe. '
+                            'Th djlgwxib, mvv dikskbsxf ujavcmfzxr r gwerve vhhv cmgsrup mvv umesjdwis. '
+                            'Zu lxgtsqusu b pbrufv kcfn jxvzol mvv mqufrsg tbu b ehcufv uco dwghrjvbbx upx aztabbx ffisujbbce smvciea. '
+                            'Mvv gqgoc jvlhivkmwfo etg jjuizv: czbbx upx pibal qfnxtgj bvw krjb nbkjt mvv nwkbzoo uscma usxjv mc ijvz.')
+        orbit_plaintext = ('The old observatory stood above the quiet valley, where a single lantern burned beside the northern window. '
+                           'At midnight, the caretaker discovered a folded note beneath the telescope. '
+                           'It described a hidden room behind the library and a wooden box containing the missing expedition records. '
+                           'The final instruction was simple: bring the brass compass and wait until the morning bells begin to ring.')
+        page.locator('#cipher').select_option('Caesar')
+        page.locator('#key').fill('3')
+        page.locator('#message').fill(orbit_ciphertext)
+        page.get_by_role('button', name='Identify & crack', exact=True).focus()
+        page.keyboard.press('Enter')
+        expect(page.locator('#result')).to_have_value(orbit_plaintext, timeout=60000)
+        expect(page.locator('#cipher')).to_have_value('Vigenère')
+        expect(page.locator('#key')).to_have_value('orbit')
+        for width in (320, 390, 768, 1440):
+            page.set_viewport_size({'width': width, 'height': 1000})
+            assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), width
+            page.screenshot(path=str(screenshots / f'auto-crack-{width}.png'), full_page=True)
+        page.locator('#identify').click()
+        page.locator('#message').fill('A newer message must not be overwritten by an older request.')
+        expect(page.locator('#identify')).to_be_enabled(timeout=60000)
+        expect(page.locator('#result')).to_have_value('')
+        expect(page.locator('#message')).to_have_value('A newer message must not be overwritten by an older request.')
         message = 'Hello world! Café, 日本語.\nAnother line.'
         for cipher, key in [('Caesar', '7'), ('Vigenère', 'LEMON'),
                             ('Substitution', 'QWERTYUIOPASDFGHJKLZXCVBNM'),
