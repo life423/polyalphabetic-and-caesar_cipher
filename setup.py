@@ -6,6 +6,7 @@ setup(
     version="2.0.1",
     description="Educational classical ciphers and statistical cryptanalysis",
     packages=find_packages(),
+    package_data={"src.ai": ["cipher_identifier.json", "english_language_model.json"]},
     python_requires=">=3.10",
     install_requires=[],
     extras_require={
@@ -13,6 +14,7 @@ setup(
         "build": ["pyinstaller>=6.0.0"],
         "web": ["streamlit==1.67.0"],
         "web-test": ["playwright==1.65.2"],
+        "train": ["numpy>=1.26,<3"],
     },
     entry_points={
         "console_scripts": ["cipher_tool=src.ui.cli:main"],

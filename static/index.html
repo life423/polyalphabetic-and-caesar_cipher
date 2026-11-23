@@ -66,10 +66,25 @@
             ><button id="analyze" class="secondary" disabled>
               Analyze cipher
             </button>
+            <button
+              id="identify"
+              class="secondary"
+              aria-describedby="identify-help"
+              disabled
+            >
+              Identify cipher
+            </button>
           </div>
+          <p id="identify-help" class="hint">
+            Not sure which cipher? Our experimental model needs 100+ English
+            letters and at most 5,000 characters. For files, it uses the longest
+            line.
+          </p>
         </section>
         <section aria-labelledby="result-heading">
           <h2 id="result-heading">Result</h2>
+          <div id="identification" aria-live="polite"></div>
+          <div id="suggestions" aria-live="polite"></div>
           <label for="result">Transformed message</label
           ><textarea
             id="result"
@@ -84,7 +99,6 @@
               Use as message
             </button>
           </div>
-          <div id="suggestions" aria-live="polite"></div>
         </section>
       </div>
       <footer>

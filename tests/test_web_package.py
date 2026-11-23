@@ -11,6 +11,7 @@ def test_web_deployment_package_is_complete_and_does_not_include_local_files(tmp
         assert {'web_app.py', 'requirements.txt', 'startup.sh', '.streamlit/config.toml',
                 'src/services/web_service.py', 'src/core/ciphers.py'} <= names
         assert not any(name.startswith(('.venv/', 'tests/', '.git/')) for name in names)
+        assert 'src/ai/english_language_model.json' in names
         assert not any(name.endswith(('.exe', '.pyc', '.env')) for name in names)
         assert b'\r' not in package.read('startup.sh')
         assert package.testzip() is None

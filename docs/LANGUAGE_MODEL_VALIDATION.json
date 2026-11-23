@@ -1,0 +1,1177 @@
+{
+  "split": "validation",
+  "examples": 96,
+  "totals": {
+    "Caesar/original": {
+      "examples": 12,
+      "legacy_exact": 12,
+      "learned_exact": 12
+    },
+    "Affine/original": {
+      "examples": 12,
+      "legacy_exact": 12,
+      "learned_exact": 12
+    },
+    "Rail Fence/original": {
+      "examples": 12,
+      "legacy_exact": 12,
+      "learned_exact": 12
+    },
+    "Vigen\u00e8re/original": {
+      "examples": 12,
+      "legacy_exact": 6,
+      "learned_exact": 8
+    },
+    "Caesar/letters_only": {
+      "examples": 12,
+      "legacy_exact": 12,
+      "learned_exact": 12
+    },
+    "Affine/letters_only": {
+      "examples": 12,
+      "legacy_exact": 12,
+      "learned_exact": 12
+    },
+    "Rail Fence/letters_only": {
+      "examples": 12,
+      "legacy_exact": 12,
+      "learned_exact": 12
+    },
+    "Vigen\u00e8re/letters_only": {
+      "examples": 12,
+      "legacy_exact": 9,
+      "learned_exact": 9
+    }
+  },
+  "cases": [
+    {
+      "cipher": "Caesar",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 84800,
+      "key": 25,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.019047299996600486
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 84800,
+      "key": [
+        17,
+        10
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.061267400000360794
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 84800,
+      "key": 10,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.0035327999939909205
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 84800,
+      "key": "aesdinkg",
+      "legacy_exact": false,
+      "learned_exact": false,
+      "comparison_seconds": 0.20865869999397546
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "letters_only",
+      "characters": 60,
+      "book_id": 11,
+      "source_start": 84800,
+      "key": 13,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.0031756000098539516
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "letters_only",
+      "characters": 60,
+      "book_id": 11,
+      "source_start": 84800,
+      "key": [
+        19,
+        3
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.03890049998881295
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "letters_only",
+      "characters": 60,
+      "book_id": 11,
+      "source_start": 84800,
+      "key": 2,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.002740399999311194
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "letters_only",
+      "characters": 60,
+      "book_id": 11,
+      "source_start": 84800,
+      "key": "bouv",
+      "legacy_exact": false,
+      "learned_exact": false,
+      "comparison_seconds": 0.20485049999842886
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 81600,
+      "key": 11,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.010115800003404729
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 81600,
+      "key": [
+        17,
+        2
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.1106082000042079
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 81600,
+      "key": 11,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.005876499999430962
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 81600,
+      "key": "okzin",
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.07449009999982081
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "letters_only",
+      "characters": 141,
+      "book_id": 11,
+      "source_start": 81600,
+      "key": 14,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.0056351999955950305
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "letters_only",
+      "characters": 141,
+      "book_id": 11,
+      "source_start": 81600,
+      "key": [
+        25,
+        4
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.0703625999885844
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "letters_only",
+      "characters": 141,
+      "book_id": 11,
+      "source_start": 81600,
+      "key": 11,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.005703600007109344
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "letters_only",
+      "characters": 141,
+      "book_id": 11,
+      "source_start": 81600,
+      "key": "ws",
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.03530319999845233
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 26400,
+      "key": 5,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.02366069999698084
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 26400,
+      "key": [
+        5,
+        24
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.26241969999682624
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 26400,
+      "key": 12,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.013060899989795871
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 26400,
+      "key": "adkmstms",
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.21018860000185668
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "letters_only",
+      "characters": 297,
+      "book_id": 11,
+      "source_start": 26400,
+      "key": 6,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.010229099993011914
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "letters_only",
+      "characters": 297,
+      "book_id": 11,
+      "source_start": 26400,
+      "key": [
+        21,
+        11
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.1274818999954732
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "letters_only",
+      "characters": 297,
+      "book_id": 11,
+      "source_start": 26400,
+      "key": 9,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.010002900002291426
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "letters_only",
+      "characters": 297,
+      "book_id": 11,
+      "source_start": 26400,
+      "key": "owqkk",
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.09072249999735504
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 116800,
+      "key": 10,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.0052137000020593405
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 116800,
+      "key": [
+        25,
+        2
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.06038169999374077
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 116800,
+      "key": 6,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.0034715000074356794
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 116800,
+      "key": "neqqy",
+      "legacy_exact": false,
+      "learned_exact": false,
+      "comparison_seconds": 0.17729399999370798
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "letters_only",
+      "characters": 59,
+      "book_id": 11,
+      "source_start": 116800,
+      "key": 3,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.0031442000035895035
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "letters_only",
+      "characters": 59,
+      "book_id": 11,
+      "source_start": 116800,
+      "key": [
+        23,
+        11
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.037534899995080195
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "letters_only",
+      "characters": 59,
+      "book_id": 11,
+      "source_start": 116800,
+      "key": 6,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.002667499997187406
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "letters_only",
+      "characters": 59,
+      "book_id": 11,
+      "source_start": 116800,
+      "key": "alazoxgo",
+      "legacy_exact": false,
+      "learned_exact": false,
+      "comparison_seconds": 0.11524810000264551
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 40000,
+      "key": 11,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.011678299997583963
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 40000,
+      "key": [
+        25,
+        8
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.13158140001178253
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 40000,
+      "key": 9,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.006226699988474138
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 40000,
+      "key": "zwalwhcu",
+      "legacy_exact": false,
+      "learned_exact": true,
+      "comparison_seconds": 0.5209114000026602
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "letters_only",
+      "characters": 132,
+      "book_id": 11,
+      "source_start": 40000,
+      "key": 9,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.005485799993039109
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "letters_only",
+      "characters": 132,
+      "book_id": 11,
+      "source_start": 40000,
+      "key": [
+        17,
+        12
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.06745509999745991
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "letters_only",
+      "characters": 132,
+      "book_id": 11,
+      "source_start": 40000,
+      "key": 10,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.005017399991629645
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "letters_only",
+      "characters": 132,
+      "book_id": 11,
+      "source_start": 40000,
+      "key": "fk",
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.03473179999855347
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 97600,
+      "key": 13,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.02149049998843111
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 97600,
+      "key": [
+        11,
+        10
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.24722669999755453
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 97600,
+      "key": 6,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.012369799995212816
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 97600,
+      "key": "qsdgwk",
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.16788190000806935
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "letters_only",
+      "characters": 298,
+      "book_id": 11,
+      "source_start": 97600,
+      "key": 4,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.01051730000472162
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "letters_only",
+      "characters": 298,
+      "book_id": 11,
+      "source_start": 97600,
+      "key": [
+        19,
+        20
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.1315257000096608
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "letters_only",
+      "characters": 298,
+      "book_id": 11,
+      "source_start": 97600,
+      "key": 10,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.00998750000144355
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "letters_only",
+      "characters": 298,
+      "book_id": 11,
+      "source_start": 97600,
+      "key": "yyobh",
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.09137000000919215
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 4000,
+      "key": 4,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.004727399995317683
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 4000,
+      "key": [
+        7,
+        17
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.05566709999402519
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 4000,
+      "key": 10,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.002899200000683777
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 4000,
+      "key": "joke",
+      "legacy_exact": false,
+      "learned_exact": false,
+      "comparison_seconds": 0.12356340000405908
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "letters_only",
+      "characters": 61,
+      "book_id": 11,
+      "source_start": 4000,
+      "key": 13,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.0032586000015726313
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "letters_only",
+      "characters": 61,
+      "book_id": 11,
+      "source_start": 4000,
+      "key": [
+        7,
+        17
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.038158499999553896
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "letters_only",
+      "characters": 61,
+      "book_id": 11,
+      "source_start": 4000,
+      "key": 3,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.0027353000041330233
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "letters_only",
+      "characters": 61,
+      "book_id": 11,
+      "source_start": 4000,
+      "key": "wj",
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.019610099989222363
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 83200,
+      "key": 11,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.009476799998083152
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 83200,
+      "key": [
+        25,
+        16
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.11569459999736864
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 83200,
+      "key": 6,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.0058495999983279034
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 83200,
+      "key": "yj",
+      "legacy_exact": false,
+      "learned_exact": true,
+      "comparison_seconds": 0.2931423999980325
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "letters_only",
+      "characters": 139,
+      "book_id": 11,
+      "source_start": 83200,
+      "key": 22,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.005673299994668923
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "letters_only",
+      "characters": 139,
+      "book_id": 11,
+      "source_start": 83200,
+      "key": [
+        21,
+        1
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.06887649999407586
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "letters_only",
+      "characters": 139,
+      "book_id": 11,
+      "source_start": 83200,
+      "key": 9,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.005215800003497861
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "letters_only",
+      "characters": 139,
+      "book_id": 11,
+      "source_start": 83200,
+      "key": "uheick",
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.05756889999611303
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 33600,
+      "key": 12,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.02206629999272991
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 33600,
+      "key": [
+        25,
+        15
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.25506109998968896
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 33600,
+      "key": 9,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.013052599999355152
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 33600,
+      "key": "ftlu",
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.1295449000026565
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "letters_only",
+      "characters": 287,
+      "book_id": 11,
+      "source_start": 33600,
+      "key": 12,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.010194400005275384
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "letters_only",
+      "characters": 287,
+      "book_id": 11,
+      "source_start": 33600,
+      "key": [
+        25,
+        12
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.12946090000332333
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "letters_only",
+      "characters": 287,
+      "book_id": 11,
+      "source_start": 33600,
+      "key": 4,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.009742900001583621
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "letters_only",
+      "characters": 287,
+      "book_id": 11,
+      "source_start": 33600,
+      "key": "ucsrj",
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.09959420000086538
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 71200,
+      "key": 12,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.005147100004251115
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 71200,
+      "key": [
+        11,
+        23
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.06347519998962525
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 71200,
+      "key": 6,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.003522400002111681
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "original",
+      "characters": 80,
+      "book_id": 11,
+      "source_start": 71200,
+      "key": "xgatlb",
+      "legacy_exact": false,
+      "learned_exact": false,
+      "comparison_seconds": 0.2092323000106262
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "letters_only",
+      "characters": 56,
+      "book_id": 11,
+      "source_start": 71200,
+      "key": 4,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.0030605999927502126
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "letters_only",
+      "characters": 56,
+      "book_id": 11,
+      "source_start": 71200,
+      "key": [
+        17,
+        22
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.03711320000002161
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "letters_only",
+      "characters": 56,
+      "book_id": 11,
+      "source_start": 71200,
+      "key": 11,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.00269059999845922
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "letters_only",
+      "characters": 56,
+      "book_id": 11,
+      "source_start": 71200,
+      "key": "elfdae",
+      "legacy_exact": false,
+      "learned_exact": false,
+      "comparison_seconds": 0.16037310000683647
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 74400,
+      "key": 20,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.010598299995763227
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 74400,
+      "key": [
+        5,
+        19
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.1560507999965921
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 74400,
+      "key": 11,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.007985300006112084
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "original",
+      "characters": 180,
+      "book_id": 11,
+      "source_start": 74400,
+      "key": "xsgk",
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.08356840000487864
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "letters_only",
+      "characters": 127,
+      "book_id": 11,
+      "source_start": 74400,
+      "key": 5,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.005614699999568984
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "letters_only",
+      "characters": 127,
+      "book_id": 11,
+      "source_start": 74400,
+      "key": [
+        7,
+        1
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.0647093000006862
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "letters_only",
+      "characters": 127,
+      "book_id": 11,
+      "source_start": 74400,
+      "key": 11,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.00500560000364203
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "letters_only",
+      "characters": 127,
+      "book_id": 11,
+      "source_start": 74400,
+      "key": "xs",
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.03107320000708569
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 102400,
+      "key": 1,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.02229290000104811
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 102400,
+      "key": [
+        5,
+        3
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.25724419999460224
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 102400,
+      "key": 11,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.012793399990187027
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "original",
+      "characters": 400,
+      "book_id": 11,
+      "source_start": 102400,
+      "key": "fcoffvxr",
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.22269359999336302
+    },
+    {
+      "cipher": "Caesar",
+      "formatting": "letters_only",
+      "characters": 295,
+      "book_id": 11,
+      "source_start": 102400,
+      "key": 21,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.010674500008462928
+    },
+    {
+      "cipher": "Affine",
+      "formatting": "letters_only",
+      "characters": 295,
+      "book_id": 11,
+      "source_start": 102400,
+      "key": [
+        11,
+        8
+      ],
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.13298500000382774
+    },
+    {
+      "cipher": "Rail Fence",
+      "formatting": "letters_only",
+      "characters": 295,
+      "book_id": 11,
+      "source_start": 102400,
+      "key": 4,
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.010346199997002259
+    },
+    {
+      "cipher": "Vigen\u00e8re",
+      "formatting": "letters_only",
+      "characters": 295,
+      "book_id": 11,
+      "source_start": 102400,
+      "key": "qrh",
+      "legacy_exact": true,
+      "learned_exact": true,
+      "comparison_seconds": 0.06734530000539962
+    }
+  ],
+  "model_sha256": "fe679df1d139331fa2d4e373b52ad968106bb0bf1313651b8d39d230273d9435"
+}

@@ -1,0 +1,303 @@
+{
+  "seed": 423,
+  "labels": [
+    "Caesar",
+    "Vigen\u00e8re",
+    "Substitution",
+    "Columnar transposition",
+    "Rail Fence",
+    "Affine"
+  ],
+  "features": 133,
+  "hidden_units": 48,
+  "epochs": 120,
+  "selection": "lowest validation cross-entropy; test never selects weights",
+  "numpy_version": "2.5.5",
+  "baseline": {
+    "method": "nearest training-class centroid on the same standardized features",
+    "test_top1_accuracy": 0.8201174743024964
+  },
+  "generation": {
+    "letters_only": true,
+    "lengths": [
+      100,
+      150,
+      250,
+      400,
+      700,
+      1200
+    ],
+    "vigenere_key_lengths": [
+      2,
+      16
+    ],
+    "rails": [
+      2,
+      20
+    ],
+    "columns": [
+      2,
+      16
+    ],
+    "affine_excludes_caesar_multiplier": true,
+    "examples_per_plaintext_passage": 6
+  },
+  "splits": {
+    "train": {
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/GITenberg/Pride-and-Prejudice_1342/master/1342-0.txt",
+          "sha256": "48e0522844402a86a3ea98f0947ba85ea54838db3c59022299298ed968a5a163",
+          "book_id": 1342,
+          "title": "Pride and Prejudice"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/GITenberg/The-Adventures-of-Sherlock-Holmes_1661/master/1661.txt",
+          "sha256": "2a0ce5568625a304f54fbb6bfdeeadf527a1437254b5f0e06b5a9e233d4784a2",
+          "book_id": 1661,
+          "title": "The Adventures of Sherlock Holmes"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/GITenberg/Frankenstein_84/master/84-0.txt",
+          "sha256": "c29a4f56dd91aa894a3f17d5f96b356ccb499e3e2c5a27964de911845e39efab",
+          "book_id": 84,
+          "title": "Frankenstein"
+        }
+      ],
+      "examples": 5076,
+      "top1_accuracy": 0.9472025216706068,
+      "top3_accuracy": 1.0,
+      "confusion_matrix": [
+        [
+          846,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          4,
+          842,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          846,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          685,
+          161,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          103,
+          743,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          846
+        ]
+      ],
+      "by_length": {
+        "100": 0.9962121212121212,
+        "150": 0.9789915966386554,
+        "250": 0.9601449275362319,
+        "400": 0.9537037037037037,
+        "700": 0.9207317073170732,
+        "1200": 0.8804071246819338
+      },
+      "per_cipher": {
+        "Caesar": 1.0,
+        "Vigen\u00e8re": 0.9952718676122931,
+        "Substitution": 1.0,
+        "Columnar transposition": 0.8096926713947991,
+        "Rail Fence": 0.8782505910165485,
+        "Affine": 1.0
+      }
+    },
+    "validation": {
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/GITenberg/Alice-s-Adventures-in-Wonderland_11/master/11-0.txt",
+          "sha256": "49a0b2726606e1290ac03a63978fa1dd1bd38a8d805704d98265f393533ea094",
+          "book_id": 11,
+          "title": "Alice's Adventures in Wonderland"
+        }
+      ],
+      "examples": 390,
+      "top1_accuracy": 0.8923076923076924,
+      "top3_accuracy": 0.9974358974358974,
+      "confusion_matrix": [
+        [
+          65,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          65,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          64,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          38,
+          26,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          11,
+          54,
+          0
+        ],
+        [
+          0,
+          0,
+          3,
+          0,
+          0,
+          62
+        ]
+      ],
+      "by_length": {
+        "100": 0.875,
+        "150": 0.85,
+        "250": 0.9696969696969697,
+        "400": 0.9047619047619048,
+        "700": 0.8777777777777778,
+        "1200": 0.8809523809523809
+      },
+      "per_cipher": {
+        "Caesar": 1.0,
+        "Vigen\u00e8re": 1.0,
+        "Substitution": 0.9846153846153847,
+        "Columnar transposition": 0.5846153846153846,
+        "Rail Fence": 0.8307692307692308,
+        "Affine": 0.9538461538461539
+      }
+    },
+    "test": {
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/GITenberg/The-Time-Machine_35/master/35-0.txt",
+          "sha256": "0eb70818a4c7e2e04f91be807bad37ca5c1475cd51cec2a7b620c4db2b595ce4",
+          "book_id": 35,
+          "title": "The Time Machine"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/GITenberg/The-Adventures-of-Tom-Sawyer_74/master/74-0.txt",
+          "sha256": "b1cd5782db259c00bc1a8fbb58238f285e40828cc858c1343f74a0a75157cc91",
+          "book_id": 74,
+          "title": "The Adventures of Tom Sawyer"
+        }
+      ],
+      "examples": 1362,
+      "top1_accuracy": 0.8942731277533039,
+      "top3_accuracy": 0.9992657856093979,
+      "confusion_matrix": [
+        [
+          225,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          4,
+          223,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          5,
+          2,
+          215,
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          0,
+          2,
+          154,
+          71,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          51,
+          176,
+          0
+        ],
+        [
+          0,
+          0,
+          2,
+          0,
+          0,
+          225
+        ]
+      ],
+      "by_length": {
+        "100": 0.8931623931623932,
+        "150": 0.8865248226950354,
+        "250": 0.9125,
+        "400": 0.8888888888888888,
+        "700": 0.8952380952380953,
+        "1200": 0.8888888888888888
+      },
+      "per_cipher": {
+        "Caesar": 0.9911894273127754,
+        "Vigen\u00e8re": 0.9823788546255506,
+        "Substitution": 0.947136563876652,
+        "Columnar transposition": 0.6784140969162996,
+        "Rail Fence": 0.775330396475771,
+        "Affine": 0.9911894273127754
+      }
+    }
+  },
+  "model_sha256": "8c9c2ac3eb90d5e435605c88bb1b6b9b156ddefe8093c365b2724f8afbf85980"
+}

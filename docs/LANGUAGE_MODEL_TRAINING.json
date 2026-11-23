@@ -1,0 +1,168 @@
+{
+  "seed": 901,
+  "numpy_version": "2.5.5",
+  "context": 3,
+  "architecture": "embedding8-tanh64-softmax26",
+  "parameters": 3498,
+  "epochs": 24,
+  "selected_epoch": 23,
+  "selection": "minimum validation NLL",
+  "history": [
+    {
+      "epoch": 1,
+      "validation_nll": 2.460921222825727
+    },
+    {
+      "epoch": 2,
+      "validation_nll": 2.433323473751259
+    },
+    {
+      "epoch": 3,
+      "validation_nll": 2.4106468669386523
+    },
+    {
+      "epoch": 4,
+      "validation_nll": 2.3886565469614567
+    },
+    {
+      "epoch": 5,
+      "validation_nll": 2.3585024204832004
+    },
+    {
+      "epoch": 6,
+      "validation_nll": 2.322867706901292
+    },
+    {
+      "epoch": 7,
+      "validation_nll": 2.3014008171870786
+    },
+    {
+      "epoch": 8,
+      "validation_nll": 2.291929449099063
+    },
+    {
+      "epoch": 9,
+      "validation_nll": 2.281380326892454
+    },
+    {
+      "epoch": 10,
+      "validation_nll": 2.2737086847175
+    },
+    {
+      "epoch": 11,
+      "validation_nll": 2.2715907047470405
+    },
+    {
+      "epoch": 12,
+      "validation_nll": 2.2636718181378837
+    },
+    {
+      "epoch": 13,
+      "validation_nll": 2.2599066476274197
+    },
+    {
+      "epoch": 14,
+      "validation_nll": 2.2580741945790543
+    },
+    {
+      "epoch": 15,
+      "validation_nll": 2.248212905382389
+    },
+    {
+      "epoch": 16,
+      "validation_nll": 2.250052467319186
+    },
+    {
+      "epoch": 17,
+      "validation_nll": 2.2459598337085613
+    },
+    {
+      "epoch": 18,
+      "validation_nll": 2.243727273913603
+    },
+    {
+      "epoch": 19,
+      "validation_nll": 2.2413739392986574
+    },
+    {
+      "epoch": 20,
+      "validation_nll": 2.2345130986709925
+    },
+    {
+      "epoch": 21,
+      "validation_nll": 2.237886966159895
+    },
+    {
+      "epoch": 22,
+      "validation_nll": 2.239564207377255
+    },
+    {
+      "epoch": 23,
+      "validation_nll": 2.2307351043435455
+    },
+    {
+      "epoch": 24,
+      "validation_nll": 2.2330238038592665
+    }
+  ],
+  "model_sha256": "fe679df1d139331fa2d4e373b52ad968106bb0bf1313651b8d39d230273d9435",
+  "splits": {
+    "train": {
+      "examples": 240000,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/GITenberg/Pride-and-Prejudice_1342/master/1342-0.txt",
+          "sha256": "48e0522844402a86a3ea98f0947ba85ea54838db3c59022299298ed968a5a163",
+          "book_id": 1342,
+          "title": "Pride and Prejudice"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/GITenberg/The-Adventures-of-Sherlock-Holmes_1661/master/1661.txt",
+          "sha256": "2a0ce5568625a304f54fbb6bfdeeadf527a1437254b5f0e06b5a9e233d4784a2",
+          "book_id": 1661,
+          "title": "The Adventures of Sherlock Holmes"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/GITenberg/Frankenstein_84/master/84-0.txt",
+          "sha256": "c29a4f56dd91aa894a3f17d5f96b356ccb499e3e2c5a27964de911845e39efab",
+          "book_id": 84,
+          "title": "Frankenstein"
+        }
+      ],
+      "next_character_nll_nats": 2.1379030782568735,
+      "unigram_nll_nats": 2.893489682089398
+    },
+    "validation": {
+      "examples": 16000,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/GITenberg/Alice-s-Adventures-in-Wonderland_11/master/11-0.txt",
+          "sha256": "49a0b2726606e1290ac03a63978fa1dd1bd38a8d805704d98265f393533ea094",
+          "book_id": 11,
+          "title": "Alice's Adventures in Wonderland"
+        }
+      ],
+      "next_character_nll_nats": 2.2307351043435455,
+      "unigram_nll_nats": 2.8915461373166735
+    },
+    "test": {
+      "examples": 16000,
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/GITenberg/The-Time-Machine_35/master/35-0.txt",
+          "sha256": "0eb70818a4c7e2e04f91be807bad37ca5c1475cd51cec2a7b620c4db2b595ce4",
+          "book_id": 35,
+          "title": "The Time Machine"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/GITenberg/The-Adventures-of-Tom-Sawyer_74/master/74-0.txt",
+          "sha256": "b1cd5782db259c00bc1a8fbb58238f285e40828cc858c1343f74a0a75157cc91",
+          "book_id": 74,
+          "title": "The Adventures of Tom Sawyer"
+        }
+      ],
+      "next_character_nll_nats": 2.2307372409319215,
+      "unigram_nll_nats": 2.886445216278771
+    }
+  }
+}

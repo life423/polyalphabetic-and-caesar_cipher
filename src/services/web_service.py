@@ -99,7 +99,21 @@ def analyze_message(text, cipher, file_mode=False):
         raise ValueError('Key analysis needs ciphertext containing English letters.')
     if cipher == 'Vigenère' and letters < 20:
         raise ValueError('Vigenère analysis needs at least 20 English letters. Longer messages work better.')
-    return getattr(CipherService(), f'analyze_{CIPHERS[cipher]}_encryption')(text)
+    from src.ai.neural_analyzer import NeuralCipherAnalyzer
+
+    return getattr(NeuralCipherAnalyzer, f'analyze_{CIPHERS[cipher]}')(text)
+
+
+def identify_message(text, file_mode=False):
+    """Identify an unknown cipher without needing a selected cipher or key."""
+    from src.ai.identifier import identify_cipher
+
+    validate_text(text)
+    if file_mode:
+        text = max(StringIO(text, newline=''),
+                   key=lambda line: sum(char.isascii() and char.isalpha() for char in line),
+                   default='').rstrip('\r\n')
+    return identify_cipher(text)
 
 
 def candidate_key(cipher, candidate):

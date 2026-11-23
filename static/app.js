@@ -1,6 +1,8 @@
 const $ = (id) => document.getElementById(id);
 let worker,
   loadingTimer,
+  readingFile = false,
+  fileLoadId = 0,
   ready = false,
   busy = false,
   revision = 0,
@@ -39,8 +41,8 @@ function status(text, error = false) {
   $("status").dataset.error = error;
 }
 function controls() {
-  for (const id of ["encrypt", "decrypt", "analyze", "generate"])
-    $(id).disabled = !ready || busy;
+  for (const id of ["encrypt", "decrypt", "analyze", "generate", "identify"])
+    $(id).disabled = !ready || busy || readingFile;
   $("analyze").hidden = ![
     "Caesar",
     "Vigenère",
@@ -55,8 +57,9 @@ function invalidate() {
   $("download").disabled = true;
   $("reuse").disabled = true;
   $("suggestions").replaceChildren();
+  $("identification").replaceChildren();
   if (ready && !busy)
-    status("Inputs changed. Choose Encrypt, Decrypt, or Analyze cipher.");
+    status("Inputs changed. Choose an action to process the current message.");
 }
 function start() {
   clearTimeout(loadingTimer);
@@ -96,11 +99,26 @@ function start() {
       return;
     }
     if (data.error) return status(data.error, true);
+    if (pending.action === "identify") {
+      showIdentification(data.result);
+      status(
+        "Cipher types ranked. Select one to continue; these are estimates, not a recovered key.",
+      );
+      return;
+    }
     if (pending.action === "generate") {
       $("key").value = data.result;
       invalidate();
       status("Substitution key generated. Keep it to decrypt your message.");
     } else if (pending.action === "analyze") {
+      if (!data.result.length) {
+        $("suggestions").replaceChildren();
+        status(
+          "No key suggestions were found. Try a longer English ciphertext sample.",
+          true,
+        );
+        return;
+      }
       showSuggestions(data.result);
       status(
         "Possible keys found. Choose a suggestion to apply it and decrypt.",
@@ -127,10 +145,17 @@ function failed(text) {
   $("retry").hidden = false;
 }
 function run(action) {
-  if (!ready || busy) return;
+  if (!ready || busy || readingFile) return;
   busy = true;
   controls();
-  status(action === "analyze" ? "Analyzing possible keys…" : "Processing…");
+  if (action === "identify") $("identification").replaceChildren();
+  status(
+    action === "identify"
+      ? "Identifying likely cipher types…"
+      : action === "analyze"
+        ? "Analyzing possible keys…"
+        : "Processing…",
+  );
   pending = { id: ++request, revision, action };
   worker.postMessage({
     id: request,
@@ -144,12 +169,48 @@ function run(action) {
     file_mode: fileMode,
   });
 }
+function showIdentification(results) {
+  const area = $("identification");
+  area.replaceChildren();
+  const heading = document.createElement("h3");
+  heading.textContent = "Likely cipher types";
+  area.append(heading);
+  const note = document.createElement("p");
+  note.className = "hint";
+  note.textContent =
+    "Experimental · trained on English examples of six ciphers. Other ciphers and plain text can be misidentified. Similar ciphers can produce identical ciphertext.";
+  area.append(note);
+  results.forEach((item, index) => {
+    const button = document.createElement("button");
+    button.className = "secondary";
+    button.textContent = `${index + 1}. Select ${item.cipher}`;
+    button.onclick = () => {
+      $("cipher").value = item.cipher;
+      $("cipher").onchange();
+      status(
+        $("analyze").hidden
+          ? "Cipher selected. Enter a key to decrypt."
+          : "Cipher selected. Choose Analyze cipher to search for a key, or enter a known key.",
+      );
+      $("cipher").focus();
+    };
+    area.append(button);
+  });
+  // Bring the new results into view on phones and to keyboard/screen-reader users.
+  heading.tabIndex = -1;
+  heading.focus();
+}
 function showSuggestions(results) {
   const area = $("suggestions");
   area.replaceChildren();
   const heading = document.createElement("h3");
   heading.textContent = "Possible keys";
   area.append(heading);
+  const note = document.createElement("p");
+  note.className = "hint";
+  note.textContent =
+    "Ranked by our locally trained English language model. These are suggestions, not guaranteed decryptions.";
+  area.append(note);
   for (const item of results) {
     const button = document.createElement("button");
     button.className = "secondary";
@@ -164,6 +225,8 @@ function showSuggestions(results) {
     };
     area.append(button);
   }
+  heading.tabIndex = -1;
+  heading.focus();
 }
 $("cipher").onchange = () => {
   const cipher = $("cipher").value;
@@ -191,9 +254,11 @@ $("message").oninput = () => {
 $("upload").onchange = async () => {
   const file = $("upload").files[0];
   if (!file) return;
-  fileMode = false;
   invalidate();
   const version = revision;
+  const loadId = ++fileLoadId;
+  readingFile = true;
+  controls();
   try {
     if (file.size > 1048576)
       throw new Error("Choose a text file smaller than 1 MB.");
@@ -203,6 +268,8 @@ $("upload").onchange = async () => {
     if (revision !== version) return;
     if (text.length > 100000)
       throw new Error("Messages can contain up to 100,000 characters.");
+    if (!text.trim())
+      throw new Error("This file is empty. Choose a file containing a message.");
     $("message").value = text;
     fileMode = true;
     filename = file.name;
@@ -211,17 +278,24 @@ $("upload").onchange = async () => {
     $("file-info").textContent = `${file.name} · each line uses the same key`;
     status("File opened. Choose a key and an action.");
   } catch (error) {
+    if (revision !== version) return;
+    $("upload").value = "";
     status(
-      error instanceof TypeError
+      (error instanceof TypeError
         ? "This file is not UTF-8 text."
-        : error.message,
+        : error.message) + " Your previous message has been kept.",
       true,
     );
+  } finally {
+    if (loadId === fileLoadId) {
+      readingFile = false;
+      controls();
+    }
   }
 };
 let originalFile = "";
 // Keep exact uploaded line endings when sending the file to Python.
-for (const action of ["Encrypt", "Decrypt", "analyze"])
+for (const action of ["Encrypt", "Decrypt", "analyze", "identify"])
   $(action.toLowerCase()).onclick = () => run(action);
 $("generate").onclick = () => run("generate");
 $("retry").onclick = start;

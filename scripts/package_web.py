@@ -14,6 +14,8 @@ def build_package(output):
         'web_app.py', 'requirements.txt', 'startup.sh', '.streamlit/config.toml',
     )]
     sources.extend(sorted((ROOT / 'src').rglob('*.py')))
+    sources.append(ROOT / 'src/ai/cipher_identifier.json')
+    sources.append(ROOT / 'src/ai/english_language_model.json')
     with ZipFile(output, 'w', compression=ZIP_DEFLATED) as archive:
         for source in sources:
             content = source.read_bytes()

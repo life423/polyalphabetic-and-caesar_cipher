@@ -152,10 +152,12 @@ footer {
   background: #fff0ed;
   color: #9e2b1e;
 }
-#suggestions {
+#suggestions,
+#identification {
   margin-top: 24px;
 }
-#suggestions button {
+#suggestions button,
+#identification button {
   display: block;
   width: 100%;
   text-align: left;

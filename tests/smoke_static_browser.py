@@ -18,6 +18,49 @@ def check(url, screenshots):
         expect(page.locator('#encrypt')).to_be_enabled(timeout=90000)
         # Once loaded, cipher operations must work without a network connection.
         context.set_offline(True)
+        unknown_plaintext = (
+            'We planted carrots beside the garden fence and watered them each morning. '
+            'The children measured the green leaves while their teacher recorded the weather. '
+            'After several weeks we carried a basket of fresh vegetables into the kitchen. '
+            'Everyone helped prepare a warm meal and shared stories around the table.'
+        )
+        page.locator('#key').fill('7')
+        page.locator('#message').fill(unknown_plaintext)
+        page.locator('#encrypt').click()
+        expect(page.locator('#status')).to_have_text('Encryption complete.')
+        unknown_ciphertext = page.locator('#result').input_value()
+        page.locator('#reuse').click()
+        page.locator('#cipher').select_option('Vigenère')
+        # Identification ignores both the selected cipher and its empty key.
+        page.locator('#identify').click()
+        expect(page.locator('#identification button')).to_have_count(3, timeout=10000)
+        for width in (320, 390, 768, 1440):
+            page.set_viewport_size({'width': width, 'height': 1000})
+            assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), width
+            page.screenshot(path=str(screenshots / f'identification-{width}.png'), full_page=True)
+        page.keyboard.press('Tab')
+        expect(page.locator('#identification button').first).to_be_focused()
+        page.keyboard.press('Enter')
+        expect(page.locator('#cipher')).to_have_value('Caesar')
+        page.locator('#analyze').click()
+        expect(page.locator('#suggestions button')).not_to_have_count(0)
+        expect(page.locator('#suggestions')).to_contain_text('locally trained English language model')
+        for width in (390, 768, 1440):
+            page.set_viewport_size({'width': width, 'height': 1000})
+            assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), width
+            page.screenshot(path=str(screenshots / f'language-model-{width}.png'), full_page=True)
+        page.locator('#suggestions button').first.click()
+        expect(page.locator('#result')).to_have_value(unknown_plaintext)
+        page.locator('#message').fill('too short')
+        page.locator('#identify').click()
+        expect(page.locator('#status')).to_contain_text('at least 100 English letters')
+        expect(page.locator('#identification button')).to_have_count(0)
+        page.locator('#upload').set_input_files({
+            'name': 'unknown.txt', 'mimeType': 'text/plain',
+            'buffer': ('short\r\n' + unknown_ciphertext + '\n').encode('utf-8')})
+        expect(page.locator('#status')).to_contain_text('File opened')
+        page.locator('#identify').click()
+        expect(page.locator('#identification button').first).to_have_text('1. Select Caesar')
         message = 'Hello world! Café, 日本語.\nAnother line.'
         for cipher, key in [('Caesar', '7'), ('Vigenère', 'LEMON'),
                             ('Substitution', 'QWERTYUIOPASDFGHJKLZXCVBNM'),
@@ -60,10 +103,21 @@ def check(url, screenshots):
         page.locator('#analyze').click()
         expect(page.locator('#status')).to_contain_text('at least 20 English letters')
         page.locator('#cipher').select_option('Rail Fence')
+        page.locator('#message').fill('A')
+        page.locator('#analyze').click()
+        expect(page.locator('#status')).to_contain_text('No key suggestions were found')
+        expect(page.locator('#suggestions button')).to_have_count(0)
         page.locator('#upload').set_input_files({
             'name': 'story.txt', 'mimeType': 'text/plain',
             'buffer': b'HELLOWORLD\r\nSECONDLINE\n\r\nLASTLINE\r'})
         expect(page.locator('#status')).to_contain_text('File opened')
+        for name, content, error in [('broken.txt', b'\xff\xfe', 'not UTF-8'),
+                                     ('empty.txt', b' \r\n', 'empty'),
+                                     ('large.txt', b'A' * 1048577, 'smaller than 1 MB')]:
+            page.locator('#upload').set_input_files({'name': name, 'mimeType': 'text/plain', 'buffer': content})
+            expect(page.locator('#status')).to_contain_text(error)
+            expect(page.locator('#status')).to_contain_text('previous message has been kept')
+            expect(page.locator('#message')).to_have_value('HELLOWORLD\nSECONDLINE\n\nLASTLINE\n')
         page.locator('#encrypt').click()
         expect(page.locator('#status')).to_have_text('Encryption complete.')
         page.locator('#reuse').click()

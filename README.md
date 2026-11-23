@@ -31,6 +31,15 @@ python -m playwright install chromium
 python tests/smoke_static_browser.py
 ```
 
+The static browser app also has **Identify cipher**, an experimental neural
+network we train locally on generated cipher examples. It offers three likely
+types without requiring a key. It runs on-device with no model API or usage
+charges. See [training, evaluation and limitations](docs/CIPHER_IDENTIFICATION.md).
+
+**Analyze cipher** now ranks possible decryptions with our own locally trained
+next-letter neural language model. It runs on-device without a model API.
+See [local training, benchmarks and limitations](docs/LOCAL_LANGUAGE_MODEL.md).
+
 The [original Streamlit version](https://ciphercraft-drewclark.azurewebsites.net/)
 remains available on free App Service. It processes inputs in server session
 memory without writing uploaded files to disk. To run it locally:
@@ -67,8 +76,9 @@ decoding.** Preserve old ciphertext and keys until compatibility is resolved.
 
 The analyzer suggests keys for Caesar, Vigenère, Affine (all 312 valid keys),
 and Rail Fence (2–20 rails). Vigenère analysis needs at least 20 ASCII letters
-and considers keywords up to 20 letters. The “AI” label means classical statistical techniques:
-it does **not** call an LLM or remote AI API. Results are estimates, not
+and considers keywords up to 20 letters. Desktop/CLI search uses statistical
+heuristics; web search uses our locally trained neural language scorer. Neither
+calls an LLM or remote AI API. Results are estimates, not
 guaranteed successful decryptions. Relative scores compare the displayed guesses;
 they are not probabilities of correct decryption. GUI analysis runs in the
 background, and changing the input or cipher discards obsolete suggestions.
