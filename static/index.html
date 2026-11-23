@@ -4,99 +4,196 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#2d3e50" />
-    <title>CipherCraft</title>
+    <meta
+      name="description"
+      content="Explore classical ciphers with private, on-device AI. Crack a message or encrypt and decrypt with your own key."
+    />
+    <title>CipherCraft — Explore the message</title>
     <link rel="stylesheet" href="app.css" />
     <script type="module" src="app.js"></script>
   </head>
   <body>
     <main>
-      <header>
-        <p class="eyebrow">EXPLORE CLASSICAL CRYPTOGRAPHY</p>
-        <h1>CipherCraft</h1>
-        <p>Encrypt, decrypt, and discover the key.</p>
+      <header class="brandbar">
+        <a class="wordmark" href="./" aria-label="CipherCraft home"
+          >Cipher<span>Craft</span></a
+        ><span class="privacy">Private. On your device.</span>
       </header>
-      <p id="status" role="status">
-        Loading the cipher engine… The first visit may take a moment.
-      </p>
-      <button id="retry" hidden>Retry loading</button>
+      <div class="intro">
+        <p class="eyebrow">CLASSICAL CRYPTOGRAPHY · LOCAL AI</p>
+        <h1 id="workflow-title">Crack a message.</h1>
+        <p id="workflow-description">
+          Find a likely cipher, discover its key, and uncover the text.
+        </p>
+      </div>
+      <div class="workflow-tabs" role="tablist" aria-label="Choose a workflow">
+        <button
+          id="crack-tab"
+          role="tab"
+          aria-selected="true"
+          aria-controls="input-panel"
+          tabindex="0"
+        >
+          Crack a message</button
+        ><button
+          id="manual-tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="input-panel"
+          tabindex="-1"
+        >
+          Encrypt / decrypt
+        </button>
+      </div>
       <noscript>Enable JavaScript to use CipherCraft.</noscript>
       <div class="workspace">
-        <section aria-labelledby="message-heading">
-          <h2 id="message-heading">Your message</h2>
-          <label for="cipher">Cipher</label
-          ><select id="cipher">
-            <option>Caesar</option>
-            <option>Vigenère</option>
-            <option>Substitution</option>
-            <option>Columnar transposition</option>
-            <option>Rail Fence</option>
-            <option>Affine</option>
-          </select>
-          <div class="key-row">
-            <div>
-              <label id="key-label" for="key">Shift (0–25)</label
-              ><input id="key" value="3" autocomplete="off" />
-              <p id="key-help" class="hint">
-                Each letter moves by this many places.
-              </p>
-            </div>
-            <div id="affine-second" hidden>
-              <label for="key-b">Offset b</label
-              ><input id="key-b" type="number" value="8" />
-            </div>
+        <section
+          id="input-panel"
+          class="input-card"
+          role="tabpanel"
+          aria-labelledby="crack-tab"
+        >
+          <div class="section-heading">
+            <h2 id="message-heading">Your ciphertext</h2>
+            <button id="example" class="text-button">Try an example</button>
           </div>
-          <button id="generate" class="secondary" hidden>
-            Generate substitution key
-          </button>
-          <label for="message">Message</label
+          <label class="sr-only" for="message">Message</label
           ><textarea
             id="message"
-            rows="10"
+            rows="7"
             maxlength="100000"
-            placeholder="Type or paste your message here"
+            spellcheck="false"
+            placeholder="Paste an encrypted message here…"
+            aria-describedby="input-help"
           ></textarea>
-          <label for="upload">Or open a UTF-8 text file</label
-          ><input id="upload" type="file" accept=".txt,text/plain" />
-          <p id="file-info" class="hint">
-            Up to 1 MB. Files are processed one line at a time.
-          </p>
-          <div class="actions">
-            <button id="identify" aria-describedby="identify-help" disabled>
+          <div class="input-toolbar">
+            <button id="open-file" class="text-button">Upload .txt</button
+            ><input
+              id="upload"
+              type="file"
+              accept=".txt,text/plain"
+              hidden
+              aria-label="Upload a UTF-8 text file"
+            /><span id="character-count" class="hint">0 characters</span>
+          </div>
+          <p id="file-info" class="hint" hidden></p>
+          <div id="manual-settings" hidden>
+            <div class="manual-grid">
+              <div>
+                <label for="cipher">Cipher</label
+                ><select id="cipher">
+                  <option>Caesar</option>
+                  <option>Vigenère</option>
+                  <option>Substitution</option>
+                  <option>Columnar transposition</option>
+                  <option>Rail Fence</option>
+                  <option>Affine</option>
+                </select>
+              </div>
+              <div>
+                <div class="key-row">
+                  <div>
+                    <label id="key-label" for="key">Shift (0–25)</label
+                    ><input
+                      id="key"
+                      value="3"
+                      autocomplete="off"
+                      aria-describedby="key-help"
+                    />
+                  </div>
+                  <div id="affine-second" hidden>
+                    <label for="key-b">Offset b</label
+                    ><input id="key-b" type="number" value="8" />
+                  </div>
+                </div>
+                <p id="key-help" class="hint">
+                  Each letter moves by this many places.
+                </p>
+              </div>
+            </div>
+            <button id="generate" class="text-button" hidden>
+              Generate substitution key
+            </button>
+          </div>
+          <div class="actions main-actions">
+            <button id="identify" aria-describedby="input-help" disabled>
               Identify &amp; crack
             </button>
-            <button id="analyze" class="secondary" disabled>Find key</button>
-            <button id="encrypt" class="secondary" disabled>Encrypt</button>
-            <button id="decrypt" class="secondary" disabled>Decrypt</button>
+            <div id="manual-actions" class="actions" hidden>
+              <button id="encrypt" disabled>Encrypt</button
+              ><button id="decrypt" class="secondary" disabled>Decrypt</button
+              ><button id="analyze" class="text-button" disabled>
+                Find key
+              </button>
+            </div>
           </div>
-          <p id="identify-help" class="hint">
-            Unknown cipher? Identify &amp; crack needs 100+ English letters and
-            at most 5,000 characters. Automatic key recovery supports Caesar,
-            Vigenère, Rail Fence and Affine. Files use the longest line.
+          <p id="input-help" class="hint">
+            100+ English letters · up to 5,000 characters
           </p>
+          <p id="status" role="status">
+            Loading the cipher engine… The first visit may take a moment.
+          </p>
+          <button id="retry" class="secondary" hidden>Retry loading</button>
+          <details class="supported">
+            <summary>What can it crack?</summary>
+            <p class="hint">
+              Automatic key recovery supports Caesar, Vigenère, Rail Fence and
+              Affine. Other ciphers may be identified but need a known key.
+              UTF-8 files up to 1 MB are processed one line at a time; automatic
+              search uses the longest English-letter line. Classical ciphers are
+              for learning and puzzles.
+            </p>
+          </details>
         </section>
-        <section aria-labelledby="result-heading">
-          <h2 id="result-heading">Result</h2>
+        <section
+          id="result-panel"
+          class="result-card"
+          aria-labelledby="result-heading"
+          aria-busy="false"
+        >
+          <div class="section-heading">
+            <h2 id="result-heading" tabindex="-1">Result</h2>
+          </div>
+          <div id="empty-result">
+            <span class="empty-mark" aria-hidden="true">Aa → ?</span>
+            <h3>No result yet</h3>
+            <p id="empty-help">
+              Add an encrypted message, or try the example to see CipherCraft at
+              work.
+            </p>
+          </div>
           <div id="identification" aria-live="polite"></div>
-          <div id="suggestions" aria-live="polite"></div>
-          <label for="result">Transformed message</label
-          ><textarea
-            id="result"
-            rows="14"
-            readonly
-            placeholder="Your result will appear here"
-          ></textarea>
-          <div class="actions">
-            <button id="download" class="secondary" disabled>
-              Download .txt</button
-            ><button id="reuse" class="secondary" disabled>
-              Use as message
+          <div id="result-content" hidden>
+            <div
+              id="result"
+              role="region"
+              tabindex="0"
+              aria-label="Transformed message"
+            ></div>
+            <div class="actions result-actions">
+              <button id="copy" class="secondary" disabled>Copy text</button
+              ><button id="download" class="text-button" disabled>
+                Download .txt</button
+              ><button id="reuse" class="text-button" disabled>
+                Use as message
+              </button>
+            </div>
+            <button id="other-guesses" class="text-button" hidden>
+              Other key guesses
             </button>
           </div>
+          <div id="suggestions" aria-live="polite"></div>
+          <button id="manual-link" class="secondary" hidden>
+            Enter a known key
+          </button>
         </section>
       </div>
       <footer>
-        Your messages and files stay in this browser. Classical ciphers are for
-        learning and puzzles, not protecting sensitive information.
+        <p>Your messages and keys stay in this browser.</p>
+        <p>
+          Built for curiosity. Classical ciphers do not protect sensitive
+          information.
+        </p>
       </footer>
     </main>
   </body>

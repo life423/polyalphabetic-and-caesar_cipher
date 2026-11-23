@@ -15,7 +15,20 @@ def check(url, screenshots):
         errors = []
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.goto(url)
-        expect(page.locator('#encrypt')).to_be_enabled(timeout=90000)
+        expect(page.locator('#identify')).to_be_enabled(timeout=90000)
+        expect(page.locator('#manual-settings')).to_be_hidden()
+        expect(page.locator('#analyze')).to_be_hidden()
+        for width in (320, 390, 768, 1440):
+            page.set_viewport_size({'width': width, 'height': 1000})
+            assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), width
+            page.screenshot(path=str(screenshots / f'empty-{width}.png'), full_page=True)
+        page.locator('#manual-tab').click()
+        page.locator('#manual-tab').focus()
+        page.keyboard.press('ArrowLeft')
+        expect(page.locator('#crack-tab')).to_be_focused()
+        expect(page.locator('#manual-settings')).to_be_hidden()
+        page.keyboard.press('ArrowRight')
+        expect(page.locator('#manual-tab')).to_be_focused()
         expect(page.get_by_role('button', name='Find key', exact=True)).to_be_visible()
         expect(page.get_by_role('button', name='Analyze cipher', exact=True)).to_have_count(0)
         # Once loaded, cipher operations must work without a network connection.
@@ -30,19 +43,25 @@ def check(url, screenshots):
         page.locator('#message').fill(unknown_plaintext)
         page.locator('#encrypt').click()
         expect(page.locator('#status')).to_have_text('Encryption complete.')
-        unknown_ciphertext = page.locator('#result').input_value()
+        unknown_ciphertext = page.locator('#result').text_content()
         page.locator('#reuse').click()
         page.locator('#cipher').select_option('Vigenère')
         # Automatic recovery ignores the selected cipher and its empty key.
+        page.locator('#crack-tab').click()
         page.locator('#identify').click()
-        expect(page.locator('#result')).to_have_value(unknown_plaintext, timeout=60000)
+        expect(page.locator('#result')).to_have_text(unknown_plaintext, timeout=60000)
         expect(page.locator('#cipher')).to_have_value('Caesar')
         expect(page.locator('#key')).to_have_value('7')
+        page.locator('#manual-tab').click()
+        expect(page.locator('#message')).to_have_value(unknown_ciphertext)
+        expect(page.locator('#result')).to_have_text(unknown_plaintext)
+        page.locator('#crack-tab').click()
+        expect(page.locator('#result')).to_have_text(unknown_plaintext)
         for width in (320, 390, 768, 1440):
             page.set_viewport_size({'width': width, 'height': 1000})
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), width
             page.screenshot(path=str(screenshots / f'identification-{width}.png'), full_page=True)
-        page.locator('#analyze').click()
+        page.locator('#other-guesses').click()
         expect(page.locator('#suggestions button')).not_to_have_count(0)
         expect(page.locator('#suggestions')).to_contain_text('locally trained English language model')
         for width in (390, 768, 1440):
@@ -50,8 +69,9 @@ def check(url, screenshots):
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), width
             page.screenshot(path=str(screenshots / f'language-model-{width}.png'), full_page=True)
         page.locator('#suggestions button').first.click()
-        expect(page.locator('#result')).to_have_value(unknown_plaintext)
+        expect(page.locator('#result')).to_have_text(unknown_plaintext)
         page.locator('#message').fill('too short')
+        page.locator('#crack-tab').click()
         page.locator('#identify').click()
         expect(page.locator('#status')).to_contain_text('at least 100 English letters')
         expect(page.locator('#identification button')).to_have_count(0)
@@ -60,7 +80,7 @@ def check(url, screenshots):
             'buffer': ('zovya\r\n' + unknown_ciphertext + '\n').encode('utf-8')})
         expect(page.locator('#status')).to_contain_text('File opened')
         page.locator('#identify').click()
-        expect(page.locator('#result')).to_have_value('short\n' + unknown_plaintext + '\n', timeout=60000)
+        expect(page.locator('#result')).to_have_text('short\n' + unknown_plaintext + '\n', timeout=60000)
         with page.expect_download() as automatic_download:
             page.locator('#download').click()
         assert automatic_download.value.suggested_filename == 'unknown_decrypted.txt'
@@ -74,23 +94,44 @@ def check(url, screenshots):
                            'At midnight, the caretaker discovered a folded note beneath the telescope. '
                            'It described a hidden room behind the library and a wooden box containing the missing expedition records. '
                            'The final instruction was simple: bring the brass compass and wait until the morning bells begin to ring.')
+        page.locator('#manual-tab').click()
         page.locator('#cipher').select_option('Caesar')
         page.locator('#key').fill('3')
-        page.locator('#message').fill(orbit_ciphertext)
+        page.locator('#crack-tab').click()
+        page.locator('#message').fill('')
+        page.locator('#example').click()
+        expect(page.locator('#message')).to_have_value(orbit_ciphertext)
         page.get_by_role('button', name='Identify & crack', exact=True).focus()
         page.keyboard.press('Enter')
-        expect(page.locator('#result')).to_have_value(orbit_plaintext, timeout=60000)
+        expect(page.locator('#result')).to_have_text(orbit_plaintext, timeout=60000)
         expect(page.locator('#cipher')).to_have_value('Vigenère')
         expect(page.locator('#key')).to_have_value('orbit')
+        context.grant_permissions(['clipboard-read', 'clipboard-write'])
+        page.locator('#copy').click()
+        expect(page.locator('#copy')).to_have_text('Copied')
+        assert page.evaluate('navigator.clipboard.readText()') == orbit_plaintext
+        page.evaluate("Object.defineProperty(navigator.clipboard, 'writeText', {configurable:true,value:()=>Promise.reject(new Error('unavailable'))})")
+        page.locator('#copy').click()
+        expect(page.locator('#status')).to_contain_text('Copy is unavailable')
+        expect(page.locator('#result')).to_have_text(orbit_plaintext)
+        page.evaluate("delete navigator.clipboard.writeText")
+        page.locator('#copy').click()
+        expect(page.locator('#status')).to_have_text('Copied to clipboard.')
         for width in (320, 390, 768, 1440):
             page.set_viewport_size({'width': width, 'height': 1000})
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), width
             page.screenshot(path=str(screenshots / f'auto-crack-{width}.png'), full_page=True)
+        page.evaluate("document.querySelector('#identify').click(); document.querySelector('#manual-tab').click();")
+        expect(page.locator('#encrypt')).to_be_enabled(timeout=60000)
+        expect(page.locator('#result')).to_have_text('')
+        expect(page.locator('#message')).to_have_value(orbit_ciphertext)
+        page.locator('#crack-tab').click()
         page.locator('#identify').click()
         page.locator('#message').fill('A newer message must not be overwritten by an older request.')
         expect(page.locator('#identify')).to_be_enabled(timeout=60000)
-        expect(page.locator('#result')).to_have_value('')
+        expect(page.locator('#result')).to_have_text('')
         expect(page.locator('#message')).to_have_value('A newer message must not be overwritten by an older request.')
+        page.locator('#manual-tab').click()
         message = 'Hello world! Café, 日本語.\nAnother line.'
         for cipher, key in [('Caesar', '7'), ('Vigenère', 'LEMON'),
                             ('Substitution', 'QWERTYUIOPASDFGHJKLZXCVBNM'),
@@ -100,16 +141,16 @@ def check(url, screenshots):
             page.locator('#message').fill(message)
             page.locator('#encrypt').click()
             expect(page.locator('#status')).to_have_text('Encryption complete.')
-            assert page.locator('#result').input_value() != message
+            assert page.locator('#result').text_content() != message
             page.locator('#reuse').click()
             page.locator('#decrypt').click()
             expect(page.locator('#status')).to_have_text('Decryption complete.')
-            assert page.locator('#result').input_value() == (''.join(message.split()) if cipher == 'Rail Fence' else message), cipher
+            assert page.locator('#result').text_content() == (''.join(message.split()) if cipher == 'Rail Fence' else message), cipher
         page.locator('#cipher').select_option('Columnar transposition')
         page.locator('#key').fill('ZEBRAS')
         page.locator('#message').fill('WEAREDISCOVEREDFLEEATONCE')
         page.locator('#encrypt').click()
-        expect(page.locator('#result')).to_have_value('EVLNXACDTXESEAXROFOXDEECXWIREE')
+        expect(page.locator('#result')).to_have_text('EVLNXACDTXESEAXROFOXDEECXWIREE')
         page.locator('#cipher').select_option('Substitution')
         page.locator('#generate').click()
         expect(page.locator('#status')).to_contain_text('key generated')
@@ -127,7 +168,7 @@ def check(url, screenshots):
             expect(page.locator('#suggestions button')).not_to_have_count(0, timeout=60000)
             page.locator('#suggestions button').first.click()
             expect(page.locator('#status')).to_have_text('Decryption complete.')
-            assert page.locator('#result').input_value() == (''.join(text.split()) if cipher == 'Rail Fence' else text), cipher
+            assert page.locator('#result').text_content() == (''.join(text.split()) if cipher == 'Rail Fence' else text), cipher
         page.locator('#cipher').select_option('Vigenère')
         page.locator('#message').fill('short')
         page.locator('#analyze').click()
@@ -158,7 +199,7 @@ def check(url, screenshots):
         assert Path(download.value.path()).read_bytes() == b'HELLOWORLD\r\nSECONDLINE\n\r\nLASTLINE\r'
         page.locator('#message').fill('changed')
         expect(page.locator('#download')).to_be_disabled()
-        expect(page.locator('#result')).to_have_value('')
+        expect(page.locator('#result')).to_have_text('')
         for width in (320, 390, 768, 1440):
             page.set_viewport_size({'width': width, 'height': 1000})
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), width
@@ -181,10 +222,10 @@ def check(url, screenshots):
         other.locator('#retry').click()
         expect(other.locator('#encrypt')).to_be_enabled(timeout=90000)
         expect(other.locator('#message')).to_have_value('')
-        expect(other.locator('#result')).to_have_value('')
+        expect(other.locator('#result')).to_have_text('')
         other.locator('#message').focus()
         other.keyboard.press('Tab')
-        assert other.evaluate('document.activeElement.id') == 'upload'
+        assert other.evaluate('document.activeElement.id') == 'open-file'
         browser.close()
     print('Static browser checks passed: six ciphers, four analyzers, exact file downloads, offline operations, isolated sessions and four viewport widths.')
 

@@ -39,6 +39,13 @@ the selected cipher. Substitution and columnar transposition still require a
 known key. Everything runs on-device with no model API or usage charges.
 See [training, evaluation and limitations](docs/CIPHER_IDENTIFICATION.md).
 
+Choose **Crack a message** for automatic recovery or **Encrypt / decrypt** to
+work with a selected cipher and key. Switching workflows preserves your message
+and existing result. **Try an example** loads a sample ciphertext; results support
+Copy text, Download .txt, and Use as message. **Other key guesses** opens the
+manual search for a suggested cipher. The layout is verified on phone, tablet
+and desktop sizes; see [interface verification](docs/WEB_INTERFACE.md).
+
 **Find key** ranks possible decryptions with our own locally trained
 next-letter neural language model. It runs on-device without a model API.
 See [local training, benchmarks and limitations](docs/LOCAL_LANGUAGE_MODEL.md).

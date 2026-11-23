@@ -11,7 +11,10 @@ let worker,
   fileMode = false,
   filename = "message.txt",
   operation = "Encrypt",
-  resultText = "";
+  resultText = "",
+  workflow = "crack",
+  activeAction = "",
+  isSuggestion = false;
 const specs = {
   Caesar: ["Shift (0–25)", "Each letter moves by this many places.", "3"],
   Vigenère: ["Keyword", "Use English letters, for example LEMON.", ""],
@@ -49,15 +52,100 @@ function controls() {
     "Rail Fence",
     "Affine",
   ].includes($("cipher").value);
+  const labels = {
+    identify: ["Identify & crack", "Cracking…", "crack"],
+    encrypt: ["Encrypt", "Encrypting…", "Encrypt"],
+    decrypt: ["Decrypt", "Decrypting…", "Decrypt"],
+    analyze: ["Find key", "Finding key…", "analyze"],
+  };
+  for (const [id, [normal, working, action]] of Object.entries(labels)) {
+    const running = busy && activeAction === action;
+    $(id).textContent = running ? working : normal;
+    $(id).dataset.busy = running;
+  }
+  $("result-panel").setAttribute("aria-busy", String(busy));
+  $("example").disabled = busy || readingFile;
+}
+function renderResult() {
+  const hasResult = resultText.length > 0;
+  if ($("result").textContent !== resultText)
+    $("result").textContent = resultText;
+  $("result").classList.toggle("ciphertext", operation === "Encrypt");
+  $("result-content").hidden = !hasResult;
+  $("copy").disabled =
+    $("download").disabled =
+    $("reuse").disabled =
+      !hasResult;
+  $("copy").textContent = "Copy text";
+  $("empty-result").hidden =
+    hasResult ||
+    $("identification").childElementCount > 0 ||
+    (!$("suggestions").hidden && $("suggestions").childElementCount > 0);
+  $("result-heading").textContent = hasResult
+    ? isSuggestion
+      ? "Suggested decryption"
+      : operation === "Encrypt"
+        ? "Encrypted message"
+        : "Decrypted message"
+    : "Result";
+  $("other-guesses").hidden =
+    !hasResult ||
+    !isSuggestion ||
+    (!$("suggestions").hidden && $("suggestions").childElementCount > 0);
+}
+function updateCount() {
+  const count = Array.from($("message").value).length;
+  $("character-count").textContent =
+    count.toLocaleString() + (count === 1 ? " character" : " characters");
+  $("example").hidden = workflow !== "crack" || !!$("message").value.trim();
+}
+function setMode(mode) {
+  if (mode !== workflow) revision++;
+  workflow = mode;
+  const manual = mode === "manual";
+  for (const id of ["crack-tab", "manual-tab"]) {
+    const selected = id === (manual ? "manual-tab" : "crack-tab");
+    $(id).setAttribute("aria-selected", String(selected));
+    $(id).tabIndex = selected ? 0 : -1;
+  }
+  $("input-panel").setAttribute(
+    "aria-labelledby",
+    manual ? "manual-tab" : "crack-tab",
+  );
+  $("manual-settings").hidden = $("manual-actions").hidden = !manual;
+  $("identify").hidden = manual;
+  $("suggestions").hidden = !manual;
+  $("workflow-title").textContent = manual
+    ? "Encrypt or decrypt."
+    : "Crack a message.";
+  $("workflow-description").textContent = manual
+    ? "Choose a classical cipher and work with a key you know."
+    : "Find a likely cipher, discover its key, and uncover the text.";
+  $("message-heading").textContent = manual
+    ? "Your message"
+    : "Your ciphertext";
+  $("message").placeholder = manual
+    ? "Type or paste your message…"
+    : "Paste an encrypted message here…";
+  $("message").classList.toggle("plain-input", manual);
+  $("input-help").textContent = manual
+    ? "Up to 100,000 characters · Find key searches the selected cipher"
+    : "100+ English letters · up to 5,000 characters";
+  $("empty-help").textContent = manual
+    ? "Choose a cipher and key, then encrypt or decrypt your message."
+    : "Add an encrypted message, or try the example to see CipherCraft at work.";
+  updateCount();
+  renderResult();
+  controls();
 }
 function invalidate() {
   revision++;
   resultText = "";
-  $("result").value = "";
-  $("download").disabled = true;
-  $("reuse").disabled = true;
+  isSuggestion = false;
   $("suggestions").replaceChildren();
   $("identification").replaceChildren();
+  $("manual-link").hidden = true;
+  renderResult();
   if (ready && !busy)
     status("Inputs changed. Choose an action to process the current message.");
 }
@@ -85,12 +173,11 @@ function start() {
       clearTimeout(loadingTimer);
       ready = true;
       controls();
-      status(
-        "Ready. Paste ciphertext and choose Identify & crack, or select a cipher and key to encrypt.",
-      );
+      status("Ready.");
       return;
     }
     busy = false;
+    activeAction = "";
     controls();
     if (!pending || data.id !== pending.id || pending.revision !== revision) {
       status(
@@ -110,6 +197,7 @@ function start() {
     } else if (pending.action === "analyze") {
       if (!data.result.length) {
         $("suggestions").replaceChildren();
+        renderResult();
         status(
           "No key suggestions were found. Try a longer English ciphertext sample.",
           true,
@@ -122,10 +210,9 @@ function start() {
       );
     } else {
       resultText = data.result;
-      $("result").value = resultText;
       operation = pending.action;
-      $("download").disabled = false;
-      $("reuse").disabled = false;
+      isSuggestion = false;
+      renderResult();
       status(
         `${operation === "Encrypt" ? "Encryption" : "Decryption"} complete.`,
       );
@@ -144,6 +231,7 @@ function failed(text) {
 function run(action) {
   if (!ready || busy || readingFile) return;
   busy = true;
+  activeAction = action;
   controls();
   if (action === "crack") invalidate();
   status(
@@ -179,10 +267,8 @@ function showAutomaticResult(data) {
   if (data.status === "suggested") {
     applyKey(best.cipher, best.key);
     resultText = data.plaintext;
-    $("result").value = resultText;
     operation = "Decrypt";
-    $("download").disabled = false;
-    $("reuse").disabled = false;
+    isSuggestion = true;
   } else {
     $("cipher").value = data.identified[0].cipher;
     $("cipher").onchange();
@@ -192,7 +278,7 @@ function showAutomaticResult(data) {
   const heading = document.createElement("h3");
   heading.textContent =
     data.status === "suggested"
-      ? `Suggested ${best.cipher} decryption · ${best.label}`
+      ? `${best.cipher} · ${best.label}`
       : data.status === "unsupported"
         ? `Likely cipher: ${data.identified[0].cipher}`
         : "No convincing decryption found";
@@ -201,11 +287,13 @@ function showAutomaticResult(data) {
   note.className = "hint";
   note.textContent =
     data.status === "suggested"
-      ? "Review the recovered message below. This is an AI suggestion, not a guaranteed decryption. Find key shows other guesses for the selected cipher."
+      ? "An AI suggestion, ready for your review."
       : data.status === "unsupported"
         ? "Automatic key recovery is not available for this cipher. Enter a known key to decrypt, or choose another cipher manually."
         : "The available searches did not produce a plausible English message. Try a longer sample or a known key. Unsupported ciphers and plain text can also be misidentified.";
   area.append(note);
+  $("manual-link").hidden = data.status === "suggested";
+  renderResult();
   status(
     data.status === "suggested"
       ? "Suggested decryption ready. Review the recovered message."
@@ -218,6 +306,7 @@ function showAutomaticResult(data) {
   heading.focus();
 }
 function showSuggestions(results) {
+  $("suggestions").hidden = false;
   const area = $("suggestions");
   area.replaceChildren();
   const heading = document.createElement("h3");
@@ -243,6 +332,7 @@ function showSuggestions(results) {
     area.append(button);
   }
   heading.tabIndex = -1;
+  renderResult();
   heading.focus();
 }
 $("cipher").onchange = () => {
@@ -264,8 +354,8 @@ $("message").oninput = () => {
   fileMode = false;
   filename = "message.txt";
   $("upload").value = "";
-  $("file-info").textContent =
-    "Up to 1 MB. Files are processed one line at a time.";
+  $("file-info").hidden = true;
+  updateCount();
   invalidate();
 };
 $("upload").onchange = async () => {
@@ -295,7 +385,9 @@ $("upload").onchange = async () => {
     /* textarea normalizes line endings; retain original for file transforms */ originalFile =
       text;
     $("file-info").textContent = `${file.name} · each line uses the same key`;
-    status("File opened. Choose a key and an action.");
+    $("file-info").hidden = false;
+    updateCount();
+    status("File opened. Choose an action to continue.");
   } catch (error) {
     if (revision !== version) return;
     $("upload").value = "";
@@ -336,8 +428,55 @@ $("reuse").onclick = () => {
   const text = resultText;
   $("message").value = text;
   if (fileMode) originalFile = text;
+  updateCount();
   invalidate();
   $("message").focus();
   status("Result moved to your message. Choose your next action.");
 };
+$("crack-tab").onclick = () => setMode("crack");
+$("manual-tab").onclick = () => setMode("manual");
+for (const id of ["crack-tab", "manual-tab"])
+  $(id).onkeydown = (event) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const manual =
+      event.key === "End" || (event.key !== "Home" && workflow === "crack");
+    setMode(manual ? "manual" : "crack");
+    $(manual ? "manual-tab" : "crack-tab").focus();
+  };
+$("open-file").onclick = () => $("upload").click();
+$("other-guesses").onclick = () => {
+  setMode("manual");
+  run("analyze");
+};
+$("manual-link").onclick = () => {
+  setMode("manual");
+  $("key").focus();
+};
+$("copy").onclick = async () => {
+  const text = resultText;
+  try {
+    await navigator.clipboard.writeText(text);
+    if (resultText !== text) return;
+    $("copy").textContent = "Copied";
+    status("Copied to clipboard.");
+    setTimeout(() => {
+      if (resultText === text) $("copy").textContent = "Copy text";
+    }, 1500);
+  } catch {
+    status(
+      "Copy is unavailable. Select the result text or use Download .txt.",
+      true,
+    );
+    $("result").focus();
+  }
+};
+$("example").onclick = () => {
+  $("message").value =
+    "Hyf wer fcaxfmbbhfp tbhcu bjhjv upx eljmm jrmtxm, nimks r tqgucf ttbkfzg plsvxr sfabrv upx bfsbasio ebbupe. Th djlgwxib, mvv dikskbsxf ujavcmfzxr r gwerve vhhv cmgsrup mvv umesjdwis. Zu lxgtsqusu b pbrufv kcfn jxvzol mvv mqufrsg tbu b ehcufv uco dwghrjvbbx upx aztabbx ffisujbbce smvciea. Mvv gqgoc jvlhivkmwfo etg jjuizv: czbbx upx pibal qfnxtgj bvw krjb nbkjt mvv nwkbzoo uscma usxjv mc ijvz.";
+  $("message").oninput();
+  if (ready && !busy) status("Example loaded. Choose Identify & crack.");
+  $("message").focus();
+};
+setMode("crack");
 start();
