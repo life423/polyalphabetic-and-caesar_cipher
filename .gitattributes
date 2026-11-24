@@ -1,0 +1,2 @@
+# Lesson evidence is hashed byte-for-byte. Never convert its line endings.
+static/learn/evidence/*.txt -text

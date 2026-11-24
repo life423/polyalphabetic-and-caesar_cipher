@@ -1,0 +1,161 @@
+/* Lessons use the existing controls and tokens, with readable, short steps. */
+.lesson-picker { max-width: 440px; margin-bottom: 24px; }
+#pw-records h4 { margin-top: 0; }
+#pw-records code { display: block; overflow-wrap: anywhere; font-size: .8125rem; }
+#pw-records .hint { margin-top: 12px; }
+#pw-stored-record { margin: 16px 0; }
+#pw-record-json { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .8125rem; }
+.lesson-complete { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 16px; margin-top: 20px; }
+#pw-verify { margin-top: 8px; }
+#pw-storage { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); }
+.learn-intro {
+  max-width: 72ch;
+  color: var(--muted);
+}
+.learn-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.learn-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 16px;
+  margin: 20px 0;
+}
+.learn-steps button[aria-selected="true"] {
+  background: #edf7f4;
+  color: #086b5d;
+  border-width: 2px;
+}
+.learn-step > p {
+  max-width: 75ch;
+}
+.learn-check {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px 0;
+  min-width: 0;
+}
+.learn-check legend {
+  font-weight: 650;
+  padding: 0 6px;
+  max-width: 100%;
+}
+#learn-panel .learn-choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  margin: 4px 0;
+  padding: 8px;
+  font-weight: 400;
+  border-radius: 6px;
+  cursor: pointer;
+}
+#learn-panel .learn-choice:has(input:checked) {
+  background: #edf7f4;
+}
+#learn-panel input[type="radio"] {
+  width: 20px;
+  min-height: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  padding: 0;
+  margin: 0;
+  accent-color: var(--accent);
+}
+.learn-feedback {
+  min-height: 24px;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+.learn-feedback[data-error="true"] {
+  color: #9e2b1e;
+}
+.learn-example {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 16px 0;
+}
+.learn-example > div {
+  min-width: 0;
+  padding: 16px;
+  background: #f7fafb;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.learn-example code {
+  overflow-wrap: anywhere;
+}
+#learn-evidence {
+  display: grid;
+  gap: 16px;
+  margin-block: 20px;
+}
+.learn-evidence-file {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+}
+.learn-evidence-file h4 {
+  font-size: 1rem;
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+}
+.learn-evidence-file .hash-digest {
+  font-size: 0.8125rem;
+}
+.learn-evidence-file .actions {
+  margin-top: 12px;
+}
+.learn-evidence-file p[data-match="true"] {
+  color: #086b5d;
+}
+.learn-evidence-file p[data-match="false"] {
+  color: #9e2b1e;
+  font-weight: 650;
+}
+.learn-step h3 {
+  scroll-margin-top: 16px;
+}
+#learn-complete,
+#learn-reset-confirm {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  margin-top: 20px;
+}
+#learn-progress {
+  margin-bottom: 0;
+}
+#learn-storage {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+  margin-top: 24px;
+}
+@media (max-width: 760px) {
+  .learn-example {
+    grid-template-columns: 1fr;
+  }
+  .learn-steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .learn-steps button {
+    min-width: 0;
+    padding: 8px 4px;
+    font-size: 0.8125rem;
+  }
+  .learn-check {
+    padding: 12px;
+  }
+}

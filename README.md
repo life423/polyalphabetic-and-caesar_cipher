@@ -231,7 +231,23 @@ then serve it with
 Open http://localhost:8502 and select Play. For Android builds and device testing,
 see [Android testing](docs/ANDROID_TESTING.md).
 
+## Hash Lab
+
+Select **Hash Lab** to calculate SHA-256 for text, compare output bits after an
+edit, or check a file against an expected digest. Everything runs on the device;
+the file limit is 20 MiB. Hashing is separate from the cipher engine and campaign,
+and inputs are not saved. See [Hash Lab documentation](docs/HASH_LAB.md).
+
+## Learn
+
+Select **Learn** for **Can you trust this file?**: a short lesson, a real hash
+experiment, and an investigation of three fictional evidence files. Progress
+saves locally; hints and retries are available. Opening Hash Lab from the lesson
+preserves existing lab work. The lesson chooser also includes **Password storage & salts**,
+with real random salts, PBKDF2 records and local password-guess verification.
+See [Password lesson documentation](docs/PASSWORD_LESSON.md) and [Learn documentation](docs/LEARN.md).
+
 ## Security note
 
-These are historical, educational ciphers, **not modern encryption**.
+The classical ciphers are historical teaching tools, **not modern encryption**.
 Do not use them for passwords, secrets, personal data, or confidential files.

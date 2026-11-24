@@ -1,0 +1,23 @@
+{
+  "id": "hash-integrity",
+  "version": 1,
+  "title": "Can you trust this file?",
+  "altered": "beacon-order",
+  "files": [
+    {
+      "id": "keeper-log",
+      "name": "keeper-log.txt",
+      "expected": "29d43a1571a1221007bc28d61c52cc5c779a8f43d0c0d80ce4de81cb8f7c6a02"
+    },
+    {
+      "id": "channel-note",
+      "name": "channel-note.txt",
+      "expected": "aec3b1bed2162c5a9ffdf27b2cadf83ef831910ec700044d9f8635eaa5d369f3"
+    },
+    {
+      "id": "beacon-order",
+      "name": "beacon-order.txt",
+      "expected": "e83cef1e43ad12f29b20dd0c5bbb46ab20391e8c91301bc3fe3eb522cac8c44b"
+    }
+  ]
+}

@@ -18,10 +18,23 @@ cannot unexpectedly update the newly selected workflow.
 
 ## Result presentation
 
+**Learn** adds a fifth workflow with a short hash-integrity lesson and an altered
+evidence challenge. Its concepts, real experiment and conclusion checks use the
+same controls and shared digest helper as the labs. The lesson saves its own
+progress and never resets campaign or lab state. See LEARN.md for coverage and
+limits; this is the first self-paced unit, not an assessment platform.
+
+**Hash Lab** is an independent fourth workflow with Text and File modes. It
+reuses the app's controls and colors. All five sections share one compact
+navigation row, with fixed desktop tabs, a smoothly sliding selection indicator,
+and native scrolling chips on phones. Arrow/Home/End navigation covers all five tabs. Hash results do not
+alter tool input or campaign progress. See HASH_LAB.md for behavior, limits and
+validation, including original file-byte hashing and optional digest comparison.
+
 The separate **Play** tab opens a lazy-loaded mission module and its own panel.
 Its five-case campaign and versioned progress are stored locally; it never reads or writes tool input,
 keys, uploaded files or results. A mission loading error leaves the tools usable.
-The three tabs support arrow/Home/End navigation. See PRODUCT_ROADMAP.md for
+The section tabs support arrow/Home/End navigation. See PRODUCT_ROADMAP.md for
 the campaign's scope, validation and pending product decisions. Each case has
 independent guesses, clues and undo history. Finishing a case unlocks the next;
 reveals allow story progression but receive no solved credit. Resetting an earlier

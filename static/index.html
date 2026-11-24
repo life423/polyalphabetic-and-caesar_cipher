@@ -6,11 +6,14 @@
     <meta name="theme-color" content="#2d3e50" />
     <meta
       name="description"
-      content="Explore classical ciphers with private, on-device AI. Crack a message or encrypt and decrypt with your own key."
+      content="Explore ciphers, hashes and codebreaking with private, on-device tools and locally trained AI."
     />
     <title>CipherCraft — Explore the message</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="stylesheet" href="app.css" />
     <link rel="stylesheet" href="play.css" />
+    <link rel="stylesheet" href="hash-lab.css" />
+    <link rel="stylesheet" href="learn.css" />
     <script type="module" src="app.js"></script>
   </head>
   <body>
@@ -21,40 +24,69 @@
         ><span class="privacy">Private. On your device.</span>
       </header>
       <div class="intro">
-        <p class="eyebrow">CLASSICAL CRYPTOGRAPHY · LOCAL AI</p>
+        <p class="eyebrow" id="workflow-eyebrow">
+          CLASSICAL CRYPTOGRAPHY · LOCAL AI
+        </p>
         <h1 id="workflow-title">Crack a message.</h1>
         <p id="workflow-description">
           Find a likely cipher, discover its key, and uncover the text.
         </p>
       </div>
-      <div class="workflow-tabs" role="tablist" aria-label="Choose a workflow">
-        <button
-          id="crack-tab"
-          role="tab"
-          aria-selected="true"
-          aria-controls="input-panel"
-          tabindex="0"
+      <nav class="section-navigation" aria-label="CipherCraft sections">
+        <div
+          class="workflow-tabs"
+          id="section-track"
+          role="tablist"
+          aria-label="Choose a section"
         >
-          Crack a message</button
-        ><button
-          id="manual-tab"
-          role="tab"
-          aria-selected="false"
-          aria-controls="input-panel"
-          tabindex="-1"
-        >
-          Encrypt / decrypt
-        </button>
-        <button
-          id="play-tab"
-          role="tab"
-          aria-selected="false"
-          aria-controls="play-panel"
-          tabindex="-1"
-        >
-          Play
-        </button>
-      </div>
+          <span id="nav-indicator" aria-hidden="true"></span>
+          <button
+            id="crack-tab"
+            role="tab"
+            aria-selected="true"
+            aria-controls="input-panel"
+            tabindex="0"
+          >
+            <span class="nav-label">Crack a message</span>
+          </button>
+          <button
+            id="manual-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="input-panel"
+            tabindex="-1"
+          >
+            <span class="nav-label">Encrypt / decrypt</span>
+          </button>
+          <button
+            id="play-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="play-panel"
+            tabindex="-1"
+          >
+            <span class="nav-label">Play</span>
+          </button>
+          <button
+            id="hash-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="hash-panel"
+            tabindex="-1"
+          >
+            <span class="nav-label">Hash Lab</span>
+          </button>
+          <button
+            id="learn-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="learn-panel"
+            tabindex="-1"
+          >
+            <span class="nav-label">Learn</span>
+          </button>
+        </div>
+      </nav>
       <noscript>Enable JavaScript to use CipherCraft.</noscript>
       <div class="workspace" id="tools-workspace">
         <section
@@ -199,6 +231,208 @@
         </section>
       </div>
       <section
+        id="hash-panel"
+        role="tabpanel"
+        aria-labelledby="hash-tab"
+        hidden
+      >
+        <button id="hash-back-lesson" class="text-button" hidden>
+          Back to lesson
+        </button>
+        <div class="section-heading">
+          <h2>Explore SHA-256</h2>
+          <button id="hash-example" class="text-button">
+            Try a one-letter change
+          </button>
+        </div>
+        <p class="hash-intro">
+          A hash is a fingerprint of some bytes. Unlike a cipher, it has no
+          decryption key. Try changing the input and compare the fingerprints.
+        </p>
+        <div id="hash-error" hidden>
+          <p>
+            Hash Lab could not open. The cipher tools and campaign are still
+            available.
+          </p>
+          <button id="hash-retry" class="secondary">Retry Hash Lab</button>
+        </div>
+        <div id="hash-content" hidden>
+          <div class="hash-modes" role="tablist" aria-label="Hash input type">
+            <button
+              id="hash-text-tab"
+              role="tab"
+              aria-selected="true"
+              aria-controls="hash-text-panel"
+            >
+              Text
+            </button>
+            <button
+              id="hash-file-tab"
+              role="tab"
+              aria-selected="false"
+              aria-controls="hash-file-panel"
+              tabindex="-1"
+            >
+              File
+            </button>
+          </div>
+          <div
+            id="hash-text-panel"
+            role="tabpanel"
+            aria-labelledby="hash-text-tab"
+          >
+            <div class="hash-inputs">
+              <div>
+                <label for="hash-text">Original text</label
+                ><textarea
+                  id="hash-text"
+                  rows="4"
+                  maxlength="100000"
+                  spellcheck="false"
+                  placeholder="Type a message, or try the example…"
+                  aria-describedby="hash-text-help"
+                ></textarea>
+              </div>
+              <div id="hash-compare-input" hidden>
+                <label for="hash-changed">Changed text</label
+                ><textarea
+                  id="hash-changed"
+                  rows="4"
+                  maxlength="100000"
+                  spellcheck="false"
+                  aria-describedby="hash-text-help"
+                ></textarea>
+              </div>
+            </div>
+            <p id="hash-text-help" class="hint">
+              UTF-8 text · up to 100,000 characters per box. Spaces,
+              capitalization and line breaks matter. Empty text also has a hash.
+            </p>
+            <div class="actions">
+              <button id="hash-text-run">Hash text</button
+              ><button
+                id="hash-compare-toggle"
+                class="secondary"
+                aria-expanded="false"
+                aria-controls="hash-compare-input"
+              >
+                Compare a change
+              </button>
+            </div>
+            <div id="hash-text-results" hidden>
+              <div class="hash-results">
+                <div class="hash-digest-block">
+                  <h3>Original SHA-256</h3>
+                  <code
+                    id="hash-text-digest"
+                    class="hash-digest"
+                    tabindex="0"
+                    aria-label="Original SHA-256 digest"
+                  ></code>
+                  <div class="hash-digest-actions">
+                    <span id="hash-text-bytes" class="hint"></span
+                    ><button id="hash-text-copy" class="text-button">
+                      Copy hash
+                    </button>
+                  </div>
+                </div>
+                <div id="hash-changed-result" class="hash-digest-block" hidden>
+                  <h3>Changed SHA-256</h3>
+                  <code
+                    id="hash-changed-digest"
+                    class="hash-digest"
+                    tabindex="0"
+                    aria-label="Changed SHA-256 digest"
+                  ></code>
+                  <div class="hash-digest-actions">
+                    <span id="hash-changed-bytes" class="hint"></span
+                    ><button id="hash-changed-copy" class="text-button">
+                      Copy changed hash
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div id="hash-comparison" hidden>
+                <h3 id="hash-difference"></h3>
+                <p id="hash-difference-help" class="hint"></p>
+                <details id="hash-bits-details">
+                  <summary>Inspect the 256 output bits</summary>
+                  <p class="hint">
+                    The changed digest is shown below. Underlined bits differ
+                    from the original; plain bits stayed the same.
+                  </p>
+                  <div id="hash-bits" aria-hidden="true"></div>
+                </details>
+              </div>
+            </div>
+          </div>
+          <div
+            id="hash-file-panel"
+            role="tabpanel"
+            aria-labelledby="hash-file-tab"
+            hidden
+          >
+            <label for="hash-file">Choose a file</label
+            ><input
+              id="hash-file"
+              type="file"
+              aria-describedby="hash-file-help"
+            />
+            <p id="hash-file-help" class="hint">
+              Any file type, up to 20 MiB. The file stays on your device. Its
+              original bytes are hashed without changing line endings or
+              decoding text.
+            </p>
+            <p id="hash-file-info" class="hint">No file selected.</p>
+            <label for="hash-expected">Expected SHA-256 (optional)</label
+            ><input
+              id="hash-expected"
+              autocomplete="off"
+              spellcheck="false"
+              maxlength="256"
+              placeholder="Paste a 64-character hexadecimal digest"
+              aria-describedby="hash-trust-help"
+            />
+            <p id="hash-trust-help" class="hint">
+              Use a digest from a trusted source. A matching hash checks
+              consistency with that value; it does not prove who created the
+              file or that the file is safe.
+            </p>
+            <button id="hash-file-run" disabled>Hash file</button>
+            <div id="hash-file-results" class="hash-digest-block" hidden>
+              <h3>File SHA-256</h3>
+              <code
+                id="hash-file-digest"
+                class="hash-digest"
+                tabindex="0"
+                aria-label="File SHA-256 digest"
+              ></code>
+              <div class="hash-digest-actions">
+                <span id="hash-file-bytes" class="hint"></span
+                ><button id="hash-file-copy" class="text-button">
+                  Copy file hash
+                </button>
+              </div>
+              <p id="hash-verification" hidden></p>
+            </div>
+          </div>
+          <p id="hash-status" role="status">
+            Choose text or a file. Hashes are calculated on this device.
+          </p>
+          <details class="supported">
+            <summary>What does this teach?</summary>
+            <p class="hint">
+              SHA-256 produces 256 bits, written as 64 hexadecimal characters.
+              Small input changes typically change many output bits, often about
+              half—not necessarily exactly half. Hashes are not decrypted;
+              guessed inputs can be hashed and compared. Plain SHA-256 is not a
+              password-storage scheme. Password hashing and salts will be a
+              separate lesson.
+            </p>
+          </details>
+        </div>
+      </section>
+      <section
         id="play-panel"
         role="tabpanel"
         aria-labelledby="play-tab"
@@ -336,6 +570,296 @@
           <p id="mission-storage" class="hint">
             Case progress saves on this device. Your cipher tools stay separate.
           </p>
+        </div>
+      </section>
+      <section
+        id="learn-panel"
+        role="tabpanel"
+        aria-labelledby="learn-tab"
+        hidden
+      >
+        <div class="lesson-picker"><label for="learn-lesson-select">Choose a lesson</label><select id="learn-lesson-select"><option value="integrity">1. Hashes &amp; file integrity</option><option value="password">2. Password storage &amp; salts</option></select></div>
+        <div id="lesson-load-error" hidden><p>The selected lesson could not open. Your other work is still available.</p><button id="lesson-load-retry" class="secondary">Retry lesson</button></div>
+        <div id="integrity-lesson">
+        <div class="learn-heading">
+          <div>
+            <p class="eyebrow">LESSON 01 · HASHES &amp; INTEGRITY</p>
+            <h2>Can you trust this file?</h2>
+          </div>
+          <button id="learn-reset" class="text-button" hidden>
+            Reset lesson
+          </button>
+        </div>
+        <p class="learn-intro">
+          Learn what hashes can tell you, try a small experiment, then
+          investigate three harbor records. No timer; hints and retries are
+          available.
+        </p>
+        <p id="learn-loading" role="status">Opening the lesson…</p>
+        <div id="learn-error" hidden>
+          <p>
+            The lesson could not load. Your labs and campaign are still
+            available.
+          </p>
+          <button id="learn-retry" class="secondary">Retry lesson</button>
+        </div>
+        <div id="learn-content" hidden>
+          <p id="learn-progress" class="hint" role="status"></p>
+          <div class="learn-steps" role="tablist" aria-label="Lesson steps">
+            <button
+              id="learn-step-0-tab"
+              class="secondary"
+              role="tab"
+              aria-selected="true"
+              aria-controls="learn-step-0"
+            >
+              1. Understand</button
+            ><button
+              id="learn-step-1-tab"
+              class="secondary"
+              role="tab"
+              aria-selected="false"
+              aria-controls="learn-step-1"
+              tabindex="-1"
+              disabled
+            >
+              2. Experiment</button
+            ><button
+              id="learn-step-2-tab"
+              class="secondary"
+              role="tab"
+              aria-selected="false"
+              aria-controls="learn-step-2"
+              tabindex="-1"
+              disabled
+            >
+              3. Investigate
+            </button>
+          </div>
+          <p id="learn-crypto-error" class="learn-feedback" hidden>
+            This browser cannot calculate SHA-256 here. Use HTTPS or localhost
+            in an up-to-date browser to run the experiment and challenge.
+          </p>
+          <div
+            id="learn-step-0"
+            class="learn-step"
+            role="tabpanel"
+            aria-labelledby="learn-step-0-tab"
+          >
+            <h3 id="learn-title-0" tabindex="-1">A digest describes bytes</h3>
+            <p>
+              Encryption scrambles a message so someone with the right key can
+              decrypt it. A cryptographic hash takes input bytes and produces a
+              fixed-size digest. You do not decrypt the digest to recover the
+              file.
+            </p>
+            <p>
+              SHA-256 always produces 256 bits, usually written as 64
+              hexadecimal characters. The same input bytes always produce the
+              same digest. A guess can still be hashed and compared, so a hash
+              does not make a weak password strong.
+            </p>
+            <fieldset class="learn-check">
+              <legend>
+                What happens when you hash exactly the same bytes twice with
+                SHA-256?
+              </legend>
+              <label class="learn-choice"
+                ><input type="radio" name="learn-quiz-1" value="same" />The
+                digests are identical.</label
+              ><label class="learn-choice"
+                ><input type="radio" name="learn-quiz-1" value="random" />A new
+                random digest appears each time.</label
+              ><label class="learn-choice"
+                ><input type="radio" name="learn-quiz-1" value="key" />You need
+                a decryption key to compare them.</label
+              >
+            </fieldset>
+            <button id="learn-check-1">Check answer</button>
+            <p id="learn-feedback-1" class="learn-feedback" role="status"></p>
+            <button id="learn-next-1" class="secondary" disabled>
+              Continue to experiment
+            </button>
+          </div>
+          <div
+            id="learn-step-1"
+            class="learn-step"
+            role="tabpanel"
+            aria-labelledby="learn-step-1-tab"
+            hidden
+          >
+            <h3 id="learn-title-1" tabindex="-1">
+              One letter, many changed bits
+            </h3>
+            <p>
+              Only the letter d changes to D below. Calculate both hashes and
+              see how much of the output changes.
+            </p>
+            <div class="learn-example">
+              <div>
+                <h4>Original</h4>
+                <code>Meet at dawn.</code>
+              </div>
+              <div>
+                <h4>Changed</h4>
+                <code>Meet at Dawn.</code>
+              </div>
+            </div>
+            <button id="learn-experiment">Hash both examples</button>
+            <div id="learn-experiment-results" hidden>
+              <div class="learn-example">
+                <div>
+                  <h4>Original SHA-256</h4>
+                  <code id="learn-example-a" class="hash-digest"></code>
+                </div>
+                <div>
+                  <h4>Changed SHA-256</h4>
+                  <code id="learn-example-b" class="hash-digest"></code>
+                </div>
+              </div>
+              <p id="learn-example-difference"></p>
+            </div>
+            <div id="learn-quiz-2" hidden>
+              <p>
+                Small changes typically affect many digest bits. This is called
+                the avalanche effect.
+              </p>
+              <fieldset class="learn-check">
+                <legend>
+                  Does every one-letter edit change exactly 128 output bits?
+                </legend>
+                <label class="learn-choice"
+                  ><input type="radio" name="learn-quiz-2" value="exact" />Yes,
+                  exactly half every time.</label
+                ><label class="learn-choice"
+                  ><input type="radio" name="learn-quiz-2" value="varies" />No.
+                  Often about half change, but the count varies.</label
+                ><label class="learn-choice"
+                  ><input type="radio" name="learn-quiz-2" value="key" />Only
+                  when both texts use the same encryption key.</label
+                >
+              </fieldset>
+              <button id="learn-check-2">Check answer</button>
+              <p id="learn-feedback-2" class="learn-feedback" role="status"></p>
+            </div>
+            <button id="learn-next-2" class="secondary" disabled>
+              Continue to evidence
+            </button>
+            <p
+              id="learn-experiment-status"
+              class="learn-feedback"
+              role="status"
+            ></p>
+          </div>
+          <div
+            id="learn-step-2"
+            class="learn-step"
+            role="tabpanel"
+            aria-labelledby="learn-step-2-tab"
+            hidden
+          >
+            <h3 id="learn-title-2" tabindex="-1">The altered harbor record</h3>
+            <p>
+              The keeper handed you three expected SHA-256 digests in person.
+              For this exercise, treat that record as trusted. The delivered
+              files are below. Calculate each file’s digest and find the
+              mismatch.
+            </p>
+            <p>
+              A match means the file agrees with the trusted digest; it does not
+              by itself prove authorship or safety. A mismatch tells you the
+              bytes differ, not why they differ.
+            </p>
+            <div id="learn-evidence"></div>
+            <div class="actions">
+              <button
+                id="learn-hint"
+                class="text-button"
+                aria-expanded="false"
+                aria-controls="learn-hint-text"
+              >
+                Get a hint</button
+              ><button id="learn-open-lab" class="text-button">
+                Practice in Hash Lab
+              </button>
+            </div>
+            <p id="learn-hint-text" class="hint" hidden>
+              Compare each calculated digest with its trusted record. A one-byte
+              change is enough to produce a different digest. The file with a
+              mismatch is your lead.
+            </p>
+            <fieldset class="learn-check">
+              <legend>
+                Which delivered file does not match its trusted record?
+              </legend>
+              <div id="learn-file-choices"></div>
+            </fieldset>
+            <fieldset class="learn-check">
+              <legend>What can you conclude?</legend>
+              <label class="learn-choice"
+                ><input type="radio" name="learn-reason" value="changed" />Its
+                bytes differ from the trusted version; the hash alone does not
+                explain why.</label
+              ><label class="learn-choice"
+                ><input type="radio" name="learn-reason" value="attacker" />This
+                proves an attacker changed it deliberately.</label
+              ><label class="learn-choice"
+                ><input type="radio" name="learn-reason" value="safe" />The
+                matching files are guaranteed safe and authentic.</label
+              >
+            </fieldset>
+            <button id="learn-check-evidence" disabled>Check findings</button>
+            <p
+              id="learn-evidence-feedback"
+              class="learn-feedback"
+              role="status"
+            >
+              Calculate all three file hashes before checking your findings.
+            </p>
+            <div id="learn-complete" hidden>
+              <h3 id="learn-complete-title" tabindex="-1">Lesson complete</h3>
+              <p>
+                You compared three file digests and correctly interpreted a
+                mismatch. The delivered beacon order differs from the keeper’s
+                trusted version. Investigate the change before acting on the
+                order.
+              </p>
+              <p class="hint">
+                This is practice progress saved on this device, not a verified
+                assessment or certificate.
+              </p>
+            </div>
+          </div>
+          <div id="learn-reset-confirm" hidden>
+            <p>
+              Clear this lesson’s answers and progress? Your labs and campaign
+              will keep their existing work.
+            </p>
+            <div class="actions">
+              <button id="learn-reset-yes" class="secondary">
+                Clear lesson progress</button
+              ><button id="learn-reset-no" class="text-button">
+                Keep learning
+              </button>
+            </div>
+          </div>
+          <p id="learn-storage" class="hint">
+            Lesson progress saves on this device. Lab inputs and campaign
+            progress stay separate.
+          </p>
+        </div>
+        </div>
+        <div id="password-lesson" hidden>
+          <div class="learn-heading"><div><p class="eyebrow">LESSON 02 · PASSWORD STORAGE</p><h2>Why a password needs more than a hash</h2></div><button id="pw-reset" class="text-button">Reset lesson</button></div>
+          <p class="learn-intro">Use a fictional account to explore fast hashes, unique salts and password verification. This is a teaching demo, not an account or password manager.</p>
+          <p id="pw-progress" class="hint" role="status"></p>
+          <div class="learn-steps" role="tablist" aria-label="Password lesson steps"><button id="pw-step-0-tab" role="tab" class="secondary" aria-controls="pw-step-0" aria-selected="true">1. Understand</button><button id="pw-step-1-tab" role="tab" class="secondary" aria-controls="pw-step-1" aria-selected="false" tabindex="-1" disabled>2. Add salt</button><button id="pw-step-2-tab" role="tab" class="secondary" aria-controls="pw-step-2" aria-selected="false" tabindex="-1" disabled>3. Verify</button></div>
+          <p id="pw-crypto-error" class="learn-feedback" hidden>This browser cannot run the password experiment here. Use HTTPS or localhost in an up-to-date browser.</p>
+          <div id="pw-step-0" class="learn-step" role="tabpanel" aria-labelledby="pw-step-0-tab"><h3 id="pw-title-0" tabindex="-1">Fast hashes make guesses cheap</h3><p>SHA-256 is useful for checking file bytes, but it is designed to be fast. That lets someone test many password guesses quickly if stored hashes are exposed. It does not mean SHA-256 is broken.</p><p>Password-hashing algorithms add a configurable cost to each guess. Strong, unique passwords still matter; adding a salt does not make a weak password unguessable.</p><fieldset class="learn-check"><legend>Why is plain SHA-256 alone unsuitable for storing passwords?</legend><label class="learn-choice"><input name="pw-quiz-1" type="radio" value="fast">It is fast, which makes repeated password guesses cheap.</label><label class="learn-choice"><input name="pw-quiz-1" type="radio" value="decrypt">Anyone can decrypt a SHA-256 digest.</label><label class="learn-choice"><input name="pw-quiz-1" type="radio" value="short">Its digest is too short to write down.</label></fieldset><button id="pw-check-1">Check answer</button><p id="pw-feedback-1" class="learn-feedback" role="status"></p><button id="pw-next-1" class="secondary" disabled>Continue to salts</button></div>
+          <div id="pw-step-1" class="learn-step" role="tabpanel" aria-labelledby="pw-step-1-tab" hidden><h3 id="pw-title-1" tabindex="-1">Same password, different account records</h3><p>Both fictional accounts use <code>harbor-lantern</code>. Compare their plain SHA-256 digests, then generate a unique random salt and a PBKDF2 value for each account.</p><p class="hint">Demo settings: PBKDF2-HMAC-SHA-256 · 600,000 iterations · 16-byte random salt · 256-bit output. The browser performs the work locally.</p><button id="pw-generate">Compare two accounts</button><div id="pw-records" class="learn-example" hidden></div><p id="pw-record-summary" class="learn-feedback"></p><p>Salts are stored alongside the derived values; they are not secret decryption keys. Unique salts prevent work from being reused across accounts, but each weak password can still be guessed.</p><fieldset id="pw-quiz-2-group" class="learn-check" hidden><legend>Does adding a salt make a weak password unguessable?</legend><label class="learn-choice"><input name="pw-quiz-2" type="radio" value="secret">Yes, because the salt must be kept secret.</label><label class="learn-choice"><input name="pw-quiz-2" type="radio" value="guesses">No. Guesses are still possible; salts make the stored values account-specific.</label><label class="learn-choice"><input name="pw-quiz-2" type="radio" value="decrypt">Yes, because the salt decrypts the password.</label></fieldset><button id="pw-check-2" hidden>Check answer</button><p id="pw-feedback-2" class="learn-feedback" role="status"></p><button id="pw-next-2" class="secondary" disabled>Continue to verification</button></div>
+          <div id="pw-step-2" class="learn-step" role="tabpanel" aria-labelledby="pw-step-2-tab" hidden><h3 id="pw-title-2" tabindex="-1">Verify a guess without decrypting</h3><p>For account A, derive a value from a guess using the stored salt and settings, then compare it with the stored value. The original password is not recovered from the stored record.</p><p id="pw-recreate-help" class="hint">Demo records stay in memory. Re-create them for this session before trying a guess; your lesson progress is still saved.</p><button id="pw-recreate" class="secondary">Re-create demo records</button><details id="pw-stored-record" hidden><summary>Inspect account A’s stored record</summary><pre id="pw-record-json"></pre></details><label for="pw-guess">Try a made-up password</label><input id="pw-guess" type="password" maxlength="128" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="pw-guess-help" /><p id="pw-guess-help" class="hint">Use only the fictional demo password, harbor-lantern, or an invented wrong guess. Do not enter a real password.</p><button id="pw-verify" disabled>Check password</button><p id="pw-verify-feedback" class="learn-feedback" role="status"></p><div id="pw-complete" class="lesson-complete" hidden><h3 id="pw-complete-title" tabindex="-1">Password lesson complete</h3><p>You explained the cost of guesses, observed different salted records and verified a password by re-deriving a value. No password was decrypted.</p><p class="hint">This is local practice progress, not a verified assessment.</p></div></div>
+          <p id="pw-job-status" class="learn-feedback" role="status"></p><details class="supported"><summary>How does this relate to real systems?</summary><p class="hint">This demo uses PBKDF2 because Web Crypto provides it. OWASP generally recommends Argon2id for new password-storage systems. Production applications should use vetted authentication or password-hashing libraries and tune their cost settings. This lesson does not build a production sign-in service.</p></details>
+          <div id="pw-reset-confirm" class="lesson-complete" hidden><p>Clear this lesson’s progress and in-memory demo records? Other lessons, labs and campaign work stay unchanged.</p><div class="actions"><button id="pw-reset-yes" class="secondary">Clear password lesson</button><button id="pw-reset-no" class="text-button">Keep learning</button></div></div><p id="pw-storage" class="hint"></p>
         </div>
       </section>
       <footer>

@@ -9,6 +9,49 @@ async function openPlay() {
   }
 }
 $("mission-retry").onclick = openPlay;
+let hashImportAttempt = 0;
+async function openHash() {
+  try {
+    const { openHashLab } = await import(
+      hashImportAttempt
+        ? `./hash-lab.js?retry=${hashImportAttempt}`
+        : "./hash-lab.js"
+    );
+    openHashLab();
+  } catch {
+    hashImportAttempt++;
+    $("hash-error").hidden = false;
+  }
+}
+$("hash-retry").onclick = openHash;
+const lessonAttempts = { integrity: 0, password: 0 };
+let selectedLesson = "integrity";
+try { if (localStorage.getItem("ciphercraft.learn.selected.v1") === "password") selectedLesson = "password"; } catch {}
+$("learn-lesson-select").value = selectedLesson;
+async function openLearn() {
+  const lesson = selectedLesson;
+  $("integrity-lesson").hidden = lesson !== "integrity";
+  $("password-lesson").hidden = lesson !== "password";
+  $("lesson-load-error").hidden = true;
+  try {
+    const file = lesson === "password" ? "password-lesson" : "learn";
+    const attempt = lessonAttempts[lesson];
+    const module = await import(`./${file}.js${attempt ? `?retry=${attempt}` : ""}`);
+    if (lesson !== selectedLesson) return;
+    if (lesson === "password") module.openPasswordLesson();
+    else await module.openLesson();
+  } catch {
+    lessonAttempts[lesson]++;
+    if (lesson === selectedLesson) $("lesson-load-error").hidden = false;
+  }
+}
+$("learn-lesson-select").onchange = () => {
+  selectedLesson = $("learn-lesson-select").value;
+  try { localStorage.setItem("ciphercraft.learn.selected.v1", selectedLesson); } catch {}
+  openLearn();
+};
+$("lesson-load-retry").onclick = openLearn;
+$("learn-retry").onclick = openLearn;
 const nativeFiles = window.Capacitor?.isNativePlatform()
   ? window.Capacitor.Plugins.CipherFiles
   : null;
@@ -28,6 +71,47 @@ let worker,
   workflow = "crack",
   activeAction = "",
   isSuggestion = false;
+const sectionModes = ["crack", "manual", "play", "hash", "learn"];
+const reducedNavigation = matchMedia("(prefers-reduced-motion: reduce)");
+let indicatorAnimation,
+  navigationReady = false;
+function updateNavigation(animate = true) {
+  const track = $("section-track"),
+    indicator = $("nav-indicator"),
+    button = $(`${workflow}-tab`);
+  const box = indicator.getBoundingClientRect(),
+    frame = track.getBoundingClientRect();
+  const from = {
+    transform: `translate(${box.left - frame.left + track.scrollLeft - track.clientLeft}px, ${box.top - frame.top + track.scrollTop - track.clientTop}px)`,
+    width: `${box.width}px`,
+    height: `${box.height}px`,
+  };
+  const to = {
+    transform: `translate(${button.offsetLeft}px, ${button.offsetTop}px)`,
+    width: `${button.offsetWidth}px`,
+    height: `${button.offsetHeight}px`,
+  };
+  indicatorAnimation?.cancel();
+  indicatorAnimation = indicator.animate(
+    navigationReady ? [from, to] : [to, to],
+    {
+      duration:
+        animate && navigationReady && !reducedNavigation.matches ? 260 : 0,
+      easing: "cubic-bezier(.22,1,.36,1)",
+      fill: "forwards",
+    },
+  );
+  navigationReady = true;
+  track.classList.add("is-enhanced");
+  const left =
+    track.scrollWidth > track.clientWidth
+      ? button.offsetLeft - (track.clientWidth - button.offsetWidth) / 2
+      : 0;
+  track.scrollTo({
+    left,
+    behavior: animate && !reducedNavigation.matches ? "smooth" : "instant",
+  });
+}
 const specs = {
   Caesar: ["Shift (0–25)", "Each letter moves by this many places.", "3"],
   Vigenère: ["Keyword", "Use English letters, for example LEMON.", ""],
@@ -113,18 +197,32 @@ function updateCount() {
   $("example").hidden = workflow !== "crack" || !!$("message").value.trim();
 }
 function setMode(mode) {
-  if (mode !== workflow) revision++;
+  const changed = mode !== workflow;
+  if (changed) revision++;
   workflow = mode;
   const manual = mode === "manual";
   const play = mode === "play";
-  for (const id of ["crack-tab", "manual-tab", "play-tab"]) {
-    const selected = id === `${mode === "manual" ? "manual" : mode}-tab`;
+  const hash = mode === "hash";
+  const learn = mode === "learn";
+  for (const section of sectionModes) {
+    const id = `${section}-tab`;
+    const selected = section === mode;
     $(id).setAttribute("aria-selected", String(selected));
     $(id).tabIndex = selected ? 0 : -1;
   }
-  $("tools-workspace").hidden = play;
+  updateNavigation();
+  $("tools-workspace").hidden = play || hash || learn;
   $("play-panel").hidden = !play;
+  $("hash-panel").hidden = !hash;
+  $("learn-panel").hidden = !learn;
   if (play) openPlay();
+  if (hash) openHash();
+  if (learn) openLearn();
+  $("workflow-eyebrow").textContent = learn
+    ? "LEARN · TRY · INVESTIGATE"
+    : hash
+      ? "HASHES · ON YOUR DEVICE"
+      : "CLASSICAL CRYPTOGRAPHY · LOCAL AI";
   $("input-panel").setAttribute(
     "aria-labelledby",
     manual ? "manual-tab" : "crack-tab",
@@ -132,16 +230,24 @@ function setMode(mode) {
   $("manual-settings").hidden = $("manual-actions").hidden = !manual;
   $("identify").hidden = manual;
   $("suggestions").hidden = !manual;
-  $("workflow-title").textContent = play
-    ? "Follow the clues."
-    : manual
-      ? "Encrypt or decrypt."
-      : "Crack a message.";
-  $("workflow-description").textContent = play
-    ? "Uncover a mystery, one letter at a time."
-    : manual
-      ? "Choose a classical cipher and work with a key you know."
-      : "Find a likely cipher, discover its key, and uncover the text.";
+  $("workflow-title").textContent = learn
+    ? "Put the evidence to the test."
+    : hash
+      ? "Same text. Same fingerprint."
+      : play
+        ? "Follow the clues."
+        : manual
+          ? "Encrypt or decrypt."
+          : "Crack a message.";
+  $("workflow-description").textContent = learn
+    ? "Short lessons, real experiments, and a mystery to investigate."
+    : hash
+      ? "Explore hashes, compare changes, and check file integrity."
+      : play
+        ? "Uncover a mystery, one letter at a time."
+        : manual
+          ? "Choose a classical cipher and work with a key you know."
+          : "Find a likely cipher, discover its key, and uncover the text.";
   $("message-heading").textContent = manual
     ? "Your message"
     : "Your ciphertext";
@@ -158,6 +264,23 @@ function setMode(mode) {
   updateCount();
   renderResult();
   controls();
+  if (changed) {
+    const panel = $(
+      play
+        ? "play-panel"
+        : hash
+          ? "hash-panel"
+          : learn
+            ? "learn-panel"
+            : "tools-workspace",
+    );
+    panel.getAnimations().forEach((animation) => animation.cancel());
+    if (!reducedNavigation.matches)
+      panel.animate(
+        [{ transform: "translateY(6px)" }, { transform: "translateY(0)" }],
+        { duration: 180, easing: "cubic-bezier(.22,1,.36,1)" },
+      );
+  }
 }
 function invalidate() {
   revision++;
@@ -473,21 +596,115 @@ $("reuse").onclick = () => {
 $("crack-tab").onclick = () => setMode("crack");
 $("manual-tab").onclick = () => setMode("manual");
 $("play-tab").onclick = () => setMode("play");
-for (const id of ["crack-tab", "manual-tab", "play-tab"])
-  $(id).onkeydown = (event) => {
+$("hash-tab").onclick = () => setMode("hash");
+$("learn-tab").onclick = () => setMode("learn");
+$("learn-open-lab").onclick = () => {
+  $("hash-back-lesson").hidden = false;
+  setMode("hash");
+  $("hash-tab").focus({ preventScroll: true });
+  document
+    .querySelector(".section-navigation")
+    .scrollIntoView({ block: "nearest" });
+};
+$("hash-back-lesson").onclick = () => {
+  setMode("learn");
+  $("learn-tab").focus({ preventScroll: true });
+  document
+    .querySelector(".section-navigation")
+    .scrollIntoView({ block: "nearest" });
+};
+function tabKeys(modes, active, select) {
+  return (event) => {
     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
     event.preventDefault();
-    const modes = ["crack", "manual", "play"];
     const index =
       event.key === "Home"
         ? 0
         : event.key === "End"
-          ? 2
-          : (modes.indexOf(workflow) + (event.key === "ArrowRight" ? 1 : 2)) %
-            3;
-    setMode(modes[index]);
-    $(`${modes[index]}-tab`).focus();
+          ? modes.length - 1
+          : (modes.indexOf(active()) +
+              (event.key === "ArrowRight" ? 1 : modes.length - 1)) %
+            modes.length;
+    select(modes[index]);
+    $(`${modes[index]}-tab`).focus({ preventScroll: true });
   };
+}
+for (const section of sectionModes)
+  $(`${section}-tab`).onkeydown = tabKeys(
+    sectionModes,
+    () => workflow,
+    setMode,
+  );
+reducedNavigation.addEventListener("change", () => {
+  updateNavigation(false);
+  if (reducedNavigation.matches) {
+    for (const id of [
+      "tools-workspace",
+      "play-panel",
+      "hash-panel",
+      "learn-panel",
+    ])
+      $(id)
+        .getAnimations()
+        .forEach((animation) => animation.cancel());
+  }
+});
+new ResizeObserver(() => updateNavigation(false)).observe($("section-track"));
+let navTap = null,
+  handledNavTap = null;
+$("section-track").addEventListener("pointerdown", (event) => {
+  const button = event.target.closest('[role="tab"]');
+  if (event.pointerType === "touch" && button)
+    navTap = {
+      id: event.pointerId,
+      button,
+      x: event.clientX,
+      y: event.clientY,
+      scroll: $("section-track").scrollLeft,
+      started: performance.now(),
+    };
+});
+$("section-track").addEventListener("pointermove", (event) => {
+  if (
+    navTap &&
+    (Math.abs(event.clientX - navTap.x) > 10 ||
+      Math.abs(event.clientY - navTap.y) > 10)
+  )
+    navTap = null;
+});
+function finishNavigationTap(event) {
+  // Some browsers omit click after a fling. Activate a stationary touch once.
+  if (!navTap || event.pointerId !== navTap.id) return;
+  const tap = navTap;
+  navTap = null;
+  if (
+    event.type === "pointerup" &&
+    event.target.closest('[role="tab"]') === tap.button &&
+    performance.now() - tap.started < 500 &&
+    Math.abs($("section-track").scrollLeft - tap.scroll) < 6
+  ) {
+    handledNavTap = { button: tap.button, at: performance.now() };
+    setMode(tap.button.id.replace(/-tab$/, ""));
+  }
+}
+$("section-track").addEventListener("pointerup", finishNavigationTap);
+$("section-track").addEventListener("pointercancel", finishNavigationTap);
+$("section-track").addEventListener(
+  "click",
+  (event) => {
+    if (
+      handledNavTap &&
+      event.detail > 0 &&
+      event.target.closest('[role="tab"]') === handledNavTap.button &&
+      performance.now() - handledNavTap.at < 500
+    ) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      handledNavTap = null;
+    }
+  },
+  true,
+);
 $("open-file").onclick = () => $("upload").click();
 $("other-guesses").onclick = () => {
   setMode("manual");

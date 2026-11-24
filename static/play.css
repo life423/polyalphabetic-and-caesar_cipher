@@ -1,7 +1,4 @@
 /* Play extends the existing navy/teal tokens; all selectors stay in its scope. */
-.workflow-tabs {
-  flex-wrap: wrap;
-}
 #play-panel {
   padding: 24px;
 }
@@ -268,9 +265,6 @@
   }
   #mission-mappings {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-  .workflow-tabs button {
-    padding-inline: 8px;
   }
   .mission-letter {
     min-width: 17px;

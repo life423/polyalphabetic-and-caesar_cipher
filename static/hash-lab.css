@@ -1,0 +1,158 @@
+/* Hash Lab reuses the app's controls, focus treatment and navy/teal tokens. */
+.hash-intro {
+  max-width: 76ch;
+  color: var(--muted);
+  margin: 0 0 20px;
+}
+.hash-modes {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+}
+.hash-modes button {
+  color: var(--muted);
+  background: transparent;
+  border-color: transparent;
+  min-width: 80px;
+}
+.hash-modes button[aria-selected="true"] {
+  color: #086b5d;
+  border-color: var(--accent);
+  background: #edf7f4;
+}
+.hash-inputs,
+.hash-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 24px;
+}
+.hash-inputs > div {
+  min-width: 0;
+}
+#hash-panel textarea {
+  height: 132px;
+  min-height: 100px;
+}
+.hash-results {
+  margin-top: 24px;
+}
+.hash-digest-block {
+  min-width: 0;
+  padding: 16px;
+  background: #f7fafb;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.hash-digest {
+  display: block;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  font-family: ui-monospace, Consolas, monospace;
+  line-height: 1.8;
+  font-size: 0.9375rem;
+  user-select: all;
+}
+.hash-digest-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.hash-digest-actions .hint {
+  margin: 0;
+}
+#hash-comparison {
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  padding-top: 20px;
+}
+#hash-bits {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 3px;
+  max-width: 512px;
+  margin-top: 12px;
+}
+#hash-bits span {
+  text-align: center;
+  padding-block: 3px;
+  font-size: 0.8125rem;
+  font-family: ui-monospace, Consolas, monospace;
+  background: #e7edf1;
+}
+#hash-bits span[data-changed="true"] {
+  background: #d3ebe3;
+  color: #164b3f;
+  text-decoration: underline;
+  font-weight: 750;
+}
+#hash-file {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  color: var(--muted);
+}
+#hash-file::file-selector-button {
+  font: inherit;
+  min-height: 44px;
+  border: 1px solid var(--accent);
+  border-radius: 7px;
+  background: white;
+  color: #086b5d;
+  padding: 8px 12px;
+  margin-right: 12px;
+  cursor: pointer;
+}
+#hash-file-info {
+  margin-bottom: 16px;
+}
+#hash-expected {
+  font-family: ui-monospace, Consolas, monospace;
+}
+#hash-file-run {
+  margin-top: 8px;
+}
+#hash-file-results {
+  margin-top: 20px;
+}
+#hash-verification {
+  margin-bottom: 0;
+  font-weight: 650;
+}
+#hash-verification[data-match="true"] {
+  color: #086b5d;
+}
+#hash-verification[data-match="false"],
+#hash-status[data-error="true"] {
+  color: #9e2b1e;
+}
+#hash-expected[aria-invalid="true"] {
+  border: 2px solid #9e2b1e;
+}
+#hash-status {
+  min-height: 44px;
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin: 16px 0 0;
+}
+@media (max-width: 760px) {
+  .hash-inputs,
+  .hash-results {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  #hash-panel .section-heading {
+    align-items: start;
+  }
+  #hash-example {
+    text-align: left;
+    padding-left: 0;
+  }
+  .hash-digest-block {
+    padding: 12px;
+  }
+}
