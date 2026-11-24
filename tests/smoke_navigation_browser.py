@@ -62,7 +62,7 @@ def check(url, screenshots):
             page.set_viewport_size({'width': width, 'height': 1000})
             page.wait_for_timeout(300)
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-            assert track.evaluate('e=>e.scrollWidth<=e.clientWidth')
+            assert track.evaluate('e=>e.scrollWidth<=e.clientWidth'), track.evaluate('e=>({viewport:innerWidth,content:e.scrollWidth,available:e.clientWidth})')
             assert track.get_by_role('tab').count() == 6
             page.screenshot(path=str(output / f'desktop-{width}.png'), full_page=True)
         page.emulate_media(reduced_motion='reduce')
