@@ -10,6 +10,7 @@
     />
     <title>CipherCraft — Explore the message</title>
     <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="play.css" />
     <script type="module" src="app.js"></script>
   </head>
   <body>
@@ -44,9 +45,18 @@
         >
           Encrypt / decrypt
         </button>
+        <button
+          id="play-tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="play-panel"
+          tabindex="-1"
+        >
+          Play
+        </button>
       </div>
       <noscript>Enable JavaScript to use CipherCraft.</noscript>
-      <div class="workspace">
+      <div class="workspace" id="tools-workspace">
         <section
           id="input-panel"
           class="input-card"
@@ -188,6 +198,126 @@
           </button>
         </section>
       </div>
+      <section
+        id="play-panel"
+        role="tabpanel"
+        aria-labelledby="play-tab"
+        hidden
+      >
+        <div class="mission-heading">
+          <div>
+            <p class="eyebrow">CASE 01 · THE MISSING ASTRONOMER</p>
+            <h2>The Observatory Note</h2>
+          </div>
+          <span class="mission-level">First mission</span>
+        </div>
+        <p class="mission-brief">
+          The astronomer has vanished. A note left beside her telescope is your
+          only lead. Decode it to discover where to go and what to bring.
+        </p>
+        <div id="mission-loading" role="status">Opening the case…</div>
+        <div id="mission-error" hidden>
+          <p>The case could not load. Your cipher tools are still available.</p>
+          <button id="mission-retry" class="secondary">
+            Retry opening case
+          </button>
+        </div>
+        <div id="mission-content" hidden>
+          <div id="mission-first-move" class="mission-first-move">
+            <div>
+              <h3>Start with one word</h3>
+              <p>
+                <strong>AOL</strong> appears three times. It could mean
+                <strong>THE</strong>. Try that guess and watch the note change.
+              </p>
+            </div>
+            <button id="mission-try-word">Try AOL → THE</button>
+          </div>
+          <div class="mission-grid">
+            <div>
+              <h3>Intercepted note</h3>
+              <p class="hint" id="mission-instruction">
+                Each cipher letter always means the same letter. Add guesses
+                below; every matching letter updates together.
+              </p>
+              <div id="mission-note" aria-hidden="true"></div>
+              <p id="mission-readable" class="sr-only"></p>
+              <p id="mission-progress" class="hint"></p>
+            </div>
+            <div class="mission-workbench">
+              <div class="section-heading">
+                <h3>Your letter guesses</h3>
+                <button id="mission-clue" class="text-button">
+                  Get a clue
+                </button>
+              </div>
+              <p class="hint" id="mission-map-help">
+                Cipher letter above, your guess below. The small number shows
+                how often it appears. Clear a guess to reuse its letter.
+              </p>
+              <div
+                id="mission-mappings"
+                role="group"
+                aria-label="Letter guesses"
+                aria-describedby="mission-map-help"
+              ></div>
+              <div id="mission-clues" hidden>
+                <h3>Case clues</h3>
+                <p class="hint">
+                  Written for this case, using patterns in the note.
+                </p>
+                <ol id="mission-clue-list"></ol>
+              </div>
+              <button id="mission-reveal" class="text-button">
+                Reveal solution…
+              </button>
+            </div>
+          </div>
+          <div class="actions mission-actions">
+            <button id="mission-check">Check solution</button
+            ><button id="mission-undo" class="secondary" disabled>Undo</button
+            ><button id="mission-reset" class="text-button">
+              Reset guesses
+            </button>
+          </div>
+          <p id="mission-status" role="status"></p>
+          <div id="mission-reset-confirm" class="mission-confirm" hidden>
+            <p>
+              Clear your guesses and clues for this case? Undo can restore them.
+            </p>
+            <div class="actions">
+              <button id="mission-reset-yes" class="secondary">
+                Clear this case</button
+              ><button id="mission-reset-no" class="text-button">
+                Keep playing
+              </button>
+            </div>
+          </div>
+          <div id="mission-complete" class="mission-complete" hidden>
+            <h3 id="mission-complete-title" tabindex="-1">Case solved</h3>
+            <p id="mission-ending"></p>
+            <p class="hint">
+              This is the first playable case. More missions are planned.
+            </p>
+          </div>
+          <div id="mission-reveal-confirm" class="mission-confirm" hidden>
+            <p>
+              Reveal the whole note? This will mark the case as revealed, rather
+              than solved.
+            </p>
+            <div class="actions">
+              <button id="mission-reveal-yes" class="secondary">
+                Reveal the note</button
+              ><button id="mission-reveal-no" class="text-button">
+                Keep solving
+              </button>
+            </div>
+          </div>
+          <p id="mission-storage" class="hint">
+            Case progress saves on this device. Your cipher tools stay separate.
+          </p>
+        </div>
+      </section>
       <footer>
         <p>Your messages and keys stay in this browser.</p>
         <p>

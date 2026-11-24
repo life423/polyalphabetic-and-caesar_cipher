@@ -1,0 +1,8 @@
+{
+  "appId": "io.drewclark.ciphercraft.beta",
+  "appName": "CipherCraft Beta",
+  "webDir": "../dist/static",
+  "server": { "androidScheme": "https", "hostname": "localhost" },
+  "android": { "initialFocus": false, "backgroundColor": "#f4f6f8" },
+  "plugins": { "SystemBars": { "insetsHandling": "native", "style": "LIGHT" } }
+}

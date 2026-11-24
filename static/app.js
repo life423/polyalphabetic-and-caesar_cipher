@@ -1,4 +1,17 @@
 const $ = (id) => document.getElementById(id);
+async function openPlay() {
+  try {
+    const { openMission } = await import("./play.js");
+    await openMission();
+  } catch {
+    $("mission-loading").hidden = true;
+    $("mission-error").hidden = false;
+  }
+}
+$("mission-retry").onclick = openPlay;
+const nativeFiles = window.Capacitor?.isNativePlatform()
+  ? window.Capacitor.Plugins.CipherFiles
+  : null;
 let worker,
   loadingTimer,
   readingFile = false,
@@ -103,11 +116,15 @@ function setMode(mode) {
   if (mode !== workflow) revision++;
   workflow = mode;
   const manual = mode === "manual";
-  for (const id of ["crack-tab", "manual-tab"]) {
-    const selected = id === (manual ? "manual-tab" : "crack-tab");
+  const play = mode === "play";
+  for (const id of ["crack-tab", "manual-tab", "play-tab"]) {
+    const selected = id === `${mode === "manual" ? "manual" : mode}-tab`;
     $(id).setAttribute("aria-selected", String(selected));
     $(id).tabIndex = selected ? 0 : -1;
   }
+  $("tools-workspace").hidden = play;
+  $("play-panel").hidden = !play;
+  if (play) openPlay();
   $("input-panel").setAttribute(
     "aria-labelledby",
     manual ? "manual-tab" : "crack-tab",
@@ -115,12 +132,16 @@ function setMode(mode) {
   $("manual-settings").hidden = $("manual-actions").hidden = !manual;
   $("identify").hidden = manual;
   $("suggestions").hidden = !manual;
-  $("workflow-title").textContent = manual
-    ? "Encrypt or decrypt."
-    : "Crack a message.";
-  $("workflow-description").textContent = manual
-    ? "Choose a classical cipher and work with a key you know."
-    : "Find a likely cipher, discover its key, and uncover the text.";
+  $("workflow-title").textContent = play
+    ? "Follow the clues."
+    : manual
+      ? "Encrypt or decrypt."
+      : "Crack a message.";
+  $("workflow-description").textContent = play
+    ? "Uncover a mystery, one letter at a time."
+    : manual
+      ? "Choose a classical cipher and work with a key you know."
+      : "Find a likely cipher, discover its key, and uncover the text.";
   $("message-heading").textContent = manual
     ? "Your message"
     : "Your ciphertext";
@@ -411,16 +432,32 @@ for (const action of ["Encrypt", "Decrypt", "analyze"])
 $("identify").onclick = () => run("crack");
 $("generate").onclick = () => run("generate");
 $("retry").onclick = start;
-$("download").onclick = () => {
-  const blob = new Blob([resultText], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download =
+$("download").onclick = async () => {
+  const text = resultText;
+  const outputName =
     filename
       .replace(/\.[^.]*$/, "")
       .replace(/[^\w.-]/g, "_")
       .slice(0, 80) + `_${operation.toLowerCase()}ed.txt`;
+  if (nativeFiles) {
+    try {
+      const saved = await nativeFiles.saveText({ filename: outputName, text });
+      if (resultText === text)
+        status(saved.cancelled ? "Save cancelled." : "Text file saved.");
+    } catch {
+      if (resultText === text)
+        status(
+          "The file could not be saved. Try again or copy the text.",
+          true,
+        );
+    }
+    return;
+  }
+  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = outputName;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
@@ -435,14 +472,21 @@ $("reuse").onclick = () => {
 };
 $("crack-tab").onclick = () => setMode("crack");
 $("manual-tab").onclick = () => setMode("manual");
-for (const id of ["crack-tab", "manual-tab"])
+$("play-tab").onclick = () => setMode("play");
+for (const id of ["crack-tab", "manual-tab", "play-tab"])
   $(id).onkeydown = (event) => {
     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
     event.preventDefault();
-    const manual =
-      event.key === "End" || (event.key !== "Home" && workflow === "crack");
-    setMode(manual ? "manual" : "crack");
-    $(manual ? "manual-tab" : "crack-tab").focus();
+    const modes = ["crack", "manual", "play"];
+    const index =
+      event.key === "Home"
+        ? 0
+        : event.key === "End"
+          ? 2
+          : (modes.indexOf(workflow) + (event.key === "ArrowRight" ? 1 : 2)) %
+            3;
+    setMode(modes[index]);
+    $(`${modes[index]}-tab`).focus();
   };
 $("open-file").onclick = () => $("upload").click();
 $("other-guesses").onclick = () => {
@@ -456,7 +500,8 @@ $("manual-link").onclick = () => {
 $("copy").onclick = async () => {
   const text = resultText;
   try {
-    await navigator.clipboard.writeText(text);
+    if (nativeFiles) await nativeFiles.copyText({ text });
+    else await navigator.clipboard.writeText(text);
     if (resultText !== text) return;
     $("copy").textContent = "Copied";
     status("Copied to clipboard.");

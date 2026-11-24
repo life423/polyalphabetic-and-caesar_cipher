@@ -3,7 +3,7 @@ name: CipherCraft Custom Domain
 on:
   push:
     branches: [main]
-    paths: ['static/**', 'src/**', 'tools/runtime/**', 'scripts/build_static.py', 'tests/smoke_static_browser.py', '.github/workflows/static-app.yml']
+    paths: ['static/**', 'src/**', 'tools/runtime/**', 'scripts/build_static.py', 'tests/smoke_static_browser.py', 'tests/smoke_play_browser.py', 'tests/test_mission.py', '.github/workflows/static-app.yml']
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -40,11 +40,14 @@ jobs:
           python -m pytest tests/ -q
           python -m http.server 8502 --directory dist/static > /tmp/static.log 2>&1 &
           python tests/smoke_static_browser.py
+          python tests/smoke_play_browser.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: static-browser-checks
-          path: dist/static-checks/
+          path: |
+            dist/static-checks/
+            dist/play-checks/
       - name: Deploy free Azure Static Web App
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: Azure/static-web-apps-deploy@v1

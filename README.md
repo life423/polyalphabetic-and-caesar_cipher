@@ -211,6 +211,23 @@ Interactive QA on actual Windows and macOS desktops is still recommended.
 The macOS build is not Apple notarized; users may need to approve it under
 System Settings → Privacy & Security after the first launch attempt.
 
+## Play prototype and Android testing
+
+The web app includes a separate **Play** workflow with its first
+codebreaking mission, **The Observatory Note**. A guided first move introduces
+letter mapping; guesses, undo/reset, authored clues and case progress are local
+to Play. The existing cipher tools and AI remain available separately.
+
+See [the product roadmap](docs/PRODUCT_ROADMAP.md) for the approved direction,
+current validation and next experiments. A messenger is a proposed extension,
+not an implemented feature or a promise of secure communication.
+
+Build the web preview with `.venv/Scripts/python.exe scripts/build_static.py`,
+then serve it with
+`.venv/Scripts/python.exe -m http.server 8502 --bind 127.0.0.1 --directory dist/static`.
+Open http://localhost:8502 and select Play. For Android builds and device testing,
+see [Android testing](docs/ANDROID_TESTING.md).
+
 ## Security note
 
 These are historical, educational ciphers, **not modern encryption**.

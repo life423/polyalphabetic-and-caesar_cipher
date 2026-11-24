@@ -18,6 +18,12 @@ cannot unexpectedly update the newly selected workflow.
 
 ## Result presentation
 
+The separate **Play** tab opens a lazy-loaded mission module and its own panel.
+Its versioned progress is stored locally; it never reads or writes tool input,
+keys, uploaded files or results. A mission loading error leaves the tools usable.
+The three tabs support arrow/Home/End navigation. See PRODUCT_ROADMAP.md for
+the first mission's scope, validation and pending product decisions.
+
 An empty result has a compact explanation instead of a large disabled textarea.
 Completed results use selectable text with preserved whitespace, a bounded
 keyboard-accessible scrolling region, contextual heading and Copy/Download/Reuse
