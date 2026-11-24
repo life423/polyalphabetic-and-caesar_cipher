@@ -1155,17 +1155,48 @@
                   spellcheck="false"
                   aria-describedby="chat-account-hint"
               /></label>
-              <label
-                >Password<input
-                  id="chat-password"
-                  name="password"
-                  type="password"
-                  required
-                  minlength="12"
-                  maxlength="128"
-                  autocomplete="current-password"
-                  aria-describedby="chat-account-hint"
-              /></label>
+              <div class="chat-password-field">
+                <label for="chat-password">Password</label>
+                <div class="chat-password-control">
+                  <input
+                    id="chat-password"
+                    name="password"
+                    type="password"
+                    required
+                    minlength="12"
+                    maxlength="128"
+                    autocomplete="current-password"
+                    aria-describedby="chat-account-hint"
+                  />
+                  <button
+                    id="chat-password-toggle"
+                    class="chat-password-toggle"
+                    type="button"
+                    aria-label="Show password"
+                    aria-controls="chat-password"
+                    aria-pressed="false"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"
+                      />
+                      <circle cx="12" cy="12" r="3" />
+                      <path id="chat-password-slash" d="m3 3 18 18" hidden />
+                    </svg>
+                  </button>
+                </div>
+              </div>
               <p id="chat-account-hint" class="chat-muted">
                 Username: 3–24 lowercase letters, numbers or underscores.
                 Password: at least 12 characters. No email or password recovery.

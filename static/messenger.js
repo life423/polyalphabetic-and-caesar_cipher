@@ -138,7 +138,17 @@ function controls() {
   $("send").disabled = sending || !trusted || !!current?.blocked;
   $("block").textContent = current?.blocked ? "Unblock" : "Block";
 }
+function showPassword(visible) {
+  $("password").type = visible ? "text" : "password";
+  $("password-toggle").setAttribute("aria-pressed", String(visible));
+  $("password-toggle").setAttribute(
+    "aria-label",
+    visible ? "Hide password" : "Show password",
+  );
+  $("password-slash").toggleAttribute("hidden", !visible);
+}
 function reset() {
+  showPassword(false);
   document.getElementById("messenger-app").dataset.chatOpen = "false";
   for (const p of decryptedPayloads) {
     p.text = "";
@@ -646,12 +656,23 @@ export function openMessenger() {
   }
   started = true;
   mode();
+  $("password-toggle").onpointerdown = (event) => {
+    if (document.activeElement === $("password")) event.preventDefault();
+  };
+  $("password-toggle").onclick = () => {
+    const input = $("password");
+    const start = input.selectionStart,
+      end = input.selectionEnd;
+    showPassword(input.type === "password");
+    input.setSelectionRange(start, end);
+  };
   $("auth-form").onsubmit = async (event) => {
     event.preventDefault();
     const e = ++epoch,
       username = $("username").value,
       register = event.submitter?.value === "register";
     let password = $("password").value;
+    showPassword(false);
     const buttons = [...$("auth-form").querySelectorAll("button")];
     buttons.forEach((b) => (b.disabled = true));
     notice(register ? "Creating account…" : "Unlocking account…");
@@ -706,6 +727,7 @@ export function openMessenger() {
       password = null;
       if (epoch === e) {
         $("password").value = "";
+        showPassword(false);
         buttons.forEach((b) => (b.disabled = false));
       }
     }
