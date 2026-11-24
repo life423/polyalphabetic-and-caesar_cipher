@@ -12,6 +12,8 @@ import sqlite3
 import time
 from urllib.parse import parse_qs, urlsplit
 from uuid import UUID
+from .push import FirebaseSender, PushDelivery, PushError, SCHEMA as PUSH_SCHEMA
+from . import admin
 
 ITERATIONS = 600_000
 SESSION_SECONDS = 7 * 86400
@@ -26,6 +28,8 @@ CREATE TABLE IF NOT EXISTS conversations(id INTEGER PRIMARY KEY, low INTEGER NOT
 CREATE TABLE IF NOT EXISTS members(conversation_id INTEGER NOT NULL REFERENCES conversations(id), user_id INTEGER NOT NULL REFERENCES users(id), read_id INTEGER NOT NULL DEFAULT 0, blocked INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(conversation_id,user_id));
 CREATE TABLE IF NOT EXISTS messages(id INTEGER PRIMARY KEY, conversation_id INTEGER NOT NULL REFERENCES conversations(id), sender_id INTEGER NOT NULL REFERENCES users(id), client_id TEXT NOT NULL, envelope TEXT NOT NULL, created INTEGER NOT NULL, UNIQUE(sender_id,client_id));
 CREATE INDEX IF NOT EXISTS message_conversation ON messages(conversation_id,id);
+CREATE TABLE IF NOT EXISTS record_counters(name TEXT PRIMARY KEY, value INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS message_tombstones(sender_id INTEGER NOT NULL REFERENCES users(id), client_id TEXT NOT NULL, PRIMARY KEY(sender_id,client_id));
 CREATE TABLE IF NOT EXISTS rate_limits(bucket TEXT NOT NULL, subject TEXT NOT NULL, window INTEGER NOT NULL, count INTEGER NOT NULL, PRIMARY KEY(bucket,subject));
 '''
 
@@ -83,10 +87,11 @@ def message(row):
 
 
 class Messenger:
-    def __init__(self, db_path=None, origins=None, clock=time.time):
+    def __init__(self, db_path=None, origins=None, clock=time.time, push_sender=None):
         self.path = str(db_path or os.environ.get('CIPHER_MESSENGER_DB') or ('/home/data/cipher-messenger.sqlite3' if os.environ.get('WEBSITE_SITE_NAME') else Path(__file__).resolve().parents[2] / '.venv/messenger.sqlite3'))
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         self.clock = clock
+        self.admin_ids = admin.admin_ids(os.environ.get('CIPHER_MESSENGER_ADMIN_IDS', ''))
         self.origins = set((origins if origins is not None else os.environ.get('CIPHER_MESSENGER_ORIGINS', DEFAULT_ORIGINS)).split(','))
         self.origins = {o.strip() for o in self.origins if o.strip()}
         for origin in self.origins:
@@ -95,7 +100,10 @@ class Messenger:
                 raise ValueError('Origins must be exact http(s) origins')
         with self.connect() as db:
             db.execute('PRAGMA journal_mode=DELETE')
-            db.executescript(SCHEMA)
+            db.executescript(SCHEMA + PUSH_SCHEMA + admin.SCHEMA)
+            for table in ('users', 'conversations', 'messages'):
+                db.execute('INSERT INTO record_counters(name,value) SELECT ?,COALESCE(MAX(id),0) FROM ' + table + ' WHERE 1 ON CONFLICT(name) DO UPDATE SET value=MAX(value,excluded.value)', (table,))
+        self.push = PushDelivery(self.connect, self.clock, push_sender or FirebaseSender.from_environment())
 
     @contextmanager
     def connect(self):
@@ -128,6 +136,11 @@ class Messenger:
         if private:
             result['keyBackup'] = json.loads(row['key_backup'])
         return result
+
+    def next_id(self, db, table):
+        if table not in ('users', 'conversations', 'messages'):
+            raise ValueError('Unknown record counter')
+        return db.execute('UPDATE record_counters SET value=MAX(value,(SELECT COALESCE(MAX(id),0) FROM ' + table + '))+1 WHERE name=? RETURNING value', (table,)).fetchone()[0]
 
     def member(self, db, cid, uid):
         row = db.execute('SELECT * FROM members WHERE conversation_id=? AND user_id=?', (cid, uid)).fetchone()
@@ -172,14 +185,18 @@ class Messenger:
                     db.execute('BEGIN IMMEDIATE')
                     require(db.execute('SELECT count(*) FROM users').fetchone()[0] < 500, 'user_capacity_reached', 429)
                     try:
-                        cur = db.execute('INSERT INTO users(username,salt,password_hash,public_key,key_backup) VALUES(?,?,?,?,?)', (name, salt, digest, json.dumps(key), json.dumps(backup)))
+                        cur = db.execute('INSERT INTO users(id,username,salt,password_hash,public_key,key_backup) VALUES(?,?,?,?,?,?)', (self.next_id(db, 'users'), name, salt, digest, json.dumps(key), json.dumps(backup)))
                     except sqlite3.IntegrityError:
                         raise APIError(409, 'username_taken')
                     row = db.execute('SELECT * FROM users WHERE id=?', (cur.lastrowid,)).fetchone()
                 else:
+                    db.execute('BEGIN IMMEDIATE')
                     row = db.execute('SELECT * FROM users WHERE username=?', (name,)).fetchone()
                     digest = hashlib.pbkdf2_hmac('sha256', password.encode(), row['salt'] if row else b'\0'*16, ITERATIONS)
                     require(row is not None and hmac.compare_digest(digest, row['password_hash']), 'invalid_credentials', 401)
+                    require(not db.execute('SELECT 1 FROM account_status WHERE user_id=? AND suspended=1', (row['id'],)).fetchone(), 'account_suspended', 403)
+                db.execute('INSERT INTO account_status(user_id,created,last_login) VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET last_login=excluded.last_login',
+                           (row['id'], now if path == '/api/register' else None, now))
                 token = secrets.token_urlsafe(32)
                 db.execute('INSERT INTO sessions VALUES(?,?,?)', (hashlib.sha256(token.encode()).hexdigest(), row['id'], now + SESSION_SECONDS))
                 return {'token': token, 'user': self.user(row, True)}
@@ -190,9 +207,20 @@ class Messenger:
             row = db.execute('SELECT users.* FROM sessions JOIN users ON users.id=sessions.user_id WHERE token_hash=? AND expires>?', (token_hash, now)).fetchone()
             require(row is not None, 'unauthorized', 401)
             uid = row['id']
+            require(not db.execute('SELECT 1 FROM account_status WHERE user_id=? AND suspended=1', (uid,)).fetchone(), 'account_suspended', 403)
+            if path.startswith('/api/admin/'):
+                return admin.dispatch(self, db, env, body, uid, token_hash, now)
+            if path == '/api/push/status' and method == 'GET':
+                return {'configured': self.push.configured}
+            if path in ('/api/push/register', '/api/push/unregister') and method == 'POST':
+                self.limit('push_devices', str(uid), 20, 60)
+                if path.endswith('/register'):
+                    return self.push.register(uid, token_hash, body)
+                return self.push.unregister(uid, token_hash, body)
             if path == '/api/me' and method == 'GET':
                 return {'user': self.user(row, True)}
             if path == '/api/logout' and method == 'POST':
+                db.execute('DELETE FROM push_devices WHERE session_hash=?', (token_hash,))
                 db.execute('DELETE FROM sessions WHERE token_hash=?', (token_hash,))
                 return {'ok': True}
             if path == '/api/people' and method == 'GET':
@@ -214,7 +242,7 @@ class Messenger:
                     require(peer is not None, 'not_found', 404)
                     require(peer['id'] != uid, 'self_conversation')
                     low, high = sorted((uid, peer['id']))
-                    db.execute('INSERT OR IGNORE INTO conversations(low,high,updated) VALUES(?,?,?)', (low, high, now))
+                    db.execute('INSERT OR IGNORE INTO conversations(id,low,high,updated) VALUES(?,?,?,?)', (self.next_id(db, 'conversations'), low, high, now))
                     cid = db.execute('SELECT id FROM conversations WHERE low=? AND high=?', (low, high)).fetchone()[0]
                     for member in (low, high):
                         db.execute('INSERT OR IGNORE INTO members(conversation_id,user_id) VALUES(?,?)', (cid, member))
@@ -242,13 +270,17 @@ class Messenger:
                 envelope = opaque(body.get('envelope'))
                 # Serialize block checks and insertion with block updates and competing retries.
                 db.execute('BEGIN IMMEDIATE')
+                require(db.execute('SELECT 1 FROM sessions WHERE token_hash=? AND expires>?', (token_hash, now)).fetchone() is not None, 'unauthorized', 401)
+                require(not db.execute('SELECT 1 FROM account_status WHERE user_id IN (SELECT user_id FROM members WHERE conversation_id=?) AND suspended=1', (cid,)).fetchone(), 'account_unavailable', 403)
+                require(not db.execute('SELECT 1 FROM message_tombstones WHERE sender_id=? AND client_id=?', (uid, client_id)).fetchone(), 'message_deleted', 410)
                 require(not db.execute('SELECT 1 FROM members WHERE conversation_id=? AND blocked=1', (cid,)).fetchone(), 'blocked', 403)
                 existing = db.execute('SELECT * FROM messages WHERE sender_id=? AND client_id=?', (uid, client_id)).fetchone()
                 if existing:
                     require(existing['conversation_id'] == cid and json.loads(existing['envelope']) == envelope, 'client_id_conflict', 409)
                     return {'message': message(existing)}
                 require(db.execute('SELECT count(*) FROM messages').fetchone()[0] < 20000, 'message_capacity_reached', 429)
-                cur = db.execute('INSERT INTO messages(conversation_id,sender_id,client_id,envelope,created) VALUES(?,?,?,?,?)', (cid, uid, client_id, json.dumps(envelope), now))
+                cur = db.execute('INSERT INTO messages(id,conversation_id,sender_id,client_id,envelope,created) VALUES(?,?,?,?,?,?)', (self.next_id(db, 'messages'), cid, uid, client_id, json.dumps(envelope), now))
+                self.push.enqueue(db, cid, cur.lastrowid, uid)
                 db.execute('UPDATE conversations SET updated=? WHERE id=?', (now, cid))
                 return {'message': message(db.execute('SELECT * FROM messages WHERE id=?', (cur.lastrowid,)).fetchone())}
             if action == 'read' and method == 'POST':
@@ -292,7 +324,7 @@ class Messenger:
                     body = json.loads(raw)
                     require(isinstance(body, dict), 'invalid_body')
                 result = self.dispatch(env, body)
-        except APIError as error:
+        except (APIError, PushError, admin.AdminError) as error:
             status, result = error.status, {'error': error.code}
         except (ValueError, UnicodeError, RecursionError):
             status, result = 400, {'error': 'invalid_request'}
@@ -303,6 +335,8 @@ class Messenger:
             status, result = 500, {'error': 'internal_error'}
         if status == 429:
             headers.append(('Retry-After', '900'))
+        if status == 200:
+            self.push.wake()
         payload = json.dumps(result, separators=(',', ':')).encode()
         headers.append(('Content-Length', str(len(payload))))
         from http import HTTPStatus
@@ -310,5 +344,5 @@ class Messenger:
         return [payload]
 
 
-def create_app(db_path=None, origins=None, clock=time.time):
-    return Messenger(db_path, origins, clock)
+def create_app(db_path=None, origins=None, clock=time.time, push_sender=None):
+    return Messenger(db_path, origins, clock, push_sender)

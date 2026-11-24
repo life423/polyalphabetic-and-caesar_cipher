@@ -169,3 +169,5 @@ mobile/android/app/src/main/assets/public/
 mobile/android/app/src/main/assets/capacitor.config.json
 mobile/android/app/src/main/assets/capacitor.plugins.json
 *.keystore
+mobile/android/app/google-services.json
+*firebase-adminsdk*.json

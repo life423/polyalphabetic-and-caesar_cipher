@@ -251,3 +251,9 @@
 #messenger-app .chat-password-toggle:focus-visible {
   outline-offset: -3px;
 }
+
+#messenger-app .chat-notifications {
+  border-bottom: 1px solid var(--line);
+  padding: 0 0 16px;
+  margin: 0 0 16px;
+}

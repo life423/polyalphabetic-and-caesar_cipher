@@ -1208,6 +1208,30 @@
               </div>
             </form>
           </section>
+          <div
+            id="chat-notifications"
+            class="chat-notifications"
+            role="region"
+            aria-label="Message notifications"
+            hidden
+          >
+            <p
+              id="chat-notification-status"
+              class="chat-muted"
+              role="status"
+            ></p>
+            <div class="chat-actions">
+              <button id="chat-notification-enable" type="button">
+                Enable notifications
+              </button>
+              <button id="chat-notification-disable" type="button" hidden>
+                Turn off notifications
+              </button>
+              <button id="chat-notification-settings" type="button" hidden>
+                Android settings
+              </button>
+            </div>
+          </div>
           <div id="chat-workspace" hidden>
             <aside class="chat-inbox" aria-label="Conversation inbox">
               <h3>Inbox</h3>

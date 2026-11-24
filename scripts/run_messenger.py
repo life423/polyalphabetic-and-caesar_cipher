@@ -18,6 +18,8 @@ if __name__ == '__main__':
     parser.add_argument('--host', default='127.0.0.1')
     parser.add_argument('--port', type=int, default=8503)
     args = parser.parse_args()
-    with make_server(args.host, args.port, create_app(), handler_class=QuietHandler) as server:
+    application = create_app()
+    application.push.start()
+    with make_server(args.host, args.port, application, handler_class=QuietHandler) as server:
         print(f'CipherCraft messenger listening on {args.host}:{args.port}')
         server.serve_forever()

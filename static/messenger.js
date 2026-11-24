@@ -1,3 +1,8 @@
+import {
+  setPushSession,
+  clearPushSession,
+  takePushMessage,
+} from "./messenger-push.js";
 import { sha256 } from "./sha256.js";
 import { API_BASE } from "./messenger-config.js";
 import {
@@ -70,6 +75,9 @@ async function api(path, body, token = session?.token) {
     if (!r.ok) {
       const errors = {
         invalid_credentials: "Username or password is incorrect.",
+        account_suspended: "This account is suspended. Contact the app administrator.",
+        account_unavailable: "This account is unavailable for new messages.",
+        message_deleted: "This message was deleted by an administrator and cannot be resent. Start a new message instead.",
         username_taken: "That username is already taken. Choose another.",
         unauthorized:
           "Your session has expired. Copy any draft you want to keep, then sign out and log in again.",
@@ -148,6 +156,7 @@ function showPassword(visible) {
   $("password-slash").toggleAttribute("hidden", !visible);
 }
 function reset() {
+  clearPushSession();
   showPassword(false);
   document.getElementById("messenger-app").dataset.chatOpen = "false";
   for (const p of decryptedPayloads) {
@@ -713,6 +722,52 @@ export function openMessenger() {
           );
       if (epoch !== e) return;
       session = { token: data.token, user: data.user, privateKey };
+      const owner = session;
+      void setPushSession({
+        api: (path, body) => api(path, body, owner.token),
+        onReceived: () => {
+          if (session === owner) void refresh();
+        },
+        onOpen: async (message) => {
+          if (session !== owner) return;
+          if (String(owner.user.id) !== String(message.recipientId)) {
+            notice(
+              "Sign in to the account that received this notification.",
+              true,
+            );
+            return;
+          }
+          if ($("text").value.trim()) {
+            notice(
+              "A new message is waiting. Finish or save your draft, then open it from the inbox.",
+            );
+            return;
+          }
+          try {
+            const result = await api(
+              "/api/conversations",
+              undefined,
+              owner.token,
+            );
+            if (session !== owner) return;
+            const target = takePushMessage(owner.user.id);
+            if (!target) return;
+            inbox = result.conversations || [];
+            renderInbox();
+            const conversation = inbox.find(
+              (item) => String(item.id) === target.conversationId,
+            );
+            if (conversation) await choose(conversation);
+            else notice("That conversation is no longer available.", true);
+          } catch {
+            if (session === owner)
+              notice(
+                "Reconnect and open the inbox to view your new message.",
+                true,
+              );
+          }
+        },
+      }).catch(() => {});
       $("account").textContent = "Your username: " + data.user.username;
       $("account").hidden = false;
       $("auth-form").reset();

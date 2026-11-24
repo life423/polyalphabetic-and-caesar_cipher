@@ -1,0 +1,240 @@
+main {
+  padding-bottom: 48px;
+}
+#admin-workspace {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.brandbar a:not(.wordmark) {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+#reason {
+  min-height: 100px;
+  font: inherit;
+}
+.admin-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.login-card {
+  max-width: 440px;
+}
+.admin-card h2 {
+  margin: 0 0 8px;
+}
+label {
+  display: block;
+  font-weight: 600;
+  margin: 16px 0 8px;
+}
+input,
+textarea {
+  width: 100%;
+  min-width: 0;
+}
+button {
+  min-height: 44px;
+}
+.secondary {
+  background: var(--surface);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+.secondary:hover {
+  background: #edf6f3;
+  color: var(--accent-hover);
+}
+.danger {
+  color: #a12626;
+  border-color: #b44949;
+}
+.danger:hover:enabled,
+button.danger:not(.secondary) {
+  background: #a12626;
+  color: #fff;
+  border-color: #a12626;
+}
+#messages > li {
+  align-items: center;
+}
+#messages h3,
+#messages p {
+  margin: 0 0 4px;
+}
+.password-wrap {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.password-wrap input {
+  flex: 1;
+}
+.password-wrap button {
+  background: var(--surface);
+  color: var(--accent);
+  border: 1px solid var(--control);
+}
+#login-submit {
+  margin-top: 24px;
+}
+#status {
+  min-height: 24px;
+  overflow-wrap: anywhere;
+}
+#status[data-error="true"],
+#action-error {
+  color: #a12626;
+}
+.admin-toolbar,
+.section-header,
+.pagination,
+.dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.admin-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 0 0 24px;
+}
+.admin-summary div {
+  padding: 16px;
+  border-left: 3px solid var(--accent);
+}
+.admin-summary dt,
+.admin-muted {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.admin-summary dd {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+}
+.search-form {
+  max-width: 520px;
+}
+.search-form > div {
+  display: flex;
+  gap: 8px;
+}
+.account-list,
+.audit-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.account-list > li {
+  border-top: 1px solid var(--line);
+  padding: 20px 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+}
+.account-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.account-heading h3 {
+  margin: 0;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+.account-state {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+.account-state[data-suspended="true"] {
+  background: #fff2e9;
+  color: #7c3c00;
+  border-color: #d8b89d;
+}
+.account-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.account-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pagination {
+  margin-top: 16px;
+}
+.audit-list > li {
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+.audit-list p {
+  margin: 4px 0 0;
+}
+dialog {
+  width: min(520px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  color: var(--navy);
+}
+dialog::backdrop {
+  background: rgb(20 36 50 / 0.5);
+}
+dialog h2 {
+  margin-top: 0;
+}
+.dialog-actions {
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+[hidden] {
+  display: none !important;
+}
+@media (max-width: 700px) {
+  main {
+    padding: 0 16px 32px;
+  }
+  .admin-card {
+    padding: 16px;
+  }
+  .admin-summary {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .account-list > li {
+    grid-template-columns: 1fr;
+  }
+  .account-actions button {
+    flex: 1;
+  }
+  .admin-toolbar {
+    flex-wrap: wrap;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

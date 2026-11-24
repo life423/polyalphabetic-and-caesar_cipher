@@ -15,7 +15,7 @@ def package(output):
     output.parent.mkdir(parents=True, exist_ok=True)
     files = [(ROOT / name, name) for name in (
         'src/messenger/__init__.py', 'src/messenger/app.py',
-        'src/messenger/wsgi.py', 'src/messenger/README.md',
+        'src/messenger/wsgi.py', 'src/messenger/push.py', 'src/messenger/admin.py', 'src/messenger/README.md',
         'scripts/run_messenger.py', 'messenger-requirements.txt')]
     with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as archive:
         for path, name in files:

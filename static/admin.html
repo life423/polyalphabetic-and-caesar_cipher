@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <title>CipherCraft — Account administration</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="admin.css" />
+    <script type="module" src="admin.js"></script>
+  </head>
+  <body>
+    <main>
+      <header class="brandbar">
+        <a class="wordmark" href="./">Cipher<span>Craft</span></a
+        ><a href="./">Back to app</a>
+      </header>
+      <div class="intro">
+        <p class="eyebrow">ADMINISTRATION</p>
+        <h1>Account management</h1>
+        <p class="subtitle">Manage access. Keep conversations private.</p>
+      </div>
+      <section
+        id="admin-login"
+        class="admin-card login-card"
+        aria-labelledby="login-title"
+      >
+        <h2 id="login-title">Administrator sign-in</h2>
+        <p>Use your designated CipherCraft account.</p>
+        <form id="login-form">
+          <label for="username">Username</label
+          ><input
+            id="username"
+            name="username"
+            autocomplete="username"
+            required
+            pattern="[a-z0-9_]{3,24}"
+            maxlength="24"
+          />
+          <label for="password">Password</label>
+          <div class="password-wrap">
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              minlength="12"
+              maxlength="128"
+              required
+            /><button
+              id="show-password"
+              type="button"
+              aria-label="Show password"
+              aria-pressed="false"
+            >
+              Show
+            </button>
+          </div>
+          <button id="login-submit" type="submit">Sign in</button>
+        </form>
+      </section>
+      <p id="status" role="status" aria-live="polite"></p>
+      <section id="admin-workspace" hidden aria-label="Account administration">
+        <div class="admin-toolbar">
+          <p id="admin-identity"></p>
+          <button id="sign-out" type="button" class="secondary">
+            Sign out
+          </button>
+        </div>
+        <dl id="summary" class="admin-summary"></dl>
+        <section class="admin-card" aria-labelledby="messages-title">
+          <div class="section-header">
+            <h2 id="messages-title">Messages</h2>
+            <button
+              id="delete-all-messages"
+              type="button"
+              class="secondary danger"
+              disabled
+            >
+              Delete all messages
+            </button>
+          </div>
+          <p class="admin-muted">
+            Message records only; encrypted contents stay private. Deletion
+            removes server copies for both people and cannot be undone. Already
+            downloaded copies may remain on their devices.
+          </p>
+          <p id="message-count" class="admin-muted"></p>
+          <ul id="messages" class="account-list"></ul>
+          <p id="messages-empty" hidden>No stored messages.</p>
+          <nav class="pagination" aria-label="Message pages">
+            <button id="messages-previous" type="button" class="secondary">
+              Previous</button
+            ><span id="messages-page"></span
+            ><button id="messages-next" type="button" class="secondary">
+              Next
+            </button>
+          </nav>
+        </section>
+        <section class="admin-card" aria-labelledby="accounts-title">
+          <div class="section-header">
+            <h2 id="accounts-title">Accounts</h2>
+            <button id="refresh" class="secondary" type="button">
+              Refresh
+            </button>
+          </div>
+          <form id="search-form" class="search-form">
+            <label for="search">Find a username</label>
+            <div>
+              <input
+                id="search"
+                type="search"
+                maxlength="24"
+                pattern="[a-z0-9_]*"
+                placeholder="Search accounts"
+              /><button type="submit">Search</button>
+            </div>
+          </form>
+          <p id="account-count" class="admin-muted"></p>
+          <ul id="accounts" class="account-list"></ul>
+          <p id="empty" hidden>No accounts match your search.</p>
+          <nav class="pagination" aria-label="Account pages">
+            <button id="previous" class="secondary" type="button">
+              Previous</button
+            ><span id="page-label"></span
+            ><button id="next" class="secondary" type="button">Next</button>
+          </nav>
+        </section>
+        <section class="admin-card" aria-labelledby="audit-title">
+          <h2 id="audit-title">Recent admin actions</h2>
+          <p class="admin-muted">
+            Latest 100 actions. Reasons are visible to other administrators.
+          </p>
+          <ul id="audit" class="audit-list"></ul>
+        </section>
+        <p class="admin-muted">
+          Passwords, encryption keys and message contents are never displayed.
+          Existing account creation dates may be unavailable.
+        </p>
+      </section>
+      <dialog id="action-dialog" aria-labelledby="action-title">
+        <form id="action-form">
+          <h2 id="action-title"></h2>
+          <p id="action-description"></p>
+          <label id="confirmation-label" for="confirmation"
+            >Type the account’s exact username</label
+          ><input id="confirmation" autocomplete="off" required /><label
+            for="reason"
+            >Reason</label
+          ><textarea
+            id="reason"
+            minlength="3"
+            maxlength="240"
+            rows="3"
+            required
+            placeholder="Brief account-management reason; no passwords or message contents"
+          ></textarea>
+          <p id="action-error" role="alert"></p>
+          <div class="dialog-actions">
+            <button id="cancel-action" class="secondary" type="button">
+              Cancel</button
+            ><button id="confirm-action" type="submit">Confirm</button>
+          </div>
+        </form>
+      </dialog>
+    </main>
+  </body>
+</html>

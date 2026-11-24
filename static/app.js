@@ -846,4 +846,15 @@ if (nativeFiles?.takeSharedMessage) {
     /* Pasting a shared link remains available. */
   });
 }
+if (window.Capacitor?.isNativePlatform()) {
+  import("./messenger-push.js")
+    .then(({ initializePush }) =>
+      initializePush(() => {
+        setMode("messages");
+      }),
+    )
+    .catch(() => {
+      /* Offline tools and Messages remain usable without push. */
+    });
+}
 start();
