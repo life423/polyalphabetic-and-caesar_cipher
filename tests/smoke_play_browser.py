@@ -169,8 +169,10 @@ def check(url, screenshots):
         expect(page.locator('#message')).to_have_value('Preserve this message.')
         expect(page.locator('#key')).to_have_value('9')
         expect(page.locator('#result')).to_have_text(result)
-        # Arrow keys include the third workflow without changing tool content.
+        # Arrow keys pass through Messages to Play without changing tool content.
         page.locator('#manual-tab').focus()
+        page.keyboard.press('ArrowRight')
+        expect(page.locator('#messages-tab')).to_be_focused()
         page.keyboard.press('ArrowRight')
         expect(page.locator('#play-tab')).to_be_focused()
         expect(page.locator('#guess-A')).to_have_value('T')

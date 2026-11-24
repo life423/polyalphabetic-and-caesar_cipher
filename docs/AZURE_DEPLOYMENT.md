@@ -14,7 +14,8 @@ copies the pinned Pyodide runtime from `tools/runtime/package-lock.json` and
 packages shared Python sources as `engine.zip` into ignored `dist/static/`.
 All assets come from the same origin. The worker invokes the existing
 `web_service` adapter; inputs are JSON data, never executable Python source.
-Messages, keys and file content stay in the browser. This is client-side Python,
+Cipher-tool inputs, keys and file content stay in the browser. The optional
+messenger sends encrypted conversations to its separate Azure API. This is client-side Python,
 not an iframe or an API proxy. Existing validation and file semantics apply.
 
 `.github/workflows/static-app.yml` builds, runs shared tests and exercises
@@ -114,3 +115,19 @@ Messages and uploaded bytes stay in Streamlit session memory. The browser
 interface never accepts server input/output paths, never deletes local files,
 and does not use a shared message cache. New source or settings invalidate
 displayed results; analysis candidates belong to their ciphertext and cipher.
+
+## Messenger API — November 24, 2026
+
+The existing F1 `ciphercraft-drewclark` App Service now hosts the messenger API,
+not the legacy Streamlit UI. Its plan remains Free. `/api/health` responds over
+HTTPS. A hosted test verified browser CORS, actual account/message writes,
+server restart, persistent history and unlocking the saved encrypted identity.
+The local frontend and rebuilt APK support this beta; the custom-domain static
+frontend is unchanged until separately deployed.
+
+Database: `/home/data/cipher-messenger.sqlite3`, outside application deployments.
+Backend package: `python scripts/package_messenger.py --output dist/messenger-api.zip`.
+Startup remains `sh startup.sh`, now using gunicorn for the API. The new
+`messenger-api.yml` deployment workflow is separate; legacy Streamlit deployment
+is opt-in to prevent accidental replacement of the API. See [Messenger](MESSENGER.md)
+and [backend operations](../src/messenger/README.md).

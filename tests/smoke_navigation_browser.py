@@ -16,7 +16,7 @@ def check(url, screenshots):
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.goto(url)
         track = page.locator('#section-track')
-        expect(track.get_by_role('tab')).to_have_count(5)
+        expect(track.get_by_role('tab')).to_have_count(6)
         expect(page.locator('.tool-tabs')).to_have_count(0)
         expect(page.locator('#nav-previous')).to_have_count(0)
         expect(page.locator('#nav-next')).to_have_count(0)
@@ -40,7 +40,7 @@ def check(url, screenshots):
             animation.finish();return {before,after};
         }""")
         assert abs(continuity['before'] - continuity['after']) < 1, continuity
-        for name in ['manual', 'play', 'hash', 'learn', 'crack']:
+        for name in ['manual', 'messages', 'play', 'hash', 'learn', 'crack']:
             page.locator('#' + name + '-tab').click()
             expect(page.locator('#' + name + '-tab')).to_have_attribute('aria-selected', 'true')
             page.wait_for_function("""()=>{
@@ -63,7 +63,7 @@ def check(url, screenshots):
             page.wait_for_timeout(300)
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
             assert track.evaluate('e=>e.scrollWidth<=e.clientWidth')
-            assert track.get_by_role('tab').count() == 5
+            assert track.get_by_role('tab').count() == 6
             page.screenshot(path=str(output / f'desktop-{width}.png'), full_page=True)
         page.emulate_media(reduced_motion='reduce')
         page.locator('#hash-tab').click()

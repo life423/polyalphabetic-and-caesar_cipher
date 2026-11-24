@@ -22,6 +22,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+
         </activity>
 
         <provider
@@ -35,6 +41,7 @@
         </provider>
     </application>
 
-    <!-- Permissions -->
+    <!-- Only Messages uses networking; bundled cipher tools and AI stay offline. -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>

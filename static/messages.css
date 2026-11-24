@@ -1,0 +1,62 @@
+#messages-panel {
+  max-width: 100%;
+}
+#messages-panel textarea {
+  height: auto;
+  min-height: 110px;
+}
+#messages-panel input {
+  width: 100%;
+}
+.msg-step {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.msg-step h3 {
+  font-size: 1rem;
+  margin: 0 0 8px;
+}
+.msg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.msg-bottom {
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.msg-cleartext {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f7fafb;
+}
+#msg-status[data-error="true"] {
+  color: #a62a22;
+}
+#msg-link,
+#msg-out-key {
+  font-family: ui-monospace, Consolas, monospace;
+}
+#msg-plain,
+#msg-incoming {
+  margin-bottom: 8px;
+}
+
+#msg-links-details {
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+#msg-links-details > summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 0;
+  font-weight: 600;
+  color: var(--accent);
+}

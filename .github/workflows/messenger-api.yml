@@ -1,0 +1,59 @@
+name: CipherCraft Messenger API
+on:
+  push:
+    branches: [main]
+    paths: ['src/messenger/**', 'scripts/package_messenger.py', 'messenger-requirements.txt', 'tests/test_messenger.py', '.github/workflows/messenger-api.yml']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ciphercraft-messenger-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest
+      - run: python -m pytest tests/test_messenger.py -q
+      - run: python scripts/package_messenger.py --output messenger-api.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: messenger-api
+          path: messenger-api.zip
+  deploy:
+    needs: verify
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.AZURE_WEBAPP_NAME != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: messenger-api
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Configure the existing server without changing its plan
+        env:
+          APP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
+          RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+        run: |
+          az webapp config set -g "$RESOURCE_GROUP" -n "$APP_NAME" --startup-file 'sh startup.sh' --output none
+          az webapp config appsettings set -g "$RESOURCE_GROUP" -n "$APP_NAME" --settings CIPHER_MESSENGER_DB=/home/data/cipher-messenger.sqlite3 CIPHER_MESSENGER_ORIGINS=https://cipher.drewclark.io,https://localhost,http://localhost:8502 CIPHER_MESSENGER_TRUST_PROXY=1 SCM_DO_BUILD_DURING_DEPLOYMENT=true --output none
+      - uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_WEBAPP_NAME }}
+          package: messenger-api.zip
+      - name: Verify API health
+        env:
+          APP_URL: ${{ vars.AZURE_WEBAPP_URL }}
+        run: curl --fail --retry 12 --retry-delay 10 --retry-all-errors "$APP_URL/api/health"

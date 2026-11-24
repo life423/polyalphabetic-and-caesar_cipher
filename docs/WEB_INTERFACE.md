@@ -98,3 +98,10 @@ measured user satisfaction or a claim of visual perfection.
 
 The redesign adds no production dependencies, external font requests, paid model
 APIs or server-side processing of messages. Azure hosting remains unchanged.
+
+## Messenger beta
+
+Messages adds a separate account/inbox/conversation workflow with local
+cipher-challenge solving. It uses Azure only for account and encrypted message
+transport. Shared worker requests are isolated from cipher-tool results. See
+[Messenger](MESSENGER.md) for responsive behavior and validation.

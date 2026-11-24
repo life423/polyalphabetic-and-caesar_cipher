@@ -10,10 +10,10 @@ Open [CipherCraft online](https://cipher.drewclark.io/) to use
 the same Python cipher engine directly in your browser on free Azure Static Web Apps.
 The web app supports all six ciphers,
 key suggestions for Caesar, Vigenère, Rail Fence and Affine, UTF-8 text uploads,
-and downloadable `.txt` results. Messages, keys and uploaded files stay on your
-device. A self-hosted Pyodide runtime loads on the first visit; operations run in
+and downloadable `.txt` results. Cipher-tool inputs, keys and uploaded files stay on your
+device. The new optional messenger synchronizes encrypted conversations through Azure. A self-hosted Pyodide runtime loads on the first visit; operations run in
 a background worker and continue working if the connection drops after loading.
-Reloading requires a connection. No user content is saved between visits.
+Reloading the browser runtime requires a connection. Cipher-tool messages are not saved between visits; messenger history is stored encrypted.
 
 Build and serve the custom-domain version locally (Node 22 and Python 3.10+):
 
@@ -50,8 +50,8 @@ and desktop sizes; see [interface verification](docs/WEB_INTERFACE.md).
 next-letter neural language model. It runs on-device without a model API.
 See [local training, benchmarks and limitations](docs/LOCAL_LANGUAGE_MODEL.md).
 
-The [original Streamlit version](https://ciphercraft-drewclark.azurewebsites.net/)
-remains available on free App Service. It processes inputs in server session
+The original Streamlit version remains available locally. Its former free App
+Service now hosts the messenger API. Streamlit processes inputs in server session
 memory without writing uploaded files to disk. To run it locally:
 
 ```bash
@@ -251,3 +251,29 @@ See [Password lesson documentation](docs/PASSWORD_LESSON.md) and [Learn document
 
 The classical ciphers are historical teaching tools, **not modern encryption**.
 Do not use them for passwords, secrets, personal data, or confidential files.
+
+## Standalone encrypted-link sharing (optional)
+
+Choose **Messages** to encrypt short text with a random unlock key. Share the
+encrypted link, then give the recipient the key separately. They can open the
+link in the web app or share/paste it into the Android app and decrypt locally.
+No accounts, server inbox or paid messaging API are needed. Messages and keys
+are not saved by CipherCraft. This is separate from the classical learning
+ciphers. See [format, scope and testing](docs/MESSAGE_SHARING.md).
+
+Native links use the public app address. The frontend publishes from main after
+its verification workflow passes. Local browser links use the preview origin.
+
+## Messenger beta: codebreak together
+
+**Messages** now includes accounts, an inbox, conversations and replies. Send a
+cipher challenge; your friend can decode it with a key or ask the local AI.
+Hints and hidden-cipher challenges are supported. Correct decoding gets local
+feedback; ordinary encrypted replies are available too. The Azure API is live
+on the existing free server; the main website frontend publishes from main after CI passes. Test at localhost:8502 or in the refreshed Android APK; both use Azure.
+For isolated local API testing, open localhost:8502/?messenger=local and run
+`python scripts/run_messenger.py` on port8503.
+
+See [messenger behavior, security limits and validation](docs/MESSENGER.md).
+This is a beta with foreground refresh, no background push notifications and
+no password recovery. The private product plan remains excluded from GitHub.

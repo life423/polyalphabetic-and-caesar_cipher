@@ -18,6 +18,33 @@ import java.nio.charset.StandardCharsets;
 
 @CapacitorPlugin(name = "CipherFiles")
 public class CipherFilesPlugin extends Plugin {
+    private String pendingMessage;
+
+    private String sharedText(Intent intent) {
+        if (intent == null || !Intent.ACTION_SEND.equals(intent.getAction()) || !"text/plain".equals(intent.getType())) return null;
+        CharSequence extra = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
+        intent.removeExtra(Intent.EXTRA_TEXT);
+        if (extra == null) return null;
+        if (extra.length() > 4096) return "[Message too large]";
+        return extra.toString();
+    }
+
+    @Override
+    public void load() { pendingMessage = sharedText(getActivity().getIntent()); }
+
+    @Override
+    protected void handleOnNewIntent(Intent intent) {
+        String text = sharedText(intent);
+        if (text != null) notifyListeners("messageReceived", new JSObject().put("text", text), true);
+    }
+
+    @PluginMethod
+    public void takeSharedMessage(PluginCall call) {
+        String text = pendingMessage;
+        pendingMessage = null;
+        call.resolve(new JSObject().put("text", text == null ? "" : text));
+    }
+
     @PluginMethod
     public void saveText(PluginCall call) {
         String text = call.getString("text");
@@ -52,11 +79,30 @@ public class CipherFilesPlugin extends Plugin {
     }
 
     @PluginMethod
+    public void shareText(PluginCall call) {
+        String text = call.getString("text");
+        if (text == null || text.length() > 4096) { call.reject("Invalid message size."); return; }
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, text);
+        try {
+            getActivity().startActivity(Intent.createChooser(intent, "Share encrypted message"));
+            call.resolve();
+        } catch (Exception error) { call.reject("Unable to open sharing.", error); }
+    }
+
+    @PluginMethod
     public void copyText(PluginCall call) {
         String text = call.getString("text");
         if (text == null || text.length() > 200000) { call.reject("Invalid text size."); return; }
         ClipboardManager clipboard = (ClipboardManager)getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-        clipboard.setPrimaryClip(ClipData.newPlainText("CipherCraft result", text));
+        ClipData clip = ClipData.newPlainText("CipherCraft result", text);
+        if (Boolean.TRUE.equals(call.getBoolean("sensitive", false))) {
+            android.os.PersistableBundle extras = new android.os.PersistableBundle();
+            extras.putBoolean("android.content.extra.IS_SENSITIVE", true);
+            clip.getDescription().setExtras(extras);
+        }
+        clipboard.setPrimaryClip(clip);
         call.resolve();
     }
 }

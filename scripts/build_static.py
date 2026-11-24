@@ -19,6 +19,8 @@ def build(output=None, runtime_package=None):
         shutil.copy2(package / name, runtime / name)
     with zipfile.ZipFile(output / 'engine.zip', 'w', zipfile.ZIP_DEFLATED) as archive:
         for path in (ROOT / 'src').rglob('*.py'):
+            if 'messenger' in path.relative_to(ROOT / 'src').parts:
+                continue  # The network service is deployed separately from the offline engine.
             archive.write(path, path.relative_to(ROOT).as_posix())
         for name in ('cipher_identifier.json', 'english_language_model.json'):
             model = ROOT / 'src/ai' / name

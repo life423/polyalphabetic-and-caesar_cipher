@@ -1,0 +1,218 @@
+#messenger-app {
+  --chat-space: 12px;
+  color: var(--navy);
+}
+#messenger-app [hidden] {
+  display: none !important;
+}
+#messenger-app .chat-header,
+#messenger-app .chat-actions,
+#messenger-app .chat-fields {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+#messenger-app .chat-header {
+  justify-content: space-between;
+}
+#messenger-app p {
+  margin: 8px 0;
+}
+#messenger-app .chat-muted {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+#messenger-app .chat-stack {
+  display: grid;
+  gap: 12px;
+}
+#messenger-app label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+#messenger-app input,
+#messenger-app select,
+#messenger-app textarea,
+#messenger-app button {
+  font: inherit;
+  min-height: 44px;
+  border: 1px solid var(--control);
+  border-radius: 8px;
+  padding: 10px 12px;
+  max-width: 100%;
+}
+#messenger-app input,
+#messenger-app select,
+#messenger-app textarea {
+  background: var(--surface);
+  color: var(--navy);
+  width: 100%;
+}
+#messenger-app textarea {
+  resize: vertical;
+}
+#messenger-app button {
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--navy);
+  font-weight: 600;
+}
+#messenger-app button[type="submit"],
+#messenger-app #chat-send {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+#messenger-app button:hover {
+  border-color: var(--accent);
+}
+#messenger-app button[type="submit"]:hover {
+  background: var(--accent-hover);
+}
+#messenger-app :focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+#messenger-app button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+#messenger-app #chat-auth-form {
+  max-width: 440px;
+}
+#messenger-app #chat-workspace {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 24px;
+  margin-top: 16px;
+}
+#messenger-app .chat-inbox {
+  border-right: 1px solid var(--line);
+  padding-right: 20px;
+}
+#messenger-app #chat-conversations {
+  margin-top: 20px;
+}
+#messenger-app .chat-conversation {
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+#messenger-app .chat-conversation[aria-current="true"] {
+  border-color: var(--accent);
+  box-shadow: inset 4px 0 var(--accent);
+}
+#messenger-app .chat-main,
+#messenger-app .chat-fields > label {
+  min-width: 0;
+}
+#messenger-app .chat-fields > label {
+  flex: 1 1 130px;
+}
+#messenger-app #chat-thread {
+  max-height: 480px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  display: grid;
+  gap: 12px;
+  padding: 12px 4px;
+  margin: 12px 0;
+}
+#messenger-app .chat-bubble {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+  width: 94%;
+  overflow-wrap: anywhere;
+  background: var(--surface);
+}
+#messenger-app .chat-bubble.chat-own {
+  margin-left: auto;
+  border-left: 3px solid var(--accent);
+}
+#messenger-app .chat-message-text,
+#messenger-app .chat-result {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+#messenger-app .chat-result {
+  margin-top: 8px;
+}
+#messenger-app details {
+  margin: 12px 0;
+}
+#messenger-app summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 10px 0;
+}
+#messenger-app code {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+#messenger-app .chat-check {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+#messenger-app .chat-check input {
+  width: 22px;
+  min-height: 22px;
+  height: 22px;
+}
+#messenger-app #chat-status[data-error="true"],
+#messenger-app .chat-error {
+  color: #a32929;
+}
+@media (max-width: 760px) {
+  #messenger-app #chat-workspace {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  #messenger-app .chat-inbox {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 0 0 16px;
+  }
+  #messenger-app #chat-conversations {
+    max-height: 180px;
+    overflow: auto;
+  }
+  #messenger-app #chat-thread {
+    max-height: 55dvh;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #messenger-app * {
+    scroll-behavior: auto;
+  }
+}
+
+/* Global section cards do not apply to the nested inbox/auth layout. */
+#messenger-app section {
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+#messenger-app .chat-solved {
+  color: var(--accent-hover);
+  font-weight: 650;
+}
+
+#messenger-app .chat-back {
+  display: none;
+}
+@media (max-width: 760px) {
+  #messenger-app[data-chat-open="true"] .chat-inbox,
+  #messenger-app[data-chat-open="false"] .chat-main {
+    display: none;
+  }
+  #messenger-app .chat-back {
+    display: inline-flex;
+    align-items: center;
+  }
+}

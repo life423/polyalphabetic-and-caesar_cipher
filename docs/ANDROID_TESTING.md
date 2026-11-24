@@ -2,8 +2,9 @@
 
 The Capacitor shell bundles the existing static app, Pyodide, Python engine and
 both locally trained models. It does not load the deployed website. The beta
-manifest has no internet permission, broad storage access, camera or microphone
-permissions. Copy uses Android's clipboard; Save uses the system document picker.
+manifest now includes INTERNET permission for Messages. It has no broad storage
+access, camera or microphone permissions. Cipher tools, AI and lessons remain
+bundled and work offline. Copy uses Android's clipboard; Save uses the system document picker.
 
 ## Build
 
@@ -70,3 +71,14 @@ adb -s <serial> forward --remove tcp:9224
 
 Leave the app open for the user after testing. Do not change phone security or
 network settings, inspect unrelated files, or erase app data to run these checks.
+
+## Messenger checkpoint — November 24, 2026
+
+The APK now includes INTERNET for the optional messenger. Actual Pixel WebView
+HTTPS calls to Azure passed account creation, browser-to-phone cipher challenge
+delivery, known-key decode/checksum success, encrypted reply and signout.
+The phone was locked: DOM automation overrode page visibility for the test.
+This does not verify physical touch, keyboard or background operation. Existing
+local cipher/AI and lesson browser suites still pass. Both Android and ordinary
+localhost:8502 preview use Azure by default; isolated API development uses
+localhost:8502/?messenger=local with scripts/run_messenger.py on port8503.

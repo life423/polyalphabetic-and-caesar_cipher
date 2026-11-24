@@ -57,7 +57,9 @@ jobs:
   deploy:
     name: Deploy Azure App Service
     needs: verify
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.AZURE_WEBAPP_NAME != ''
+    # The original App Service now hosts the messenger API. Streamlit remains
+    # testable locally; restoring its deployment requires an explicit opt-in.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.AZURE_WEBAPP_NAME != '' && vars.AZURE_STREAMLIT_DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:

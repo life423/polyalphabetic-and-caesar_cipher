@@ -3,7 +3,7 @@ name: CipherCraft Custom Domain
 on:
   push:
     branches: [main]
-    paths: ['static/**', 'src/**', 'tools/runtime/**', 'scripts/build_static.py', 'tests/smoke_static_browser.py', 'tests/smoke_play_browser.py', 'tests/smoke_hash_browser.py', 'tests/smoke_learn_browser.py', 'tests/smoke_navigation_browser.py', 'tests/smoke_password_browser.py', 'tests/test_mission.py', 'tests/test_lessons.py', '.gitattributes', '.github/workflows/static-app.yml']
+    paths: ['static/**', 'src/**', 'tools/runtime/**', 'scripts/build_static.py', 'tests/smoke_static_browser.py', 'tests/smoke_play_browser.py', 'tests/smoke_hash_browser.py', 'tests/smoke_learn_browser.py', 'tests/smoke_navigation_browser.py', 'tests/smoke_password_browser.py', 'tests/smoke_messages_browser.py', 'tests/smoke_messenger_browser.py', 'tests/smoke_messenger_crypto.py', 'tests/test_mission.py', 'tests/test_lessons.py', '.gitattributes', '.github/workflows/static-app.yml']
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -45,6 +45,10 @@ jobs:
           python tests/smoke_learn_browser.py
           python tests/smoke_navigation_browser.py
           python tests/smoke_password_browser.py
+          python tests/smoke_messages_browser.py
+          python tests/smoke_messenger_crypto.py
+          python -u scripts/run_messenger.py > /tmp/messenger.log 2>&1 &
+          python tests/smoke_messenger_browser.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -56,6 +60,8 @@ jobs:
             dist/learn-checks/
             dist/nav-checks/
             dist/password-checks/
+            dist/message-checks/
+            dist/messenger-checks/
       - name: Deploy free Azure Static Web App
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: Azure/static-web-apps-deploy@v1

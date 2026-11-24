@@ -26,7 +26,10 @@ async function openHash() {
 $("hash-retry").onclick = openHash;
 const lessonAttempts = { integrity: 0, password: 0 };
 let selectedLesson = "integrity";
-try { if (localStorage.getItem("ciphercraft.learn.selected.v1") === "password") selectedLesson = "password"; } catch {}
+try {
+  if (localStorage.getItem("ciphercraft.learn.selected.v1") === "password")
+    selectedLesson = "password";
+} catch {}
 $("learn-lesson-select").value = selectedLesson;
 async function openLearn() {
   const lesson = selectedLesson;
@@ -36,7 +39,9 @@ async function openLearn() {
   try {
     const file = lesson === "password" ? "password-lesson" : "learn";
     const attempt = lessonAttempts[lesson];
-    const module = await import(`./${file}.js${attempt ? `?retry=${attempt}` : ""}`);
+    const module = await import(
+      `./${file}.js${attempt ? `?retry=${attempt}` : ""}`
+    );
     if (lesson !== selectedLesson) return;
     if (lesson === "password") module.openPasswordLesson();
     else await module.openLesson();
@@ -47,7 +52,9 @@ async function openLearn() {
 }
 $("learn-lesson-select").onchange = () => {
   selectedLesson = $("learn-lesson-select").value;
-  try { localStorage.setItem("ciphercraft.learn.selected.v1", selectedLesson); } catch {}
+  try {
+    localStorage.setItem("ciphercraft.learn.selected.v1", selectedLesson);
+  } catch {}
   openLearn();
 };
 $("lesson-load-retry").onclick = openLearn;
@@ -71,7 +78,7 @@ let worker,
   workflow = "crack",
   activeAction = "",
   isSuggestion = false;
-const sectionModes = ["crack", "manual", "play", "hash", "learn"];
+const sectionModes = ["crack", "manual", "messages", "play", "hash", "learn"];
 const reducedNavigation = matchMedia("(prefers-reduced-motion: reduce)");
 let indicatorAnimation,
   navigationReady = false;
@@ -200,6 +207,7 @@ function setMode(mode) {
   const changed = mode !== workflow;
   if (changed) revision++;
   workflow = mode;
+  const messages = mode === "messages";
   const manual = mode === "manual";
   const play = mode === "play";
   const hash = mode === "hash";
@@ -211,18 +219,28 @@ function setMode(mode) {
     $(id).tabIndex = selected ? 0 : -1;
   }
   updateNavigation();
-  $("tools-workspace").hidden = play || hash || learn;
+  $("tools-workspace").hidden = play || hash || learn || messages;
   $("play-panel").hidden = !play;
   $("hash-panel").hidden = !hash;
   $("learn-panel").hidden = !learn;
+  $("messages-panel").hidden = !messages;
+  $("privacy-footer").textContent = messages
+    ? "Chats sync through Azure. Cipher tools and AI run on your device."
+    : "Your messages and keys stay in this browser.";
+  document.querySelector(".privacy").textContent = messages
+    ? "Encrypted on your device."
+    : "Private. On your device.";
+  if (messages) openMessages();
   if (play) openPlay();
   if (hash) openHash();
   if (learn) openLearn();
-  $("workflow-eyebrow").textContent = learn
-    ? "LEARN · TRY · INVESTIGATE"
-    : hash
-      ? "HASHES · ON YOUR DEVICE"
-      : "CLASSICAL CRYPTOGRAPHY · LOCAL AI";
+  $("workflow-eyebrow").textContent = messages
+    ? "MESSAGES · CODEBREAK TOGETHER"
+    : learn
+      ? "LEARN · TRY · INVESTIGATE"
+      : hash
+        ? "HASHES · ON YOUR DEVICE"
+        : "CLASSICAL CRYPTOGRAPHY · LOCAL AI";
   $("input-panel").setAttribute(
     "aria-labelledby",
     manual ? "manual-tab" : "crack-tab",
@@ -230,24 +248,28 @@ function setMode(mode) {
   $("manual-settings").hidden = $("manual-actions").hidden = !manual;
   $("identify").hidden = manual;
   $("suggestions").hidden = !manual;
-  $("workflow-title").textContent = learn
-    ? "Put the evidence to the test."
-    : hash
-      ? "Same text. Same fingerprint."
-      : play
-        ? "Follow the clues."
-        : manual
-          ? "Encrypt or decrypt."
-          : "Crack a message.";
-  $("workflow-description").textContent = learn
-    ? "Short lessons, real experiments, and a mystery to investigate."
-    : hash
-      ? "Explore hashes, compare changes, and check file integrity."
-      : play
-        ? "Uncover a mystery, one letter at a time."
-        : manual
-          ? "Choose a classical cipher and work with a key you know."
-          : "Find a likely cipher, discover its key, and uncover the text.";
+  $("workflow-title").textContent = messages
+    ? "Send a secret. Solve a mystery."
+    : learn
+      ? "Put the evidence to the test."
+      : hash
+        ? "Same text. Same fingerprint."
+        : play
+          ? "Follow the clues."
+          : manual
+            ? "Encrypt or decrypt."
+            : "Crack a message.";
+  $("workflow-description").textContent = messages
+    ? "Trade cipher challenges, decode with a key, or try the local AI."
+    : learn
+      ? "Short lessons, real experiments, and a mystery to investigate."
+      : hash
+        ? "Explore hashes, compare changes, and check file integrity."
+        : play
+          ? "Uncover a mystery, one letter at a time."
+          : manual
+            ? "Choose a classical cipher and work with a key you know."
+            : "Find a likely cipher, discover its key, and uncover the text.";
   $("message-heading").textContent = manual
     ? "Your message"
     : "Your ciphertext";
@@ -266,13 +288,15 @@ function setMode(mode) {
   controls();
   if (changed) {
     const panel = $(
-      play
-        ? "play-panel"
-        : hash
-          ? "hash-panel"
-          : learn
-            ? "learn-panel"
-            : "tools-workspace",
+      messages
+        ? "messages-panel"
+        : play
+          ? "play-panel"
+          : hash
+            ? "hash-panel"
+            : learn
+              ? "learn-panel"
+              : "tools-workspace",
     );
     panel.getAnimations().forEach((animation) => animation.cancel());
     if (!reducedNavigation.matches)
@@ -293,7 +317,38 @@ function invalidate() {
   if (ready && !busy)
     status("Inputs changed. Choose an action to process the current message.");
 }
+const cipherRequests = new Map();
+let cipherRequestId = 0;
+export async function requestCipher(action, fields) {
+  const started = Date.now();
+  while (!ready) {
+    if (Date.now() - started > 60000)
+      throw new Error(
+        "The cipher engine is unavailable. Retry the engine in Crack a message.",
+      );
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  return new Promise((resolve, reject) => {
+    const id = "chat-" + ++cipherRequestId;
+    const timer = setTimeout(() => {
+      cipherRequests.delete(id);
+      reject(
+        new Error("The cipher search took too long. Try a shorter message."),
+      );
+    }, 60000);
+    cipherRequests.set(id, { resolve, reject, timer });
+    worker.postMessage({ ...fields, file_mode: false, id, action });
+  });
+}
+function rejectCipherRequests() {
+  for (const request of cipherRequests.values()) {
+    clearTimeout(request.timer);
+    request.reject(new Error("The cipher engine restarted. Try again."));
+  }
+  cipherRequests.clear();
+}
 function start() {
+  rejectCipherRequests();
   clearTimeout(loadingTimer);
   ready = false;
   busy = false;
@@ -313,6 +368,15 @@ function start() {
     );
   worker.onmessage = ({ data }) => {
     if (data.fatal) return failed(data.fatal);
+    if (cipherRequests.has(data.id)) {
+      const request = cipherRequests.get(data.id);
+      cipherRequests.delete(data.id);
+      clearTimeout(request.timer);
+      if (data.error) request.reject(new Error(data.error));
+      else request.resolve(data.result);
+      return;
+    }
+    if (typeof data.id === "string" && data.id.startsWith("chat-")) return;
     if (data.ready) {
       clearTimeout(loadingTimer);
       ready = true;
@@ -364,6 +428,7 @@ function start() {
   };
 }
 function failed(text) {
+  rejectCipherRequests();
   clearTimeout(loadingTimer);
   worker?.terminate();
   ready = false;
@@ -597,6 +662,7 @@ $("crack-tab").onclick = () => setMode("crack");
 $("manual-tab").onclick = () => setMode("manual");
 $("play-tab").onclick = () => setMode("play");
 $("hash-tab").onclick = () => setMode("hash");
+$("messages-tab").onclick = () => setMode("messages");
 $("learn-tab").onclick = () => setMode("learn");
 $("learn-open-lab").onclick = () => {
   $("hash-back-lesson").hidden = false;
@@ -643,6 +709,7 @@ reducedNavigation.addEventListener("change", () => {
       "play-panel",
       "hash-panel",
       "learn-panel",
+      "messages-panel",
     ])
       $(id)
         .getAnimations()
@@ -740,5 +807,43 @@ $("example").onclick = () => {
   if (ready && !busy) status("Example loaded. Choose Identify & crack.");
   $("message").focus();
 };
+let messageAttempt = 0;
+async function openMessages(incoming = "") {
+  try {
+    const module = await import(
+      `./messages.js${messageAttempt ? `?retry=${messageAttempt}` : ""}`
+    );
+    module.openMessages(incoming);
+  } catch {
+    messageAttempt++;
+    $("msg-status").textContent =
+      "Messages could not load. Select Messages again to retry.";
+  }
+}
+function receiveFragment() {
+  if (!location.hash.startsWith("#message=")) return false;
+  const incoming = location.hash;
+  history.replaceState(null, "", location.pathname + location.search);
+  setMode("messages");
+  openMessages(incoming);
+  return true;
+}
 setMode("crack");
+receiveFragment();
+window.addEventListener("hashchange", receiveFragment);
+if (nativeFiles?.takeSharedMessage) {
+  const receive = ({ text }) => {
+    if (!text) return;
+    setMode("messages");
+    openMessages(text);
+  };
+  (async () => {
+    // The generated Android bridge returns a synchronous listener handle;
+    // other Capacitor bridges may return a promise. Await supports both.
+    await nativeFiles.addListener("messageReceived", receive);
+    receive(await nativeFiles.takeSharedMessage());
+  })().catch(() => {
+    /* Pasting a shared link remains available. */
+  });
+}
 start();

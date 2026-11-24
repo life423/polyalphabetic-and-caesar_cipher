@@ -46,3 +46,15 @@ Human usability, screen-reader, landscape and lower-end performance tests remain
 recommended. Internal review (judgment): usability 8, hierarchy 9, accessibility 8,
 consistency 9, responsiveness 8, feedback 9, performance 8. Prioritize those
 checks over further decoration. The implementation remains uncommitted locally.
+
+## Message-sharing increment
+
+Messages is now a sixth workflow between Encrypt / decrypt and Play. It reuses
+the same desktop tabs, mobile scrolling chips and animated active indicator.
+All six remain visible at the tested 768px tablet width. The first navigation
+and lesson work was committed as 91b75a1; this sharing increment is separate.
+
+Messages now opens the account/inbox messenger. Standalone encrypted links
+remain under a collapsed disclosure. Phones show either the inbox or active
+conversation with a Back to inbox action; tablet/desktop retain both panes.
+Main navigation still preserves tool, campaign and lesson state.

@@ -16,10 +16,11 @@ def test_android_configuration_uses_bundled_assets_not_live_site():
     assert config['server']['androidScheme'] == 'https'
 
 
-def test_android_has_no_internet_or_broad_storage_permission():
+def test_android_messenger_can_network_without_broad_storage_permission():
     tree = ET.parse(ROOT / 'mobile/android/app/src/main/AndroidManifest.xml')
     permissions = {node.get(ANDROID + 'name') for node in tree.findall('uses-permission')}
-    assert not permissions & {'android.permission.INTERNET', 'android.permission.READ_EXTERNAL_STORAGE',
+    assert 'android.permission.INTERNET' in permissions
+    assert not permissions & {'android.permission.READ_EXTERNAL_STORAGE',
                               'android.permission.WRITE_EXTERNAL_STORAGE', 'android.permission.MANAGE_EXTERNAL_STORAGE'}
     assert tree.find('application').get(ANDROID + 'allowBackup') == 'false'
 
