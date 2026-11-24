@@ -1,13 +1,90 @@
 /* Lessons use the existing controls and tokens, with readable, short steps. */
-.lesson-picker { max-width: 440px; margin-bottom: 24px; }
-#pw-records h4 { margin-top: 0; }
-#pw-records code { display: block; overflow-wrap: anywhere; font-size: .8125rem; }
-#pw-records .hint { margin-top: 12px; }
-#pw-stored-record { margin: 16px 0; }
-#pw-record-json { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .8125rem; }
-.lesson-complete { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 16px; margin-top: 20px; }
-#pw-verify { margin-top: 8px; }
-#pw-storage { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); }
+.caesar-prompt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  padding: 16px;
+  background: #edf7f4;
+  border-left: 3px solid var(--accent);
+  margin: 16px 0;
+}
+.caesar-prompt strong {
+  margin-left: 8px;
+  font-size: 1.25rem;
+}
+.caesar-answer {
+  max-width: 520px;
+}
+.caesar-trace {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  gap: 8px;
+}
+.caesar-trace li {
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 12px;
+}
+.caesar-ciphertext {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+#cs-storage {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+#cs-letter,
+#cs-key {
+  max-width: 100px;
+}
+#cs-word {
+  max-width: 180px;
+}
+.lesson-picker {
+  max-width: 440px;
+  margin-bottom: 24px;
+}
+#pw-records h4 {
+  margin-top: 0;
+}
+#pw-records code {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 0.8125rem;
+}
+#pw-records .hint {
+  margin-top: 12px;
+}
+#pw-stored-record {
+  margin: 16px 0;
+}
+#pw-record-json {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.8125rem;
+}
+.lesson-complete {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+}
+#pw-verify {
+  margin-top: 8px;
+}
+#pw-storage {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
 .learn-intro {
   max-width: 72ch;
   color: var(--muted);

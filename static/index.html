@@ -594,6 +594,9 @@
           ><select id="learn-lesson-select">
             <option value="integrity">1. Hashes &amp; file integrity</option>
             <option value="password">2. Password storage &amp; salts</option>
+            <option value="caesar">
+              3. Caesar cipher basics
+            </option>
           </select>
         </div>
         <div id="lesson-load-error" hidden>
@@ -886,6 +889,237 @@
               progress stay separate.
             </p>
           </div>
+        </div>
+        <div id="caesar-lesson" hidden>
+          <div class="learn-heading">
+            <div>
+              <p class="eyebrow">LESSON 03 · CIPHER FOUNDATIONS</p>
+              <h2>Follow a letter. Find the key.</h2>
+            </div>
+            <button id="cs-reset" class="text-button">Reset lesson</button>
+          </div>
+          <p class="learn-intro">
+            Learn a Caesar cipher by doing the shifts yourself. Predict a
+            letter, decode a word, then recover a short message. Hints are
+            available when you need them.
+          </p>
+          <p id="cs-progress" class="hint" role="status"></p>
+          <div
+            class="learn-steps"
+            role="tablist"
+            aria-label="Caesar lesson steps"
+          >
+            <button
+              id="cs-step-0-tab"
+              class="secondary"
+              role="tab"
+              aria-selected="true"
+              aria-controls="cs-step-0"
+            >
+              1. Shift</button
+            ><button
+              id="cs-step-1-tab"
+              class="secondary"
+              role="tab"
+              aria-selected="false"
+              aria-controls="cs-step-1"
+              disabled
+            >
+              2. Decode</button
+            ><button
+              id="cs-step-2-tab"
+              class="secondary"
+              role="tab"
+              aria-selected="false"
+              aria-controls="cs-step-2"
+              disabled
+            >
+              3. Find a key
+            </button>
+          </div>
+          <section
+            id="cs-step-0"
+            class="learn-step"
+            role="tabpanel"
+            aria-labelledby="cs-step-0-tab"
+          >
+            <h3 id="cs-title-0" tabindex="-1">The alphabet wraps around</h3>
+            <p>
+              Encryption moves each English letter forward by the same number of
+              places. After Z, continue at A. A shift of 3 means three moves,
+              not three letters including the starting letter.
+            </p>
+            <div class="caesar-prompt">
+              <span>Starting letter <strong>Y</strong></span
+              ><span>Shift <strong>+3</strong></span>
+            </div>
+            <form id="cs-form-0" class="caesar-answer">
+              <label for="cs-letter">Which letter does Y become?</label
+              ><input
+                id="cs-letter"
+                maxlength="1"
+                pattern="[A-Za-z]"
+                required
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                aria-describedby="cs-feedback-0"
+              />
+              <div class="actions">
+                <button id="cs-check-0" type="submit">Check letter</button
+                ><button id="cs-hint-0" type="button" class="text-button">
+                  Need a hint?
+                </button>
+              </div>
+            </form>
+            <p id="cs-hint-text-0" class="hint" role="status"></p>
+            <p id="cs-feedback-0" class="learn-feedback" role="status"></p>
+            <ol
+              id="cs-trace"
+              class="caesar-trace"
+              aria-label="Three forward moves from Y"
+              hidden
+            >
+              <li>Start: Y</li>
+              <li>1: Z</li>
+              <li>2: A</li>
+              <li>3: B</li>
+            </ol>
+            <button id="cs-next-0" class="secondary" disabled>
+              Next: decode a word
+            </button>
+          </section>
+          <section
+            id="cs-step-1"
+            class="learn-step"
+            role="tabpanel"
+            aria-labelledby="cs-step-1-tab"
+            hidden
+          >
+            <h3 id="cs-title-1" tabindex="-1">Reverse the shift</h3>
+            <p>
+              To decrypt, move backward by the same key. Spaces and punctuation
+              stay where they are. Decode this three-letter word using a shift
+              of 3.
+            </p>
+            <div class="caesar-prompt">
+              <span>Ciphertext <strong>FDW</strong></span
+              ><span>Key <strong>3</strong></span>
+            </div>
+            <form id="cs-form-1" class="caesar-answer">
+              <label for="cs-word">Recovered word</label
+              ><input
+                id="cs-word"
+                maxlength="3"
+                pattern="[A-Za-z]{3}"
+                required
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                aria-describedby="cs-feedback-1"
+              />
+              <div class="actions">
+                <button id="cs-check-1" type="submit">Check word</button
+                ><button id="cs-hint-1" type="button" class="text-button">
+                  Need a hint?
+                </button>
+              </div>
+            </form>
+            <p id="cs-hint-text-1" class="hint" role="status"></p>
+            <p id="cs-feedback-1" class="learn-feedback" role="status"></p>
+            <div
+              id="cs-word-mapping"
+              class="caesar-prompt"
+              hidden
+              aria-label="Backward letter shifts"
+            >
+              <span>F → C</span><span>D → A</span><span>W → T</span>
+            </div>
+            <button id="cs-next-1" class="secondary" disabled>
+              Next: find a key
+            </button>
+          </section>
+          <section
+            id="cs-step-2"
+            class="learn-step"
+            role="tabpanel"
+            aria-labelledby="cs-step-2-tab"
+            hidden
+          >
+            <h3 id="cs-title-2" tabindex="-1">
+              Use a known word to find the key
+            </h3>
+            <p>
+              You know the first word was <strong>MEET</strong>. Compare it with
+              <strong>TLLA</strong>, find the forward shift, then move every
+              encrypted letter backward to recover the message.
+            </p>
+            <p class="caesar-ciphertext" id="cs-ciphertext">TLLA TL HA UVVU.</p>
+            <form id="cs-form-2" class="caesar-answer">
+              <label for="cs-key">Encryption shift (0–25)</label
+              ><input
+                id="cs-key"
+                type="number"
+                min="0"
+                max="25"
+                step="1"
+                required
+                autocomplete="off"
+              /><label for="cs-phrase">Recovered message</label
+              ><input
+                id="cs-phrase"
+                maxlength="80"
+                required
+                autocomplete="off"
+                spellcheck="false"
+                aria-describedby="cs-phrase-help"
+              />
+              <p id="cs-phrase-help" class="hint">
+                Write the recovered words. Capitalization and final punctuation
+                do not matter.
+              </p>
+              <div class="actions">
+                <button id="cs-check-2" type="submit">
+                  Check key and message</button
+                ><button id="cs-hint-2" type="button" class="text-button">
+                  Need a hint?
+                </button>
+              </div>
+            </form>
+            <p id="cs-hint-text-2" class="hint" role="status"></p>
+            <p id="cs-feedback-2" class="learn-feedback" role="status"></p>
+            <div id="cs-complete" class="lesson-complete" hidden>
+              <h3 id="cs-complete-title" tabindex="-1">
+                Caesar lesson complete
+              </h3>
+              <p>
+                You wrapped around the alphabet, reversed a shift and used a
+                known word to find a key. A Caesar cipher has only 26 shifts, so
+                it is useful for learning, not protecting private information.
+              </p>
+              <button id="cs-open-tools" class="secondary">
+                Try the cipher tools
+              </button>
+              <p class="hint">
+                Your existing tool inputs will stay as they are. This is local
+                practice progress, not a verified assessment.
+              </p>
+            </div>
+          </section>
+          <div id="cs-reset-confirm" class="lesson-complete" hidden>
+            <p>
+              Clear only this Caesar lesson’s progress? Other lessons, labs,
+              campaign and messages stay as they are.
+            </p>
+            <div class="actions">
+              <button id="cs-reset-yes" class="secondary">
+                Clear Caesar progress</button
+              ><button id="cs-reset-no" class="text-button">
+                Keep learning
+              </button>
+            </div>
+          </div>
+          <p id="cs-storage" class="hint"></p>
         </div>
         <div id="password-lesson" hidden>
           <div class="learn-heading">

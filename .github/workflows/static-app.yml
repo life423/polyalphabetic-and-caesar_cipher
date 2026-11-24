@@ -3,7 +3,7 @@ name: CipherCraft Custom Domain
 on:
   push:
     branches: [main]
-    paths: ['static/**', 'src/**', 'tools/runtime/**', 'scripts/build_static.py', 'tests/smoke_static_browser.py', 'tests/smoke_play_browser.py', 'tests/smoke_hash_browser.py', 'tests/smoke_learn_browser.py', 'tests/smoke_navigation_browser.py', 'tests/smoke_password_browser.py', 'tests/smoke_messages_browser.py', 'tests/smoke_messenger_browser.py', 'tests/smoke_messenger_crypto.py', 'tests/smoke_push_browser.py', 'tests/smoke_admin_browser.py', 'tests/test_mission.py', 'tests/test_lessons.py', '.gitattributes', '.github/workflows/static-app.yml']
+    paths: ['static/**', 'src/**', 'tools/runtime/**', 'scripts/build_static.py', 'tests/smoke_static_browser.py', 'tests/smoke_play_browser.py', 'tests/smoke_hash_browser.py', 'tests/smoke_learn_browser.py', 'tests/smoke_caesar_lesson_browser.py', 'tests/smoke_navigation_browser.py', 'tests/smoke_password_browser.py', 'tests/smoke_messages_browser.py', 'tests/smoke_messenger_browser.py', 'tests/smoke_messenger_crypto.py', 'tests/smoke_push_browser.py', 'tests/smoke_admin_browser.py', 'tests/test_mission.py', 'tests/test_lessons.py', '.gitattributes', '.github/workflows/static-app.yml']
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -43,6 +43,7 @@ jobs:
           python tests/smoke_play_browser.py
           python tests/smoke_hash_browser.py
           python tests/smoke_learn_browser.py
+          python -m tests.smoke_caesar_lesson_browser
           python tests/smoke_navigation_browser.py
           python tests/smoke_password_browser.py
           python tests/smoke_messages_browser.py
@@ -61,6 +62,7 @@ jobs:
             dist/play-checks/
             dist/hash-checks/
             dist/learn-checks/
+            dist/caesar-lesson-checks/
             dist/nav-checks/
             dist/password-checks/
             dist/message-checks/

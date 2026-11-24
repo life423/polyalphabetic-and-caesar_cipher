@@ -24,26 +24,35 @@ async function openHash() {
   }
 }
 $("hash-retry").onclick = openHash;
-const lessonAttempts = { integrity: 0, password: 0 };
+const lessonAttempts = { integrity: 0, password: 0, caesar: 0 };
 let selectedLesson = "integrity";
 try {
-  if (localStorage.getItem("ciphercraft.learn.selected.v1") === "password")
-    selectedLesson = "password";
+  const savedLesson = localStorage.getItem("ciphercraft.learn.selected.v1");
+  if (["password", "caesar"].includes(savedLesson))
+    selectedLesson = savedLesson;
 } catch {}
 $("learn-lesson-select").value = selectedLesson;
 async function openLearn() {
   const lesson = selectedLesson;
   $("integrity-lesson").hidden = lesson !== "integrity";
   $("password-lesson").hidden = lesson !== "password";
+  $("caesar-lesson").hidden = lesson !== "caesar";
   $("lesson-load-error").hidden = true;
   try {
-    const file = lesson === "password" ? "password-lesson" : "learn";
+    const file =
+      lesson === "password"
+        ? "password-lesson"
+        : lesson === "caesar"
+          ? "caesar-lesson"
+          : "learn";
     const attempt = lessonAttempts[lesson];
     const module = await import(
       `./${file}.js${attempt ? `?retry=${attempt}` : ""}`
     );
     if (lesson !== selectedLesson) return;
     if (lesson === "password") module.openPasswordLesson();
+    else if (lesson === "caesar")
+      module.openCaesarLesson(() => setMode("manual"));
     else await module.openLesson();
   } catch {
     lessonAttempts[lesson]++;
