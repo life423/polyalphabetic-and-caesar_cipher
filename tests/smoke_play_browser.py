@@ -6,6 +6,109 @@ from pathlib import Path
 from playwright.sync_api import expect, sync_playwright
 
 
+def campaign_checks(browser, url, output):
+    root = Path(__file__).resolve().parents[1] / 'static/missions'
+    manifest = json.loads((root / 'campaign.json').read_text())
+    cases = [json.loads((root / name).read_text()) for name in manifest['missions']]
+    context = browser.new_context()
+    page = context.new_page()
+    errors = []
+    page.on('pageerror', lambda error: errors.append(str(error)))
+    page.goto(url)
+    page.locator('#play-tab').click()
+    expect(page.locator('#campaign-cases button')).to_have_count(5)
+    expect(page.locator('[data-case="2"]')).to_be_disabled()
+    # All five cases are loaded before play, so navigation works offline.
+    expect(page.locator('#mission-content')).to_be_visible()
+    context.set_offline(True)
+    for index, mission in enumerate(cases):
+        expect(page.locator('#mission-title')).to_have_text(mission['title'])
+        expect(page.locator(f'[data-case="{index + 1}"]')).to_have_attribute('aria-current', 'step')
+        expect(page.locator('#mission-complete')).to_be_hidden()
+        if index == 1:
+            # A reveal advances the story but never earns solved credit.
+            page.locator('#mission-reveal').click()
+            page.locator('#mission-reveal-yes').click()
+            expect(page.locator('#campaign-progress')).to_have_text('1 of 5 cases solved · 1 revealed')
+        else:
+            mapping = {c: p for c, p in zip(mission['ciphertext'], mission['solution']) if c.isalpha()}
+            if index == 2:
+                first_cipher, first_plain = next(iter(mapping.items()))
+                page.locator('#guess-' + first_cipher).fill(first_plain)
+                page.locator('[data-case="1"]').click()
+                page.locator('[data-case="3"]').click()
+                expect(page.locator('#guess-' + first_cipher)).to_have_value(first_plain)
+            for cipher, plain in mapping.items():
+                page.locator('#guess-' + cipher).fill(plain)
+            page.locator('#mission-check').click()
+            expect(page.locator('#mission-complete-title')).to_have_text('Case solved')
+        for width in (320, 390, 768, 1440):
+            page.set_viewport_size({'width': width, 'height': 1000})
+            assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), (index, width)
+            page.screenshot(path=str(output / f'case-{index + 1}-{width}.png'), full_page=True)
+        if index < 4:
+            page.locator('#mission-next').click()
+    expect(page.locator('#campaign-complete')).to_be_visible()
+    expect(page.locator('#campaign-progress')).to_have_text('4 of 5 cases solved · 1 revealed')
+    expect(page.locator('#mission-next')).to_be_hidden()
+    context.set_offline(False)
+    page.reload()
+    page.locator('#play-tab').click()
+    expect(page.locator('#mission-title')).to_have_text(cases[4]['title'])
+    expect(page.locator('#campaign-complete')).to_be_visible()
+    # Resetting a prior case leaves other progress and access intact.
+    page.locator('[data-case="1"]').click()
+    page.locator('#mission-reset').click()
+    page.locator('#mission-reset-yes').click()
+    expect(page.locator('#campaign-progress')).to_have_text('3 of 5 cases solved · 1 revealed')
+    expect(page.locator('[data-case="5"]')).to_be_enabled()
+    expect(page.locator('#campaign-complete')).to_be_hidden()
+    page.locator('[data-case="3"]').click()
+    expect(page.locator('#mission-complete-title')).to_have_text('Case solved')
+    expect(page.locator('#mission-undo')).to_be_disabled()  # Previous case's undo never leaks.
+    page.locator('#campaign-resume').click()
+    expect(page.locator('#mission-title')).to_have_text(cases[0]['title'])
+    # Restore the reset via its own history, without touching case three.
+    page.locator('#mission-undo').click()
+    expect(page.locator('#campaign-complete')).to_be_visible()
+    page.locator('[data-case="2"]').click()
+    page.locator('#mission-reset').click()
+    page.locator('#mission-reset-yes').click()
+    second = cases[1]
+    for cipher, plain in {c: p for c, p in zip(second['ciphertext'], second['solution']) if c.isalpha()}.items():
+        page.locator('#guess-' + cipher).fill(plain)
+    page.locator('#mission-check').click()
+    expect(page.locator('#campaign-progress')).to_have_text('5 of 5 cases solved · 0 revealed')
+    expect(page.locator('#campaign-complete')).to_be_visible()
+    # A standalone v1 save migrates without replaying the first case.
+    migrated = browser.new_context()
+    first = cases[0]
+    save = {'guesses': {c: p for c, p in zip(first['ciphertext'], first['solution']) if c.isalpha()},
+            'clues': 1, 'checked': True, 'revealed': False}
+    migrated.add_init_script('localStorage.setItem("ciphercraft.play.observatory-note.v1", ' + json.dumps(json.dumps(save)) + ')')
+    old = migrated.new_page()
+    old.goto(url)
+    old.locator('#play-tab').click()
+    expect(old.locator('#mission-complete-title')).to_have_text('Case solved')
+    expect(old.locator('[data-case="2"]')).to_be_enabled()
+    expect(old.locator('[data-case="3"]')).to_be_disabled()
+    # Invalid saved flags and malformed ledger cannot falsely solve/unlock a case.
+    corrupt = browser.new_context()
+    corrupt.add_init_script('''localStorage.setItem('ciphercraft.campaign.missing-astronomer.v1', '{"unlocked":999,"selected":-1}');
+        localStorage.setItem('ciphercraft.play.observatory-note.v1', '{"checked":true,"guesses":{"A":"T","L":"T"},"clues":99}');''')
+    bad = corrupt.new_page()
+    bad.goto(url)
+    bad.locator('#play-tab').click()
+    expect(bad.locator('#mission-content')).to_be_visible()
+    expect(bad.locator('#mission-complete')).to_be_hidden()
+    expect(bad.locator('[data-case="2"]')).to_be_disabled()
+    expect(bad.locator('#campaign-progress')).to_have_text('0 of 5 cases solved · 0 revealed')
+    assert not errors, errors
+    context.close()
+    migrated.close()
+    corrupt.close()
+
+
 def check(url, screenshots):
     output = Path(screenshots)
     output.mkdir(parents=True, exist_ok=True)
@@ -128,8 +231,9 @@ def check(url, screenshots):
         memory.locator('#guess-A').fill('T')
         expect(memory.locator('#mission-progress')).to_contain_text('1 of')
         assert not errors, errors
+        campaign_checks(browser, url, output)
         browser.close()
-    print('Play checks passed: mapping, conflicts, undo/reset/reveal, completion, persistence, isolation, recovery and four viewport widths.')
+    print('Play checks passed: five-case campaign, offline navigation, progression/replay, migration, saved-state recovery, tool isolation and four viewport widths.')
 
 
 if __name__ == '__main__':

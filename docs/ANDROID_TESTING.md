@@ -48,6 +48,16 @@ The device checks use Playwright over the beta's own debug WebView plus ADB for
 its system document dialogs; they are not a substitute for human touch usability
 testing, screen-reader testing or a wider device matrix.
 
+## Five-case campaign follow-up
+
+The campaign test APK includes `campaign.json` and all five mission files. It
+built and installed successfully. With the phone locked, its debug WebView
+verified all five cases, next-case navigation, reveal-versus-solved counts,
+campaign completion and selected-case persistence after reload. Test progress
+was removed and the original pre-test saves restored; Play was left open.
+New campaign visual/touch behavior on an unlocked phone still needs review.
+The original tools' browser regression suite and all 209 Python tests pass.
+
 To repeat the WebView smoke check, unlock the phone, open the beta, obtain its PID
 with `adb -s <serial> shell pidof io.drewclark.ciphercraft.beta`, and forward only
 that app's debug socket:

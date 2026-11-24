@@ -5,6 +5,46 @@
 #play-panel {
   padding: 24px;
 }
+.campaign-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+#campaign-header {
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+}
+#campaign-cases {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+.campaign-case {
+  text-align: left;
+  padding: 12px;
+  min-width: 0;
+}
+.campaign-case span {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.campaign-case small {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin-top: 8px;
+}
+.campaign-case[aria-current="step"] {
+  border-width: 2px;
+  background: #edf7f4;
+  color: #086b5d;
+}
+#mission-title {
+  scroll-margin-top: 16px;
+}
 .mission-heading {
   display: flex;
   align-items: center;
@@ -166,6 +206,26 @@
   margin: 24px 0 0;
 }
 @media (max-width: 760px) {
+  .campaign-heading {
+    align-items: start;
+    flex-direction: column;
+    gap: 12px;
+  }
+  #campaign-cases {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .campaign-case {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+  }
+  .campaign-case small {
+    margin-top: 0;
+    flex-shrink: 0;
+  }
   #play-panel {
     padding: 16px;
   }

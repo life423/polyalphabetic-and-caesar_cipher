@@ -204,10 +204,23 @@
         aria-labelledby="play-tab"
         hidden
       >
+        <div id="campaign-header" hidden>
+          <div class="campaign-heading">
+            <div>
+              <p class="eyebrow">A FIVE-CASE MYSTERY</p>
+              <h2 id="campaign-title">The Missing Astronomer</h2>
+            </div>
+            <button id="campaign-resume" class="secondary">Resume case</button>
+          </div>
+          <p id="campaign-progress" class="hint" role="status"></p>
+          <nav id="campaign-cases" aria-label="Campaign cases"></nav>
+        </div>
         <div class="mission-heading">
           <div>
-            <p class="eyebrow">CASE 01 · THE MISSING ASTRONOMER</p>
-            <h2>The Observatory Note</h2>
+            <p class="eyebrow" id="mission-number">
+              CASE 01 · THE MISSING ASTRONOMER
+            </p>
+            <h2 id="mission-title" tabindex="-1">The Observatory Note</h2>
           </div>
           <span class="mission-level">First mission</span>
         </div>
@@ -296,8 +309,15 @@
           <div id="mission-complete" class="mission-complete" hidden>
             <h3 id="mission-complete-title" tabindex="-1">Case solved</h3>
             <p id="mission-ending"></p>
+            <p class="hint" id="mission-next-help"></p>
+            <button id="mission-next">Continue to next case</button>
+          </div>
+          <div id="campaign-complete" class="mission-complete" hidden>
+            <h3>Campaign finished</h3>
+            <p id="campaign-ending"></p>
             <p class="hint">
-              This is the first playable case. More missions are planned.
+              Replay any case above. Revealed cases can be reset and solved for
+              yourself.
             </p>
           </div>
           <div id="mission-reveal-confirm" class="mission-confirm" hidden>

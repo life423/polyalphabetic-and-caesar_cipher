@@ -213,10 +213,13 @@ System Settings → Privacy & Security after the first launch attempt.
 
 ## Play prototype and Android testing
 
-The web app includes a separate **Play** workflow with its first
-codebreaking mission, **The Observatory Note**. A guided first move introduces
-letter mapping; guesses, undo/reset, authored clues and case progress are local
-to Play. The existing cipher tools and AI remain available separately.
+The separate **Play** workflow includes **The Missing Astronomer**, a five-case
+campaign: the observatory, clocktower, archive, north pier and tide vault. A guided
+first move introduces letter mapping, followed by Caesar, substitution and Affine
+puzzles. Each case has three authored clues, undo/reset and saved local progress.
+Solve or reveal a case to continue; revealed cases are counted separately from
+solved ones and can be replayed. Original first-case saves are preserved.
+The existing cipher tools and AI remain available separately.
 
 See [the product roadmap](docs/PRODUCT_ROADMAP.md) for the approved direction,
 current validation and next experiments. A messenger is a proposed extension,

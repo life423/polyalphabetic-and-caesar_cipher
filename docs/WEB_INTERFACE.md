@@ -19,10 +19,16 @@ cannot unexpectedly update the newly selected workflow.
 ## Result presentation
 
 The separate **Play** tab opens a lazy-loaded mission module and its own panel.
-Its versioned progress is stored locally; it never reads or writes tool input,
+Its five-case campaign and versioned progress are stored locally; it never reads or writes tool input,
 keys, uploaded files or results. A mission loading error leaves the tools usable.
 The three tabs support arrow/Home/End navigation. See PRODUCT_ROADMAP.md for
-the first mission's scope, validation and pending product decisions.
+the campaign's scope, validation and pending product decisions. Each case has
+independent guesses, clues and undo history. Finishing a case unlocks the next;
+reveals allow story progression but receive no solved credit. Resetting an earlier
+case preserves later saves and unlocked access. The original standalone case's
+v1 save migrates without requiring a replay. All case content is loaded together,
+so case switching after loading does not require a connection; web offline reload
+still requires a future caching strategy. Android includes all campaign assets.
 
 An empty result has a compact explanation instead of a large disabled textarea.
 Completed results use selectable text with preserved whitespace, a bounded

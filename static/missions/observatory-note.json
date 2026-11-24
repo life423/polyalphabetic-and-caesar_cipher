@@ -5,5 +5,19 @@
   "key": "7",
   "solution": "MEET AT THE OLD OBSERVATORY. BRING THE BRASS COMPASS. WAIT UNTIL THE MORNING BELLS RING.",
   "ciphertext": "TLLA HA AOL VSK VIZLYCHAVYF. IYPUN AOL IYHZZ JVTWHZZ. DHPA BUAPS AOL TVYUPUN ILSSZ YPUN.",
-  "ending": "The note points to the old observatory at dawn. You pocket the brass compass and head for the hill. When the morning bells ring, you will be ready."
+  "ending": "The note points to the old observatory at dawn. You pocket the brass compass and head for the hill. When the morning bells ring, you will be ready.",
+  "title": "The Observatory Note",
+  "briefing": "The astronomer has vanished. A note left beside her telescope is your only lead. Decode it to discover where to go and what to bring.",
+  "level": "Guided introduction",
+  "skill": "Repeated words",
+  "clues": [
+    "AOL appears 3 times as a complete three-letter word. THE is a useful word to try. A is the most frequent cipher letter (8 appearances).",
+    "This note uses a Caesar cipher: the whole alphabet moved by the same number of places. If AOL means THE, each pair must follow the same shift.",
+    "A stands for T, O stands for H, and L stands for E. The encryption shift is 7. Use that pattern to work out the remaining letters."
+  ],
+  "firstMove": {
+    "cipher": "AOL",
+    "plain": "THE",
+    "description": "AOL appears three times. It could mean THE. Try that guess and watch the note change."
+  }
 }

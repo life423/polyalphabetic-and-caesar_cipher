@@ -1,0 +1,21 @@
+{
+  "id": "north-pier",
+  "version": 1,
+  "title": "The North Pier Signal",
+  "cipher": "Affine",
+  "key": [
+    "5",
+    "8"
+  ],
+  "solution": "AT THE NORTH PIER, TURN THE BRASS COMPASS EAST. A BLUE LANTERN MARKS THE SAFE CHANNEL TO THE TIDE VAULT.",
+  "ciphertext": "IZ ZRC VAPZR FWCP, ZEPV ZRC NPIUU SAQFIUU CIUZ. I NLEC LIVZCPV QIPGU ZRC UIHC SRIVVCL ZA ZRC ZWXC JIELZ.",
+  "briefing": "At the north pier, a blue lantern flashes beside an empty boat. An etched plate on its compass stand contains your next instruction. Find the safe route.",
+  "level": "Connect the evidence",
+  "skill": "Affine mapping",
+  "ending": "You turn the brass compass east. The blue lantern marks a narrow, safe channel between the rocks. Beyond it, a stone door bears the words TIDE VAULT.",
+  "clues": [
+    "The first word has two letters and is followed by ZRC. Try AT THE. The brass compass from case one matters here.",
+    "An Affine cipher changes each letter with a multiplication and an offset. It still gives each cipher letter one fixed meaning, so this board works as before.",
+    "The Affine key is multiplier 5, offset 8. Cipher Z is T, R is H, and C is E. The destination at the end reads TIDE VAULT."
+  ]
+}

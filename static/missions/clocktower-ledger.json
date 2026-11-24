@@ -1,0 +1,18 @@
+{
+  "id": "clocktower-ledger",
+  "version": 1,
+  "title": "The Clocktower Ledger",
+  "cipher": "Caesar",
+  "key": "19",
+  "solution": "THE CLOCKTOWER KEEPER HID A LEDGER UNDER THE THIRD STEP. TAKE IT TO THE CITY ARCHIVE BEFORE SUNSET.",
+  "ciphertext": "MAX VEHVDMHPXK DXXIXK ABW T EXWZXK NGWXK MAX MABKW LMXI. MTDX BM MH MAX VBMR TKVABOX UXYHKX LNGLXM.",
+  "briefing": "At dawn, the compass points toward the clocktower. Inside its stopped clock you find a second note. Work out where the keeper hid his ledger.",
+  "level": "Find the shift",
+  "skill": "Alphabet shifts",
+  "ending": "Beneath the third step lies the keeper's ledger. A blue lantern is drawn beside an entry for the city archive. You carry the ledger across the square.",
+  "clues": [
+    "MAX appears 3 times as a whole word. Try THE, then compare the letter pairs with your first case.",
+    "This is another Caesar cipher, but the first case's shift will not work. The same alphabet shift must explain every pair.",
+    "The encryption shift is 19. MAX reads THE; use the same backward shift for the rest of the note."
+  ]
+}

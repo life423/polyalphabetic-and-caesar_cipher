@@ -1,0 +1,18 @@
+{
+  "id": "tide-vault",
+  "version": 1,
+  "title": "The Tide Vault",
+  "cipher": "Substitution",
+  "key": "PHQGIUMEAYLNOFDXJKRCVSTZWB",
+  "solution": "THE ASTRONOMER IS SAFE IN THE TIDE VAULT. OPEN THE BLUE CASE. THE STAR MAP PROVES THE LANTERN SIGNAL WAS A WARNING.",
+  "ciphertext": "CEI PRCKDFDOIK AR RPUI AF CEI CAGI SPVNC. DXIF CEI HNVI QPRI. CEI RCPK OPX XKDSIR CEI NPFCIKF RAMFPN TPR P TPKFAFM.",
+  "briefing": "Inside the tide vault, a blue case rests below a chart of the stars. One final message explains the astronomer's disappearance. Piece together what the lantern was telling you.",
+  "level": "The final message",
+  "skill": "Combine your clues",
+  "ending": "Dr. Vale steps from the vault. Her star map and the keeper's tide records reveal submerged rocks in the old shipping route. The lantern was a warning, not a distress signal. Together you relight the harbor beacon and guide the waiting boats safely home. The missing astronomer is found, and the mystery is solved.",
+  "clues": [
+    "CEI appears 5 times as a whole word. Start with it and reuse story words: ASTRONOMER, TIDE VAULT and BLUE CASE.",
+    "This is a new substitution alphabet; guesses from the archive will not carry over. The first sentence reads THE ASTRONOMER IS SAFE IN THE TIDE VAULT.",
+    "Cipher C is T, E is H, and I is E. The final five words read LANTERN SIGNAL WAS A WARNING."
+  ]
+}

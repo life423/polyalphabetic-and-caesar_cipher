@@ -1,0 +1,12 @@
+{
+  "id": "missing-astronomer",
+  "version": 1,
+  "title": "The Missing Astronomer",
+  "missions": [
+    "observatory-note.json",
+    "clocktower-ledger.json",
+    "archive-lantern.json",
+    "north-pier.json",
+    "tide-vault.json"
+  ]
+}

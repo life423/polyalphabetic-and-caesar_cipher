@@ -1,0 +1,18 @@
+{
+  "id": "archive-lantern",
+  "version": 1,
+  "title": "The Lantern Log",
+  "cipher": "Substitution",
+  "key": "QWERTYUIOPASDFGHJKLZXCVBNM",
+  "solution": "SEARCH THE ARCHIVE FOR THE LANTERN LOG. ITS LAST PAGE NAMES THE NORTH PIER. FOLLOW THE BLUE LIGHT.",
+  "ciphertext": "LTQKEI ZIT QKEIOCT YGK ZIT SQFZTKF SGU. OZL SQLZ HQUT FQDTL ZIT FGKZI HOTK. YGSSGV ZIT WSXT SOUIZ.",
+  "briefing": "The archivist recognizes the blue lantern mark. She hands you a catalog slip, but its letters no longer follow a simple shift. Find the next destination.",
+  "level": "Follow the patterns",
+  "skill": "Substitution patterns",
+  "ending": "The lantern log names the north pier. Its final sketch shows a boat following a blue light through dark water. You leave the archive for the harbor.",
+  "clues": [
+    "ZIT appears 4 times as a whole word. Repeated words still help even when there is no single alphabet shift.",
+    "This is a substitution cipher. Every cipher letter has one fixed meaning, but neighboring letters need not stay neighbors. The message begins SEARCH THE ARCHIVE.",
+    "Cipher Z is T, I is H, and T is E. The short word SGU means LOG, and the final two words mean BLUE LIGHT."
+  ]
+}
