@@ -1,0 +1,96 @@
+name: CipherCraft Android
+
+on:
+  push:
+    branches: [main]
+    paths: ['mobile/**', 'static/**', 'src/**', 'tools/runtime/**', 'scripts/**', 'tests/**', '.github/workflows/android.yml']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            mobile/package-lock.json
+            tools/runtime/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install and verify shared engine
+        run: |
+          python -m pip install -e '.[dev,web-test]'
+          python -m pytest tests/ -q
+          python -m flake8 src tests scripts --select=E9,F63,F7,F82 --show-source
+          npm ci --prefix tools/runtime --no-audit --no-fund
+          npm ci --prefix mobile --no-audit --no-fund
+          python scripts/build_static.py
+      - name: Restore optional Firebase client configuration
+        env:
+          FIREBASE_ANDROID_CONFIG: ${{ secrets.FIREBASE_ANDROID_CONFIG }}
+        run: |
+          if [ -n "$FIREBASE_ANDROID_CONFIG" ]; then
+            printf '%s' "$FIREBASE_ANDROID_CONFIG" > mobile/android/app/google-services.json
+            echo 'Firebase client configuration supplied.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Push is not configured in this build; no server credential is included.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Sync bundled assets and install SDK
+        run: |
+          cd mobile
+          npx --no-install cap sync android
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Lint, native unit checks, APK and bundle builds
+        working-directory: mobile/android
+        run: bash gradlew :app:lintDebug :app:testDebugUnitTest :app:assembleDebug :app:bundleRelease --no-daemon
+      - name: Verify packaged offline runtime and deletion UI
+        run: python scripts/check_android_apk.py mobile/android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Test installed Android WebView, ciphers and bundled AI
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          script: python scripts/check_android_emulator.py
+      - name: Prepare test download and checksums
+        run: |
+          cp mobile/android/app/build/outputs/apk/debug/app-debug.apk dist/CipherCraft-android-test.apk
+          cd dist
+          sha256sum CipherCraft-android-test.apk > CipherCraft-android-test.apk.sha256
+          echo 'Debug APK is for testing. Release bundle is unsigned and is not ready for Play upload.' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-checks-${{ github.sha }}
+          retention-days: 14
+          path: |
+            dist/CipherCraft-android-test.apk*
+            dist/android-checks/
+            mobile/android/app/build/outputs/bundle/release/*.aab
+            mobile/android/app/build/reports/
+            mobile/android/app/build/test-results/

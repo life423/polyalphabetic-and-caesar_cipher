@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="learn.css" />
     <link rel="stylesheet" href="messages.css" />
     <link rel="stylesheet" href="messenger.css" />
+    <link rel="stylesheet" href="account-deletion.css" />
     <script type="module" src="app.js"></script>
   </head>
   <body>
@@ -594,9 +595,7 @@
           ><select id="learn-lesson-select">
             <option value="integrity">1. Hashes &amp; file integrity</option>
             <option value="password">2. Password storage &amp; salts</option>
-            <option value="caesar">
-              3. Caesar cipher basics
-            </option>
+            <option value="caesar">3. Caesar cipher basics</option>
           </select>
         </div>
         <div id="lesson-load-error" hidden>
@@ -1365,6 +1364,22 @@
             <button id="chat-signout" type="button" hidden>Sign out</button>
           </header>
           <p id="chat-account" class="chat-muted" hidden></p>
+          <details id="chat-account-settings" hidden>
+            <summary>Account settings</summary>
+            <button id="chat-delete-account" type="button">
+              Delete my account
+            </button>
+            <p class="chat-muted">
+              You can also
+              <a
+                href="https://cipher.drewclark.io/delete-account"
+                target="_blank"
+                rel="noopener"
+                >delete your account on the website</a
+              >
+              without the Android app.
+            </p>
+          </details>
           <p
             id="chat-status"
             tabindex="-1"
@@ -1715,6 +1730,14 @@
         </details>
       </section>
       <footer>
+        <p>
+          <a
+            href="https://cipher.drewclark.io/delete-account"
+            target="_blank"
+            rel="noopener"
+            >Delete a CipherCraft account</a
+          >
+        </p>
         <p id="privacy-footer">Your messages and keys stay in this browser.</p>
         <p>
           Built for curiosity. Classical ciphers do not protect sensitive

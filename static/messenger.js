@@ -75,9 +75,11 @@ async function api(path, body, token = session?.token) {
     if (!r.ok) {
       const errors = {
         invalid_credentials: "Username or password is incorrect.",
-        account_suspended: "This account is suspended. Contact the app administrator.",
+        account_suspended:
+          "This account is suspended. Contact the app administrator.",
         account_unavailable: "This account is unavailable for new messages.",
-        message_deleted: "This message was deleted by an administrator and cannot be resent. Start a new message instead.",
+        message_deleted:
+          "This message was deleted by an administrator and cannot be resent. Start a new message instead.",
         username_taken: "That username is already taken. Choose another.",
         unauthorized:
           "Your session has expired. Copy any draft you want to keep, then sign out and log in again.",
@@ -93,7 +95,7 @@ async function api(path, body, token = session?.token) {
         r.status === 401 && token
           ? errors.unauthorized
           : errors[data.error] ||
-              "The request could not be completed. Please retry.",
+            "The request could not be completed. Please retry.",
       );
     }
     return data;
@@ -205,6 +207,8 @@ function reset() {
   $("active").hidden = true;
   $("empty").hidden = false;
   $("signout").hidden = true;
+  $("account-settings").hidden = true;
+  $("account-settings").open = false;
   document.getElementById("chat-trust-warning")?.remove();
   notice();
   mode();
@@ -774,6 +778,7 @@ export function openMessenger() {
       $("auth").hidden = true;
       $("workspace").hidden = false;
       $("signout").hidden = false;
+      $("account-settings").hidden = false;
       notice();
       poll();
     } catch (err) {
@@ -795,6 +800,66 @@ export function openMessenger() {
     const token = session?.token;
     reset();
     void api("/api/logout", {}, token).catch(() => {});
+  };
+  $("delete-account").onclick = async () => {
+    const owner = session;
+    if (!owner) return;
+    $("delete-account").disabled = true;
+    try {
+      const eligibility = await api(
+        "/api/account/deletion-status",
+        undefined,
+        owner.token,
+      );
+      if (session !== owner) return;
+      if (!eligibility.allowed) {
+        notice(
+          "This administrator account is protected from self-deletion. Your account was not deleted.",
+          true,
+        );
+        $("status").focus();
+        return;
+      }
+      const { mountAccountDeletion } = await import("./account-deletion.js");
+      if (session !== owner) return;
+      const dialog = document.createElement("dialog");
+      dialog.id = "chat-delete-dialog";
+      dialog.setAttribute("aria-labelledby", "chat-delete-title");
+      dialog.innerHTML =
+        '<h2 id="chat-delete-title">Delete your account?</h2><p>Your sign-in information, encrypted account keys, all server conversations involving you, sessions and push registrations will be removed. Copies other people saved and delivered notifications cannot be recalled. Offline lesson progress is kept.</p><div id="chat-delete-form"></div>';
+      document.body.append(dialog);
+      const form = mountAccountDeletion(
+        dialog.querySelector("#chat-delete-form"),
+        {
+          username: owner.user.username,
+          onCancel: () => dialog.close(),
+          onDeleted: () => {
+            dialog.close();
+            if (session === owner) {
+              reset();
+              notice(
+                "Your account has been deleted. Your other cipher tools and lesson progress are still available.",
+              );
+              $("status").focus();
+            }
+          },
+        },
+      );
+      dialog.addEventListener("cancel", (event) => {
+        if (form.isBusy()) event.preventDefault();
+      });
+      dialog.addEventListener("close", () => {
+        form.clear();
+        dialog.remove();
+        if (session === owner) $("delete-account").focus();
+      });
+      dialog.showModal();
+      dialog.querySelector("#delete-password").focus();
+    } catch (error) {
+      if (session === owner) notice(reason(error), true);
+    } finally {
+      $("delete-account").disabled = false;
+    }
   };
   $("invite").onsubmit = async (event) => {
     event.preventDefault();

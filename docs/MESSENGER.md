@@ -54,9 +54,10 @@ The browser generates a P-256 ECDH identity. A random-salt PBKDF2-HMAC-SHA-256
 never transmitted: sign-in sends a separate domain-separated PBKDF2-derived
 secret, which the server hashes again with an independent salt and 600,000
 iterations. The authentication secret does not unwrap the identity backup.
-No password recovery, account deletion or key rotation is implemented in this
-beta; lost passwords cannot recover history. These are release prerequisites
-for a broadly offered consumer service, alongside abuse/reporting controls.
+Self-service account deletion is available in Messages → Account settings and
+at `/delete-account`; see [account deletion](ACCOUNT_DELETION.md). Password
+recovery and key rotation are not implemented; lost passwords cannot recover
+history. Abuse/reporting controls and recovery design remain release work.
 
 Per-conversation ECDH secrets feed HKDF-SHA-256 with a conversation-specific salt.
 Each message uses a random 96-bit IV and a 128-bit GCM tag. Authenticated data
@@ -110,7 +111,7 @@ Internal review heuristics (not measurements): usability 8, hierarchy 9,
 accessibility 8, consistency 9, responsiveness 8, feedback 9, performance 8.
 Priorities: paired human play/key handoff testing, screen readers, real mobile
 keyboard/landscape, slow-network/cold-start feedback and representative device
-latency. Also add account deletion/recovery design, abuse reporting and an
+latency. Also finish recovery design, abuse reporting and an
 independent protocol review before a public paid messenger launch.
 
 ### Verified checkpoint — November 24, 2026

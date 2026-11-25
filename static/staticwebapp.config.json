@@ -1,5 +1,14 @@
 {
   "routes": [
+    {
+      "route": "/delete-account",
+      "redirect": "/delete-account.html",
+      "statusCode": 302
+    },
+    {
+      "route": "/delete-account.html",
+      "headers": { "Cache-Control": "no-store" }
+    },
     { "route": "/admin", "redirect": "/admin.html", "statusCode": 302 },
     { "route": "/admin.html", "headers": { "Cache-Control": "no-store" } }
   ],

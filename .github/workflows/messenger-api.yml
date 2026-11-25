@@ -2,7 +2,7 @@ name: CipherCraft Messenger API
 on:
   push:
     branches: [main]
-    paths: ['src/messenger/**', 'scripts/package_messenger.py', 'messenger-requirements.txt', 'tests/test_messenger.py', 'tests/test_admin.py', 'tests/test_push_notifications.py', '.github/workflows/messenger-api.yml']
+    paths: ['src/messenger/**', 'scripts/package_messenger.py', 'messenger-requirements.txt', 'tests/test_messenger.py', 'tests/test_admin.py', 'tests/test_account_deletion.py', 'tests/test_push_notifications.py', '.github/workflows/messenger-api.yml']
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install pytest
-      - run: python -m pytest tests/test_messenger.py tests/test_admin.py tests/test_push_notifications.py -q
+      - run: python -m pytest tests/test_messenger.py tests/test_admin.py tests/test_push_notifications.py tests/test_account_deletion.py -q
       - run: python scripts/package_messenger.py --output messenger-api.zip
       - uses: actions/upload-artifact@v4
         with:

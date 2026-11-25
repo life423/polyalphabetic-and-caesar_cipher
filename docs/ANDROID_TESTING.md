@@ -1,5 +1,28 @@
 # Android test build
 
+## Automated checks
+
+`.github/workflows/android.yml` runs on main, pull requests and manual dispatch.
+It installs locked dependencies, runs the Python regression suite and critical
+lint, bundles the offline engine, synchronizes Capacitor, runs Android lint and
+the native unit-test task, and builds a debug APK and unsigned release bundle.
+The native unit-test task currently has no Java test sources; the executable
+native regression coverage is the emulator WebView smoke suite.
+
+An API 36 emulator installs the APK and exercises bundled AI, six cipher flows,
+native clipboard and overflow checks using `tests/smoke_android.py`. Package
+checks require the offline runtime and account-deletion interface. Reports,
+emulator screenshot/logs, APK/checksum and unsigned AAB are retained for 14 days.
+CI does not publish to Google Play or replace the debug signing identity on an
+existing phone. Downloaded CI APKs may require uninstalling a locally signed beta.
+
+The Actions secret `FIREBASE_ANDROID_CONFIG` supplies the existing Android client
+`google-services.json`; it is never committed. Fork pull requests without secrets
+still build, with push explicitly marked unconfigured. Never put the Firebase
+sender service-account credential into an Android build. Receiving real push
+while closed, physical-device touch/save dialogs, older supported Android
+versions, Play signing and store-policy review remain release checks.
+
 The Capacitor shell bundles the existing static app, Pyodide, Python engine and
 both locally trained models. It does not load the deployed website. The beta
 manifest now includes INTERNET permission for Messages. It has no broad storage

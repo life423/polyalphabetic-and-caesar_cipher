@@ -155,6 +155,39 @@ class Messenger:
         unread = db.execute('SELECT count(*) FROM messages WHERE conversation_id=? AND sender_id!=? AND id>?', (cid, uid, member['read_id'])).fetchone()[0]
         return dict(id=cid, peer=self.user(peer), updatedAt=row['updated'], unread=unread, blocked=bool(member['blocked']))
 
+    def delete_account(self, body, ip, now):
+        # Reauthentication also works for suspended accounts and from the public page.
+        self.limit('auth_ip', ip, 30, 900)
+        name = username(body.get('username'))
+        self.limit('auth_account', name, 10, 900)
+        require(set(body) == {'username', 'password', 'confirmation'})
+        secret = body.get('password')
+        require(isinstance(secret, str) and 12 <= len(secret) <= 1024, 'invalid_password')
+        require(body.get('confirmation') == name, 'confirmation_mismatch', 409)
+        with self.connect() as db:
+            db.execute('PRAGMA secure_delete=ON')
+            db.execute('BEGIN IMMEDIATE')
+            account = db.execute('SELECT * FROM users WHERE username=?', (name,)).fetchone()
+            digest = hashlib.pbkdf2_hmac('sha256', secret.encode(), account['salt'] if account else b'\0'*16, ITERATIONS)
+            require(account is not None and hmac.compare_digest(digest, account['password_hash']), 'invalid_credentials', 401)
+            uid = account['id']
+            require(uid not in self.admin_ids, 'protected_admin', 409)
+            related = 'SELECT id FROM conversations WHERE low=? OR high=?'
+            db.execute('DELETE FROM push_outbox WHERE conversation_id IN (' + related + ') OR recipient_id=?', (uid, uid, uid))
+            db.execute('DELETE FROM messages WHERE conversation_id IN (' + related + ')', (uid, uid))
+            db.execute('DELETE FROM members WHERE conversation_id IN (' + related + ')', (uid, uid))
+            db.execute('DELETE FROM conversations WHERE low=? OR high=?', (uid, uid))
+            db.execute('DELETE FROM push_devices WHERE user_id=?', (uid,))
+            db.execute('DELETE FROM sessions WHERE user_id=?', (uid,))
+            db.execute('DELETE FROM account_status WHERE user_id=?', (uid,))
+            db.execute('DELETE FROM message_tombstones WHERE sender_id=?', (uid,))
+            db.execute('DELETE FROM admin_audit WHERE actor_id=? OR target_id=?', (uid, uid))
+            # Keep only network-based abuse limits, not the removed account's identifiers.
+            db.execute('DELETE FROM rate_limits WHERE subject IN (?,?)',
+                       (hashlib.sha256(name.encode()).hexdigest(), hashlib.sha256(str(uid).encode()).hexdigest()))
+            db.execute('DELETE FROM users WHERE id=?', (uid,))
+        return {'deleted': True}
+
     def dispatch(self, env, body):
         method, path = env['REQUEST_METHOD'], env.get('PATH_INFO', '')
         now = int(self.clock())
@@ -170,6 +203,8 @@ class Messenger:
             with self.connect() as db:
                 db.execute('SELECT 1').fetchone()
             return {'ok': True}
+        if path == '/api/account/delete' and method == 'POST':
+            return self.delete_account(body, ip, now)
         if path in ('/api/register', '/api/login') and method == 'POST':
             self.limit('auth_ip', ip, 30, 900)
             name = username(body.get('username'))
@@ -219,6 +254,8 @@ class Messenger:
                 return self.push.unregister(uid, token_hash, body)
             if path == '/api/me' and method == 'GET':
                 return {'user': self.user(row, True)}
+            if path == '/api/account/deletion-status' and method == 'GET':
+                return {'allowed': uid not in self.admin_ids}
             if path == '/api/logout' and method == 'POST':
                 db.execute('DELETE FROM push_devices WHERE session_hash=?', (token_hash,))
                 db.execute('DELETE FROM sessions WHERE token_hash=?', (token_hash,))
@@ -238,6 +275,8 @@ class Messenger:
                 if method == 'POST':
                     self.limit('conversation', str(uid), 30, 60)
                     name = username(body.get('username'))
+                    db.execute('BEGIN IMMEDIATE')
+                    require(db.execute('SELECT 1 FROM sessions WHERE token_hash=? AND expires>?', (token_hash, now)).fetchone() is not None, 'unauthorized', 401)
                     peer = db.execute('SELECT id FROM users WHERE username=?', (name,)).fetchone()
                     require(peer is not None, 'not_found', 404)
                     require(peer['id'] != uid, 'self_conversation')
@@ -271,6 +310,7 @@ class Messenger:
                 # Serialize block checks and insertion with block updates and competing retries.
                 db.execute('BEGIN IMMEDIATE')
                 require(db.execute('SELECT 1 FROM sessions WHERE token_hash=? AND expires>?', (token_hash, now)).fetchone() is not None, 'unauthorized', 401)
+                self.member(db, cid, uid)
                 require(not db.execute('SELECT 1 FROM account_status WHERE user_id IN (SELECT user_id FROM members WHERE conversation_id=?) AND suspended=1', (cid,)).fetchone(), 'account_unavailable', 403)
                 require(not db.execute('SELECT 1 FROM message_tombstones WHERE sender_id=? AND client_id=?', (uid, client_id)).fetchone(), 'message_deleted', 410)
                 require(not db.execute('SELECT 1 FROM members WHERE conversation_id=? AND blocked=1', (cid,)).fetchone(), 'blocked', 403)

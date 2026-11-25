@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Delete your CipherCraft account and its server-side conversations without installing the app."
+    />
+    <title>Delete your CipherCraft account</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="account-deletion.css" />
+    <script type="module" src="delete-account-page.js"></script>
+  </head>
+  <body>
+    <main class="deletion-page">
+      <header class="brandbar">
+        <a class="wordmark" href="./">Cipher<span>Craft</span></a
+        ><a href="./">Back to app</a>
+      </header>
+      <div class="intro">
+        <p class="eyebrow">ACCOUNT &amp; DATA</p>
+        <h1>Delete your account</h1>
+        <p class="subtitle">
+          You can delete your CipherCraft account here without the Android app.
+        </p>
+      </div>
+      <section
+        class="deletion-card"
+        id="deletion-request"
+        aria-label="Delete a CipherCraft account"
+      >
+        <h2>What will be removed</h2>
+        <ul>
+          <li>Your sign-in information and encrypted account keys.</li>
+          <li>
+            Every server-side conversation involving your account, including
+            messages sent by either participant.
+          </li>
+          <li>
+            All sign-in sessions, push registrations and account-specific admin
+            records.
+          </li>
+        </ul>
+        <p>
+          Deletion takes effect in the active service immediately after
+          confirmation. It cannot recall messages someone already saved or
+          notifications already delivered. Unlinked lesson progress and offline
+          work on your device stay as they are.
+        </p>
+        <p class="hint">
+          Use your existing username and password. Suspended accounts can also
+          be deleted. Administrator accounts are protected from self-deletion.
+        </p>
+        <div id="deletion-form-container"></div>
+      </section>
+      <section
+        class="deletion-card"
+        id="deletion-success"
+        hidden
+        aria-labelledby="deleted-title"
+      >
+        <h2 id="deleted-title" tabindex="-1">Your account has been deleted</h2>
+        <p>
+          Your sign-in sessions and push registrations have been removed. Your
+          server-side conversations and account keys are gone. Signing up again
+          would create a new account, not restore the deleted one.
+        </p>
+        <a href="./">Return to CipherCraft</a>
+      </section>
+      <details class="deletion-retention">
+        <summary>Security records and retention</summary>
+        <p>
+          Account identifiers are removed from security counters. Network-based
+          abuse-prevention counters may remain: they stop affecting requests
+          after at most one hour, and expired records are pruned when the
+          service next processes a rate-limited request. They contain no
+          passwords or message content and cannot restore a deleted account.
+          Non-identifying record-number counters remain so new accounts and
+          messages cannot reuse old identities.
+        </p>
+      </details>
+    </main>
+  </body>
+</html>
