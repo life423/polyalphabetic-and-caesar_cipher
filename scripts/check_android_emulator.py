@@ -35,7 +35,20 @@ def main():
     finally:
         with (output / 'screen.png').open('wb') as stream:
             subprocess.run(['adb', 'exec-out', 'screencap', '-p'], stdout=stream)
-        (output / 'logcat.txt').write_text(adb('logcat', '-d'), encoding='utf-8')
+        # Diagnostic collection must not mask the smoke suite's outcome.
+        # AVD logcat occasionally disconnects after a successful test.
+        for attempt in range(3):
+            logs = subprocess.run(['adb', 'logcat', '-d'], capture_output=True,
+                                  text=True, errors='replace', timeout=30)
+            (output / 'logcat.txt').write_text(logs.stdout + logs.stderr,
+                                              encoding='utf-8')
+            if logs.returncode == 0:
+                break
+            if attempt < 2:
+                time.sleep(1)
+        else:
+            print('::warning::Emulator logcat collection failed after retries; '
+                  'see diagnostic artifact. Smoke test result is preserved.')
 
 
 if __name__ == '__main__':
