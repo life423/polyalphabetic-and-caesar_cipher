@@ -10,7 +10,9 @@ from playwright.sync_api import expect, sync_playwright
 
 def check(endpoint):
     with sync_playwright() as playwright:
-        browser = playwright.chromium.connect_over_cdp(endpoint)
+        # Android WebView does not support desktop browser-context/download
+        # overrides. Preserve its native settings when attaching.
+        browser = playwright.chromium.connect_over_cdp(endpoint, no_defaults=True)
         page = next(p for c in browser.contexts for p in c.pages if p.url == 'https://localhost/')
         errors = []
         page.on('pageerror', lambda error: errors.append(str(error)))
