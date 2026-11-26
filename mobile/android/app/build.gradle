@@ -7,8 +7,8 @@ android {
         applicationId "io.drewclark.ciphercraft.beta"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "0.1.0-test"
+        versionCode Integer.parseInt(System.getenv('CIPHER_ANDROID_VERSION_CODE') ?: '1')
+        versionName "0.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -17,6 +17,9 @@ android {
         }
     }
     buildTypes {
+        debug {
+            versionNameSuffix "-test"
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

@@ -1,5 +1,6 @@
 {
   "routes": [
+    { "route": "/privacy", "redirect": "/privacy.html", "statusCode": 302 },
     {
       "route": "/delete-account",
       "redirect": "/delete-account.html",

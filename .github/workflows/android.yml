@@ -7,6 +7,11 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      sign_release:
+        description: 'Sign an internal-test bundle with the configured upload key'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -63,6 +68,8 @@ jobs:
           sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
       - name: Lint, native unit checks, APK and bundle builds
         working-directory: mobile/android
+        env:
+          CIPHER_ANDROID_VERSION_CODE: ${{ github.run_number }}
         run: bash gradlew :app:lintDebug :app:testDebugUnitTest :app:assembleDebug :app:bundleRelease --no-daemon
       - name: Verify packaged offline runtime and deletion UI
         run: python scripts/check_android_apk.py mobile/android/app/build/outputs/apk/debug/app-debug.apk
@@ -85,6 +92,22 @@ jobs:
           cd dist
           sha256sum CipherCraft-android-test.apk > CipherCraft-android-test.apk.sha256
           echo 'Debug APK is for testing. Release bundle is unsigned and is not ready for Play upload.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Sign requested Play internal-test bundle
+        if: github.event_name == 'workflow_dispatch' && inputs.sign_release && github.ref == 'refs/heads/main'
+        env:
+          ANDROID_UPLOAD_KEYSTORE_BASE64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}
+          ANDROID_UPLOAD_PASSWORD: ${{ secrets.ANDROID_UPLOAD_PASSWORD }}
+        run: |
+          test -n "$ANDROID_UPLOAD_KEYSTORE_BASE64"
+          test -n "$ANDROID_UPLOAD_PASSWORD"
+          printf '%s' "$ANDROID_UPLOAD_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/ciphercraft-upload.keystore"
+          trap 'rm -f "$RUNNER_TEMP/ciphercraft-upload.keystore"' EXIT
+          cp mobile/android/app/build/outputs/bundle/release/app-release.aab dist/CipherCraft-play-internal.aab
+          jarsigner -keystore "$RUNNER_TEMP/ciphercraft-upload.keystore" -storepass:env ANDROID_UPLOAD_PASSWORD -keypass:env ANDROID_UPLOAD_PASSWORD -digestalg SHA-256 -sigalg SHA256withRSA dist/CipherCraft-play-internal.aab ciphercraft-upload
+          jarsigner -verify dist/CipherCraft-play-internal.aab
+          cd dist
+          sha256sum CipherCraft-play-internal.aab > CipherCraft-play-internal.aab.sha256
+          echo 'Signed internal-test AAB is available; no automatic Play rollout is performed.' >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -92,6 +115,7 @@ jobs:
           retention-days: 14
           path: |
             dist/CipherCraft-android-test.apk*
+            dist/CipherCraft-play-internal.aab*
             dist/android-checks/
             mobile/android/app/build/outputs/bundle/release/*.aab
             mobile/android/app/build/reports/

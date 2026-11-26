@@ -6,6 +6,7 @@ This script never inspects other apps or closes the Android app.
 import argparse
 import json
 from pathlib import Path
+import subprocess
 
 from playwright.sync_api import expect, sync_playwright
 
@@ -37,6 +38,8 @@ def check(endpoint):
         page.locator('#identify').click()
         expect(page.locator('#key')).to_have_value('orbit', timeout=90000)
         expect(page.locator('#result')).to_contain_text('The old observatory')
+        with (output / 'store-crack.png').open('wb') as image:
+            subprocess.run(['adb', 'exec-out', 'screencap', '-p'], stdout=image, check=True)
         page.locator('#copy').click()
         expect(page.locator('#status')).to_have_text('Copied to clipboard.')
         page.locator('#manual-tab').click()
@@ -62,6 +65,8 @@ def check(endpoint):
         page.locator('#message').fill('WEAREDISCOVEREDFLEEATONCE')
         page.locator('#encrypt').click()
         expect(page.locator('#result')).to_have_text('EVLNXACDTXESEAXROFOXDEECXWIREE')
+        with (output / 'store-tools.png').open('wb') as image:
+            subprocess.run(['adb', 'exec-out', 'screencap', '-p'], stdout=image, check=True)
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
         assert not errors, errors
         page.locator('#crack-tab').click()
