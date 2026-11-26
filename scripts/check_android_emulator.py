@@ -14,11 +14,16 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     try:
         adb('install', '-r', 'mobile/android/app/build/outputs/apk/debug/app-debug.apk')
-        adb('shell', 'am', 'start', '-n',
+        adb('shell', 'am', 'start', '-W', '-n',
             'io.drewclark.ciphercraft.beta/.MainActivity')
         deadline = time.monotonic() + 90
         while time.monotonic() < deadline:
-            pid = adb('shell', 'pidof', 'io.drewclark.ciphercraft.beta').strip()
+            # pidof exits 1 while Android is still starting the process.
+            # Keep polling within the startup deadline instead of failing early.
+            result = subprocess.run(
+                ['adb', 'shell', 'pidof', 'io.drewclark.ciphercraft.beta'],
+                capture_output=True, text=True)
+            pid = result.stdout.strip() if result.returncode == 0 else ''
             socket = 'webview_devtools_remote_' + pid
             if pid and socket in adb('shell', 'cat', '/proc/net/unix'):
                 adb('forward', 'tcp:9224', 'localabstract:' + socket)
