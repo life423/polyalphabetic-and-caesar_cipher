@@ -27,3 +27,22 @@ requires a closed test with at least 12 testers opted in continuously for 14
 days. Neither automated tests nor internal testers replace that requirement.
 Store declarations must match the implementation; messaging safety/reporting,
 target-audience review and policy compliance remain production release work.
+
+## First internal release published
+
+Version `0.1.0`, code `11`, is available to internal testers. The owner-only
+email list contains drew@drewclark.io. Join link:
+<https://play.google.com/apps/internaltest/4699221079626521322>.
+Google may show the temporary package-based name until the app is reviewed.
+
+Signed CI run `45752710333` passed all Android build/emulator/signature checks.
+It produced two native 1080×1920 screenshots. Store description, icon, feature
+graphic, screenshots, category and support details were saved. Privacy, no ads,
+non-government, no-financial-feature and no-health-feature declarations are saved.
+The Data safety questionnaire is saved as a draft and needs the owner-approved
+target audience before submission. IARC terms acceptance/rating, reviewer access
+and legal trader status remain pending. Do not claim production approval.
+
+Play reported two nonblocking diagnostics warnings: no obfuscation mapping file
+(release minification is disabled) and no native dependency debug symbols.
+No signing password, private key or administrator login is in the repository.
