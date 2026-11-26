@@ -40,8 +40,21 @@ It produced two native 1080×1920 screenshots. Store description, icon, feature
 graphic, screenshots, category and support details were saved. Privacy, no ads,
 non-government, no-financial-feature and no-health-feature declarations are saved.
 The Data safety questionnaire is saved as a draft and needs the owner-approved
-target audience before submission. IARC terms acceptance/rating, reviewer access
-and legal trader status remain pending. Do not claim production approval.
+target audience before submission. Do not claim production approval.
+
+The owner approved ages 13 and older and IARC terms acceptance. The IARC
+questionnaire is saved: ESRB Everyone / Users Interact, PEGI 3 / Users Interact,
+with regional variants. These content ratings are separate from the intended
+13+ audience. Responses disclose text interaction and blocking, and do not claim
+in-app reporting, chat moderation or friend-only interaction limits.
+
+App trader status was confirmed using the developer account's existing trader
+declaration. No account-level trader details were changed. Two ordinary reviewer
+accounts (`play_reviewer_a` and `play_reviewer_b`) passed login/key-backup checks
+and were denied administrator access. Their private passwords are outside the
+repository. Permission to share them with Google's reviewer-only access form is
+pending. Google gates the audience form on completing Sign in details, so the
+13+ audience selection and final Data safety submission must follow that step.
 
 Play reported two nonblocking diagnostics warnings: no obfuscation mapping file
 (release minification is disabled) and no native dependency debug symbols.
