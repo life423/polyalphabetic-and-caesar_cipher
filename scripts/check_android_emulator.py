@@ -3,6 +3,7 @@ from pathlib import Path
 import subprocess
 import sys
 import time
+import os
 
 
 def adb(*args):
@@ -13,6 +14,11 @@ def main():
     output = Path('dist/android-checks')
     output.mkdir(parents=True, exist_ok=True)
     try:
+        if os.environ.get('CI') == 'true':
+            # Use a real 9:16 phone display for Play listing captures.
+            # This script's CI emulator is disposable; never resize a user's phone.
+            adb('shell', 'wm', 'size', '1080x1920')
+            adb('shell', 'wm', 'density', '480')
         adb('install', '-r', 'mobile/android/app/build/outputs/apk/debug/app-debug.apk')
         adb('shell', 'am', 'start', '-W', '-n',
             'io.drewclark.ciphercraft.beta/.MainActivity')

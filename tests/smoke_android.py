@@ -38,6 +38,7 @@ def check(endpoint):
         page.locator('#identify').click()
         expect(page.locator('#key')).to_have_value('orbit', timeout=90000)
         expect(page.locator('#result')).to_contain_text('The old observatory')
+        page.locator('#result').scroll_into_view_if_needed()
         with (output / 'store-crack.png').open('wb') as image:
             subprocess.run(['adb', 'exec-out', 'screencap', '-p'], stdout=image, check=True)
         page.locator('#copy').click()
