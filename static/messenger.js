@@ -681,6 +681,11 @@ export function openMessenger() {
   };
   $("auth-form").onsubmit = async (event) => {
     event.preventDefault();
+    if (!$("terms").checked) {
+      notice("Confirm that you are 13 or older and agree to the Terms of Service before using Messages.", true);
+      $("terms").focus();
+      return;
+    }
     const e = ++epoch,
       username = $("username").value,
       register = event.submitter?.value === "register";

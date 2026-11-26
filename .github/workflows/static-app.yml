@@ -3,7 +3,7 @@ name: CipherCraft Custom Domain
 on:
   push:
     branches: [main]
-    paths: ['static/**', 'src/**', 'tools/runtime/**', 'scripts/build_static.py', 'tests/smoke_static_browser.py', 'tests/smoke_play_browser.py', 'tests/smoke_hash_browser.py', 'tests/smoke_learn_browser.py', 'tests/smoke_caesar_lesson_browser.py', 'tests/smoke_navigation_browser.py', 'tests/smoke_password_browser.py', 'tests/smoke_messages_browser.py', 'tests/smoke_messenger_browser.py', 'tests/smoke_messenger_crypto.py', 'tests/smoke_push_browser.py', 'tests/smoke_admin_browser.py', 'tests/smoke_account_deletion_browser.py', 'tests/test_mission.py', 'tests/test_lessons.py', '.gitattributes', '.github/workflows/static-app.yml']
+    paths: ['static/**', 'src/**', 'tools/runtime/**', 'scripts/build_static.py', 'tests/smoke_static_browser.py', 'tests/smoke_play_browser.py', 'tests/smoke_hash_browser.py', 'tests/smoke_learn_browser.py', 'tests/smoke_caesar_lesson_browser.py', 'tests/smoke_navigation_browser.py', 'tests/smoke_password_browser.py', 'tests/smoke_messages_browser.py', 'tests/smoke_messenger_browser.py', 'tests/smoke_messenger_crypto.py', 'tests/smoke_push_browser.py', 'tests/smoke_admin_browser.py', 'tests/smoke_account_deletion_browser.py', 'tests/smoke_legal_browser.py', 'tests/test_mission.py', 'tests/test_lessons.py', '.gitattributes', '.github/workflows/static-app.yml']
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -55,6 +55,7 @@ jobs:
           python -m tests.smoke_admin_browser
           CIPHER_MESSENGER_ADMIN_IDS=1 CIPHER_MESSENGER_DB=/tmp/cipher-account-deletion.sqlite python -u scripts/run_messenger.py --port 8505 > /tmp/account-deletion-api.log 2>&1 &
           python -m tests.smoke_account_deletion_browser
+          python -m tests.smoke_legal_browser
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -72,6 +73,7 @@ jobs:
             dist/push-checks/
             dist/admin-checks/
             dist/account-deletion-checks/
+            dist/legal-checks/
       - name: Deploy free Azure Static Web App
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: Azure/static-web-apps-deploy@v1

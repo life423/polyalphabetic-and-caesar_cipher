@@ -1,5 +1,7 @@
 {
   "routes": [
+    { "route": "/terms", "redirect": "/terms.html", "statusCode": 302 },
+    { "route": "/terms.html", "headers": { "Cache-Control": "no-store" } },
     { "route": "/privacy", "redirect": "/privacy.html", "statusCode": 302 },
     {
       "route": "/delete-account",

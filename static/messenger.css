@@ -154,10 +154,12 @@
 }
 #messenger-app .chat-check {
   display: flex;
+  gap: 8px;
   align-items: center;
   min-height: 44px;
 }
 #messenger-app .chat-check input {
+  flex-shrink: 0;
   width: 22px;
   min-height: 22px;
   height: 22px;

@@ -42,6 +42,12 @@ def check():
             page.locator('#messages-tab').click()
             page.locator('#chat-username').fill(name)
             page.locator('#chat-password').fill(password)
+            # Messages requires explicit consent; offline tools remain usable.
+            before = len(posted)
+            page.get_by_role('button', name='Create account', exact=True).click()
+            expect(page.locator('#chat-workspace')).to_be_hidden()
+            assert len(posted) == before, 'No authentication request before consent'
+            page.locator('#chat-terms').check()
             page.get_by_role('button', name='Create account', exact=True).click()
             expect(page.locator('#chat-workspace')).to_be_visible(timeout=30000)
             expect(page.locator('#chat-password')).to_have_value('')
@@ -128,6 +134,7 @@ def check():
         bob.locator('#chat-signout').click()
         expect(bob.locator('#chat-thread')).to_have_text('')
         bob.locator('#chat-username').fill(names[1]); bob.locator('#chat-password').fill(password)
+        bob.locator('#chat-terms').check()
         bob.get_by_role('button', name='Log in', exact=True).click()
         expect(bob.locator('#chat-workspace')).to_be_visible(timeout=30000)
         expect(bob.locator('#chat-conversations button').first).to_be_visible()
