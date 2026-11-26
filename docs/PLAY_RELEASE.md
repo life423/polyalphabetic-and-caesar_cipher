@@ -30,7 +30,7 @@ target-audience review and policy compliance remain production release work.
 
 ## First internal release published
 
-Version `0.1.0`, code `11`, is available to internal testers. The owner-only
+Version `0.1.0`, code `12`, is available to internal testers. The owner-only
 email list contains drew@drewclark.io. Join link:
 <https://play.google.com/apps/internaltest/4699221079626521322>.
 Google may show the temporary package-based name until the app is reviewed.
@@ -63,8 +63,16 @@ Public Terms of Service: <https://cipher.drewclark.io/terms>. Terms and privacy
 links are visible in the app. Messages requires an unchecked 13+/Terms checkbox
 before login or registration; sign-out and successful login clear the form.
 Offline tools remain accessible. This is a client consent step, not verified
-age identification or a server-side consent ledger. Existing internal build 11
-predates the checkbox; distribute the updated signed build before closed testing.
+age identification or a server-side consent ledger. Signed build 12 includes
+the checkbox and is published to internal testing (release 2, not reviewed).
+Both reviewer instructions describe the agreement step. The Terms URL returned
+HTTP 200 publicly and was saved in the Play Console trader/Terms form.
+
+Release commit `9fad88b` passed desktop CI, web CI, the custom-domain deployment
+and signed Android/emulator run `45755996915`. The duplicate unsigned Android
+run was cancelled by workflow concurrency. Publishing overview still blocks
+review submission until the closed-test dashboard prerequisites are completed;
+no production approval or closed-test participation is claimed.
 
 Verification: all 245 Python tests, full messenger/deletion browser regressions,
 consent-before-authentication checks and public legal pages at phone/tablet/desktop
