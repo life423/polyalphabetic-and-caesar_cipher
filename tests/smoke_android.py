@@ -4,6 +4,8 @@ Forward the app's own webview_devtools_remote_<PID> socket to port 9224 first.
 This script never inspects other apps or closes the Android app.
 """
 import argparse
+import json
+from pathlib import Path
 
 from playwright.sync_api import expect, sync_playwright
 
@@ -18,6 +20,17 @@ def check(endpoint):
         page.on('pageerror', lambda error: errors.append(str(error)))
         assert page.evaluate('Capacitor.isNativePlatform()')
         expect(page.locator('#identify')).to_be_enabled(timeout=90000)
+        metrics = page.context.new_cdp_session(page).send('Page.getLayoutMetrics')
+        geometry = page.evaluate('''() => ({width: innerWidth, height: innerHeight,
+            screenWidth: screen.width, screenHeight: screen.height,
+            viewport: window.visualViewport && {width: visualViewport.width,
+                height: visualViewport.height, scale: visualViewport.scale},
+            tab: document.querySelector('#crack-tab').getBoundingClientRect().toJSON()})''')
+        output = Path('dist/android-checks')
+        output.mkdir(parents=True, exist_ok=True)
+        (output / 'viewport.json').write_text(json.dumps(
+            {'metrics': metrics, 'geometry': geometry}, indent=2), encoding='utf-8')
+        print('Native WebView geometry:', json.dumps(geometry), flush=True)
         page.locator('#crack-tab').click()
         page.locator('#message').fill('')
         page.locator('#example').click()
